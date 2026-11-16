@@ -89,6 +89,18 @@ html, body {
   100% { stroke-dashoffset: 0; }
 }
 
+@keyframes busbarPowerFlow {
+  0% { stroke-dashoffset: 36; }
+  100% { stroke-dashoffset: 0; }
+}
+
+@keyframes busbarElectron {
+  0% { transform: translateX(0); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateX(1088px); opacity: 0; }
+}
+
 @keyframes statusPulse {
   0%, 100% { opacity: 0.45; }
   50% { opacity: 1; }
@@ -112,6 +124,34 @@ html, body {
 .energized-conductor {
   stroke-dasharray: 8 6;
   animation: sldCurrentFlow 0.85s linear infinite;
+}
+
+.energized-busbar {
+  stroke-dasharray: 14 10;
+  animation: busbarPowerFlow 0.8s linear infinite;
+}
+
+#nepalGisMap {
+  min-height: 420px;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+}
+
+.leaflet-container {
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  background-color: #F8FAFC !important;
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: 14px !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.08) !important;
+  border: 1px solid #DCD8CD !important;
+  padding: 2px !important;
+}
+
+.leaflet-popup-tip {
+  background: #FFFFFF !important;
 }
 
 .substation-telemetry-blink {

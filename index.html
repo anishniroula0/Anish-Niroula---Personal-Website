@@ -89,8 +89,8 @@
   <!-- Custom Architectural & Animation Stylesheet -->
   <link rel="stylesheet" href="css/styles.css" />
 
-  <!-- Leaflet GIS Map Stylesheet -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <!-- Local Self-Hosted Leaflet GIS Map Stylesheet (No CDN dependencies) -->
+  <link rel="stylesheet" href="css/leaflet.css" />
 </head>
 <body class="drafting-grid-bg pb-20 md:pb-0">
 
@@ -379,11 +379,11 @@
     <header class="sticky top-0 z-40 w-full bg-alabaster/95 border-b border-hairline shadow-sm">
       <div class="max-w-7xl w-full mx-auto px-5 sm:px-8 lg:px-12 min-h-[76px] py-3 flex items-center justify-between gap-4">
         <button type="button" onclick="switchView('overview')" class="text-left bg-transparent border-0 p-0 cursor-pointer group">
-          <span class="block font-serif text-[30px] sm:text-[34px] font-medium leading-none tracking-tight text-ink group-hover:text-cerulean transition-colors">
-            Anish Niroula
+          <span class="block font-serif text-[27px] sm:text-[31px] font-medium leading-none tracking-tight text-ink group-hover:text-cerulean transition-colors">
+            Engineering Portfolio
           </span>
-          <span class="block font-mono text-[11.5px] font-medium text-slate-600 mt-1.5">
-            Electrical Engineering Portfolio &bull; aniroula.com.np
+          <span class="block font-mono text-[11px] font-medium text-slate-600 mt-1.5">
+            High-Voltage Grid &amp; Substation EPC &bull; aniroula.com.np
           </span>
         </button>
 
@@ -553,32 +553,32 @@
           <!-- Broad 3-Column Narrative Grid -->
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
             <article class="bg-white border border-hairline rounded-2xl p-7 shadow-sm hover:border-cerulean transition-colors">
-              <span class="block font-mono text-[11.5px] font-bold text-amberHv mb-2.5">01 / HIMALAYAN CORRIDORS</span>
-              <h3 class="font-serif text-[25px] font-medium leading-snug text-ink mb-3">
-                From Himalayan Substations to Urban Grids
+              <span class="block font-mono text-[11.5px] font-bold text-amberHv mb-2.5">01 / HIMALAYAN CORRIDORS &amp; LOGISTICS</span>
+              <h3 class="font-serif text-[24px] font-medium leading-snug text-ink mb-3">
+                Mountain Gorges, River Spans &amp; High Altitude
               </h3>
               <p class="text-[14.5px] leading-relaxed text-slate-600">
-                Executing high-voltage infrastructure across Nepal demands field adaptability&mdash;from 220 kV GIS and Hybrid AIS switchyards in Rasuwa, Nuwakot, and Taplejung to tunnel cabling at Nagdhunga and 132 kV underground XLPE transmission corridors in Bara&ndash;Parsa.
+                Building grid infrastructure across Nepal isn't just theory&mdash;it is navigating monsoon washouts along the Trishuli River gorge to transport 63 MVA transformers, assembling 220 kV SF6 GIS bays under mountain barometric pressures at Chilime, and stringing ACSR conductors across steep Himalayan ridges where heavy machinery cannot tread.
               </p>
             </article>
 
             <article class="bg-white border border-hairline rounded-2xl p-7 shadow-sm hover:border-cerulean transition-colors">
-              <span class="block font-mono text-[11.5px] font-bold text-amberHv mb-2.5">02 / BEYOND THE SWITCHYARD</span>
-              <h3 class="font-serif text-[25px] font-medium leading-snug text-ink mb-3">
-                Trails, Walks &amp; Home Kitchen
+              <span class="block font-mono text-[11.5px] font-bold text-amberHv mb-2.5">02 / URBAN CABLES &amp; SYNCHRONIZATION</span>
+              <h3 class="font-serif text-[24px] font-medium leading-snug text-ink mb-3">
+                Dense Industrial Trenches to 2 AM Grid Charging
               </h3>
               <p class="text-[14.5px] leading-relaxed text-slate-600">
-                Away from commissioning logs and switchyard gantries, weekends revolve around trail hiking around the Kathmandu Valley, morning walks with my black Labrador, home cooking, and following European football.
+                From pulling heavy 800 sq.mm XLPE cables through congested Birgunj industrial streets to medium-voltage cabling inside the Nagdhunga Tunnel, true engineering satisfaction arrives in the switchyard control room at 2 AM&mdash;watching the synchroscope rotate to 12 o'clock and hearing the 132 kV breaker lock closed as live power surges into the national grid.
               </p>
             </article>
 
             <article class="bg-white border border-hairline rounded-2xl p-7 shadow-sm hover:border-cerulean transition-colors">
-              <span class="block font-mono text-[11.5px] font-bold text-amberHv mb-2.5">03 / ENGINEERING &amp; MBA</span>
-              <h3 class="font-serif text-[25px] font-medium leading-snug text-ink mb-3">
-                Technical Rigor Meets Operations Leadership
+              <span class="block font-mono text-[11.5px] font-bold text-amberHv mb-2.5">03 / BETWEEN SITE CAMPS &amp; HOME</span>
+              <h3 class="font-serif text-[24px] font-medium leading-snug text-ink mb-3">
+                Site Camp Comradeship, Labrador &amp; Lalitpur Trails
               </h3>
               <p class="text-[14.5px] leading-relaxed text-slate-600">
-                Pairing B.E. electrical engineering precision with an MBA in Operations Management to align installation, testing, QA/QC governance, and multilateral contract administration from civil foundations to final grid synchronization.
+                Living for weeks in container site offices sharing evening dal bhat with line riggers and technicians builds a grounded leadership style. Recharging on weekends means quiet morning walks with my black Labrador around Bodhigram, hiking valley ridges above Satdobato, experimenting in the kitchen, and backing European football.
               </p>
             </article>
           </div>
@@ -684,7 +684,18 @@
 
                   <div class="p-4 rounded-xl bg-alabaster/90 border border-hairline">
                     <span class="block font-mono text-[10.5px] uppercase text-slate-500">Location</span>
-                    <span class="text-[15px] font-semibold text-ink">Satdobato, Lalitpur, Nepal</span>
+                    <span class="text-[14.5px] font-semibold text-ink">66 Bhelpa Mandir Marga, Bodhigram, Satdobato, Lalitpur, Nepal</span>
+                  </div>
+
+                  <!-- Statutory Engineering Licensure Verification Card -->
+                  <div class="p-4 rounded-xl bg-sky-50/70 border border-cerulean/30 flex items-center justify-between gap-3 flex-wrap">
+                    <div>
+                      <span class="block font-mono text-[10.5px] uppercase text-cerulean font-bold">Statutory Engineering Licensure</span>
+                      <span class="text-[14.5px] font-bold text-ink">Nepal Engineering Council (NEC Reg. No. 1977)</span>
+                    </div>
+                    <a href="https://nec.gov.np/registration/1977?programName=Electrical%20%26%20Electronics%20Engineering" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-cerulean text-white hover:bg-sky-800 font-mono text-xs font-semibold shadow-sm transition-all">
+                      <span>Verify NEC License #1977 Online &nearr;</span>
+                    </a>
                   </div>
 
                   <div class="p-4 rounded-xl bg-alabaster/90 border border-hairline">
@@ -792,12 +803,24 @@
               <rect width="1160" height="395" rx="14" fill="#FAF9F5" stroke="#DCD8CD" stroke-width="1" />
               <rect width="1160" height="395" rx="14" fill="url(#careerSldGrid)" />
 
-              <!-- Horizontal 132 / 220 kV Main Busbar -->
-              <rect x="36" y="38" width="1088" height="7" rx="3.5" fill="#CBD5E1" />
-              <line x1="36" y1="41.5" x2="1124" y2="41.5" stroke="#0369A1" stroke-width="3.5" class="energized-conductor" />
-              <text x="40" y="24" font-family="JetBrains Mono, monospace" font-size="11.5" font-weight="700" fill="#0369A1">
-                132 / 220 kV MAIN EPC BUSBAR &mdash; DISCONNECTING SWITCH (DS) &amp; CIRCUIT BREAKER (CB) INTERLOCKED BAYS
-              </text>
+              <!-- Horizontal 132 / 220 kV Main Busbar with Active Power Flow Animation -->
+              <g id="main-academic-busbar">
+                <!-- Busbar Architectural Metallic Casing -->
+                <rect x="36" y="36.5" width="1088" height="10" rx="5" fill="#182230" stroke="#334155" stroke-width="1" />
+                <!-- Glowing Energized Power Flow Conductor -->
+                <line x1="38" y1="41.5" x2="1122" y2="41.5" stroke="#0284C7" stroke-width="4" stroke-linecap="round" />
+                <!-- Dynamic Traveling Electron / Wavefront Animation -->
+                <line x1="38" y1="41.5" x2="1122" y2="41.5" stroke="#38BDF8" stroke-width="3" class="energized-busbar" />
+                <line x1="38" y1="41.5" x2="1122" y2="41.5" stroke="#FFFFFF" stroke-width="1.6" stroke-dasharray="4 22" class="energized-conductor" />
+
+                <!-- Busbar Title & Telemetry Status Pill -->
+                <text x="40" y="24" font-family="JetBrains Mono, monospace" font-size="11.5" font-weight="700" fill="#0369A1">
+                  MAIN ACADEMIC &amp; EPC GRID BUSBAR &mdash; 132 / 220 kV CONTINUOUS POWER FLOW
+                </text>
+                <rect x="982" y="12" width="142" height="19" rx="5" fill="#182230" stroke="#0369A1" stroke-width="1" />
+                <circle cx="994" cy="21.5" r="3" fill="#10B981" class="substation-telemetry-blink" />
+                <text x="1003" y="25" font-family="JetBrains Mono, monospace" font-size="9" font-weight="700" fill="#38BDF8">50 Hz &bull; BUS ENERGIZED</text>
+              </g>
 
               <!-- BAY 01: ETERN-CCCE-FEPEC Joint Venture (x = 165) -->
               <g>
@@ -1449,8 +1472,8 @@
     </div>
   </div>
 
-  <!-- Leaflet GIS Mapping Engine -->
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <!-- Local Self-Hosted Leaflet GIS Mapping Engine (No CDN dependencies) -->
+  <script src="js/leaflet.js"></script>
 
   <!-- Application Logic & Data Layer -->
   <script src="js/data.js"></script>

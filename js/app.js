@@ -538,8 +538,6 @@ function syncAcademicRouteVisuals() {
     const tower = document.getElementById(`acad-tower-${id}`);
     const dot = document.getElementById(`acad-dot-${id}`);
     const box = document.getElementById(`acad-box-${id}`);
-    const pill = document.getElementById(`acad-pill-${id}`);
-    const stat = document.getElementById(`acad-stat-${id}`);
 
     if (isSelected) {
       if (tower) tower.setAttribute('stroke', '#0369A1');
@@ -552,11 +550,6 @@ function syncAcademicRouteVisuals() {
         box.setAttribute('stroke', '#0369A1');
         box.setAttribute('stroke-width', '2.2');
       }
-      if (pill) {
-        pill.setAttribute('fill', '#E0F2FE');
-        pill.setAttribute('stroke', '#0369A1');
-      }
-      if (stat) stat.setAttribute('fill', '#0369A1');
     } else {
       if (tower) tower.setAttribute('stroke', '#64748B');
       if (dot) {
@@ -568,11 +561,6 @@ function syncAcademicRouteVisuals() {
         box.setAttribute('stroke', '#DCD8CD');
         box.setAttribute('stroke-width', '1.5');
       }
-      if (pill) {
-        pill.setAttribute('fill', '#F6F5F0');
-        pill.setAttribute('stroke', '#DCD8CD');
-      }
-      if (stat) stat.setAttribute('fill', '#64748B');
     }
   });
 }

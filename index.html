@@ -95,7 +95,7 @@
        GLOBAL PERSISTENT ANIMATED BACKGROUND (VISIBLE ACROSS ALL 5 VIEWS)
        Himalayan Peaks + Lattice Transmission Towers + Traveling Conductor Pulses + Valley Substation Yard
        ========================================================================= -->
-  <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
+  <div class="global-backdrop-container" aria-hidden="true">
     <svg class="w-full h-full" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice" fill="none">
       <defs>
         <!-- Soft Atmospheric Sky-to-Valley Gradient -->
@@ -373,7 +373,7 @@
     <!-- =======================================================================
          TOP STICKY HEADER (NO ANIMATION, NO EMBLEM, NO NEC NUMBER ON LEFT)
          ======================================================================= -->
-    <header class="sticky top-0 z-40 w-full bg-alabaster/90 backdrop-blur-md border-b border-hairline">
+    <header class="sticky top-0 z-40 w-full bg-alabaster/95 border-b border-hairline shadow-sm">
       <div class="max-w-7xl w-full mx-auto px-5 sm:px-8 lg:px-12 min-h-[76px] py-3 flex items-center justify-between gap-4">
         <button type="button" onclick="switchView('overview')" class="text-left bg-transparent border-0 p-0 cursor-pointer group">
           <span class="block font-serif text-[30px] sm:text-[34px] font-medium leading-none tracking-tight text-ink group-hover:text-cerulean transition-colors">
@@ -407,7 +407,7 @@
 
             <!-- Left Column (lg:col-span-7) -->
             <div class="lg:col-span-7">
-              <div class="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-white/90 backdrop-blur-md border border-hairline font-mono text-xs text-slate-600 shadow-sm">
+              <div class="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-white border border-hairline font-mono text-xs text-slate-600 shadow-sm">
                 <span class="w-2 h-2 rounded-full bg-emerald-600 ring-4 ring-emerald-600/15"></span>
                 <span>Satdobato, Lalitpur, Nepal &bull; High-Voltage Substation &amp; Transmission EPC</span>
               </div>
@@ -425,17 +425,17 @@
 
               <!-- 3-Column Credential Card Grid -->
               <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 mb-8">
-                <div class="bg-white/90 backdrop-blur-md border border-hairline rounded-2xl p-4 shadow-sm">
+                <div class="bg-white border border-hairline rounded-2xl p-4 shadow-sm">
                   <span class="block font-mono text-[12.5px] font-bold text-ink">2018 &ndash; Present</span>
                   <span class="block text-[12.5px] text-slate-600 mt-1">EPC Field &amp; Project Leadership</span>
                 </div>
 
-                <div class="bg-white/90 backdrop-blur-md border border-hairline rounded-2xl p-4 shadow-sm">
+                <div class="bg-white border border-hairline rounded-2xl p-4 shadow-sm">
                   <span class="block font-mono text-[12.5px] font-bold text-ink">132 kV &amp; 220 kV</span>
                   <span class="block text-[12.5px] text-slate-600 mt-1">GIS / AIS &amp; UG Transmission</span>
                 </div>
 
-                <a id="overviewNecLink" href="https://nec.gov.np/registration/1977?programName=Electrical%20%26%20Electronics%20Engineering" target="_blank" rel="noopener noreferrer" class="bg-white/90 backdrop-blur-md border border-cerulean hover:bg-sky-50/90 rounded-2xl p-4 shadow-sm transition-all block">
+                <a id="overviewNecLink" href="https://nec.gov.np/registration/1977?programName=Electrical%20%26%20Electronics%20Engineering" target="_blank" rel="noopener noreferrer" class="bg-white border border-cerulean hover:bg-sky-50/90 rounded-2xl p-4 shadow-sm transition-all block">
                   <span class="block font-mono text-[12.5px] font-bold text-cerulean">Nepal Engineering Council &nearr;</span>
                   <span class="block text-[12.5px] font-semibold text-ink mt-1">License Registration No. 1977</span>
                 </a>
@@ -447,7 +447,7 @@
                   <span>Explore Career SLD</span>
                   <span aria-hidden="true">&rarr;</span>
                 </button>
-                <button type="button" onclick="switchView('projects')" class="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-white/90 backdrop-blur-md hover:border-cerulean hover:text-cerulean border border-stone-300 text-ink text-sm font-semibold transition-all cursor-pointer">
+                <button type="button" onclick="switchView('projects')" class="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-white hover:border-cerulean hover:text-cerulean border border-stone-300 text-ink text-sm font-semibold transition-all cursor-pointer">
                   <span>Projects &amp; Gallery</span>
                 </button>
               </div>
@@ -521,7 +521,7 @@
       </section>
 
       <!-- 2. SECTION: LIFE, FIELD, GRID & ENGINEERING PERSPECTIVE -->
-      <section class="py-14 sm:py-16 border-t border-b border-hairline bg-linen/55 backdrop-blur-[2px] reveal-block">
+      <section class="py-14 sm:py-16 border-t border-b border-hairline bg-linen/55 reveal-block">
         <div class="max-w-7xl w-full mx-auto px-5 sm:px-8 lg:px-12">
           <div class="flex flex-wrap items-end justify-between gap-4 mb-9">
             <div>
@@ -533,7 +533,7 @@
               </h2>
             </div>
 
-            <label class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/90 backdrop-blur-md hover:bg-sky-50 border border-stone-300 hover:border-cerulean text-ink hover:text-cerulean font-mono text-xs font-semibold shadow-sm cursor-pointer transition-all">
+            <label class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white hover:bg-sky-50 border border-stone-300 hover:border-cerulean text-ink hover:text-cerulean font-mono text-xs font-semibold shadow-sm cursor-pointer transition-all">
               <span class="text-cerulean font-bold">+</span>
               <span>Attach Field Photo</span>
               <input type="file" accept="image/*" class="hidden" onchange="handleFieldBannerUpload(event)" />
@@ -555,7 +555,7 @@
 
           <!-- Broad 3-Column Narrative Grid -->
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
-            <article class="bg-white/90 backdrop-blur-md border border-hairline rounded-2xl p-7 shadow-sm hover:border-cerulean transition-colors">
+            <article class="bg-white border border-hairline rounded-2xl p-7 shadow-sm hover:border-cerulean transition-colors">
               <span class="block font-mono text-[11.5px] font-bold text-amberHv mb-2.5">01 / HIMALAYAN CORRIDORS</span>
               <h3 class="font-serif text-[25px] font-medium leading-snug text-ink mb-3">
                 From Himalayan Substations to Urban Grids
@@ -565,7 +565,7 @@
               </p>
             </article>
 
-            <article class="bg-white/90 backdrop-blur-md border border-hairline rounded-2xl p-7 shadow-sm hover:border-cerulean transition-colors">
+            <article class="bg-white border border-hairline rounded-2xl p-7 shadow-sm hover:border-cerulean transition-colors">
               <span class="block font-mono text-[11.5px] font-bold text-amberHv mb-2.5">02 / BEYOND THE SWITCHYARD</span>
               <h3 class="font-serif text-[25px] font-medium leading-snug text-ink mb-3">
                 Trails, Walks &amp; Home Kitchen
@@ -575,7 +575,7 @@
               </p>
             </article>
 
-            <article class="bg-white/90 backdrop-blur-md border border-hairline rounded-2xl p-7 shadow-sm hover:border-cerulean transition-colors">
+            <article class="bg-white border border-hairline rounded-2xl p-7 shadow-sm hover:border-cerulean transition-colors">
               <span class="block font-mono text-[11.5px] font-bold text-amberHv mb-2.5">03 / ENGINEERING &amp; MBA</span>
               <h3 class="font-serif text-[25px] font-medium leading-snug text-ink mb-3">
                 Technical Rigor Meets Operations Leadership
@@ -601,7 +601,7 @@
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
-            <article class="bg-white/90 backdrop-blur-md border border-hairline rounded-2xl p-7 shadow-sm hover:border-cerulean transition-colors">
+            <article class="bg-white border border-hairline rounded-2xl p-7 shadow-sm hover:border-cerulean transition-colors">
               <span class="inline-block px-2.5 py-1 rounded-md bg-sky-100/80 text-cerulean font-mono text-[11.5px] font-bold mb-4">
                 01 &bull; FIELD EXECUTION
               </span>
@@ -613,7 +613,7 @@
               </p>
             </article>
 
-            <article class="bg-white/90 backdrop-blur-md border border-hairline rounded-2xl p-7 shadow-sm hover:border-cerulean transition-colors">
+            <article class="bg-white border border-hairline rounded-2xl p-7 shadow-sm hover:border-cerulean transition-colors">
               <span class="inline-block px-2.5 py-1 rounded-md bg-sky-100/80 text-cerulean font-mono text-[11.5px] font-bold mb-4">
                 02 &bull; PROJECT DELIVERY
               </span>
@@ -625,7 +625,7 @@
               </p>
             </article>
 
-            <article class="bg-white/90 backdrop-blur-md border border-hairline rounded-2xl p-7 shadow-sm hover:border-cerulean transition-colors">
+            <article class="bg-white border border-hairline rounded-2xl p-7 shadow-sm hover:border-cerulean transition-colors">
               <span class="inline-block px-2.5 py-1 rounded-md bg-sky-100/80 text-cerulean font-mono text-[11.5px] font-bold mb-4">
                 03 &bull; COMMERCIAL GOVERNANCE
               </span>
@@ -643,7 +643,7 @@
       <!-- 4. SECTION: CONTACT ME (HEADING STRICTLY "Contact Me") -->
       <section id="contact-section" class="py-12 sm:py-16 reveal-block">
         <div class="max-w-7xl w-full mx-auto px-5 sm:px-8 lg:px-12">
-          <div class="bg-white/90 backdrop-blur-md border border-hairline rounded-3xl p-6 sm:p-10 lg:p-12 shadow-md">
+          <div class="bg-white border border-hairline rounded-3xl p-6 sm:p-10 lg:p-12 shadow-md">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 w-full">
 
               <!-- Left Column (lg:col-span-6): Direct Contact Cards -->
@@ -769,7 +769,7 @@
         </div>
 
         <!-- Interactive IEC Single-Line Diagram SVG -->
-        <div class="bg-white/92 backdrop-blur-md border border-hairline rounded-3xl p-4 sm:p-6 shadow-md mb-7">
+        <div class="bg-white border border-hairline rounded-3xl p-4 sm:p-6 shadow-md mb-7">
           <div class="flex flex-wrap items-center justify-between gap-3 mb-3.5 px-1">
             <span class="font-mono text-xs font-bold text-cerulean">
               DWG NO: AN-SLD-132/220KV &bull; IEC 60617 MUTUAL-EXCLUSION FEEDER BAY SCHEMATIC
@@ -967,7 +967,7 @@
         </div>
 
         <!-- Detailed Bay Inspection Panel Below SLD -->
-        <div id="careerBayDetailContainer" class="bg-white/92 backdrop-blur-md border border-hairline rounded-3xl p-6 sm:p-9 shadow-md"></div>
+        <div id="careerBayDetailContainer" class="bg-white border border-hairline rounded-3xl p-6 sm:p-9 shadow-md"></div>
       </div>
     </section>
 
@@ -992,7 +992,7 @@
         </div>
 
         <!-- Interactive SVG Academic & Licensure Transmission Line Route -->
-        <div class="bg-white/92 backdrop-blur-md border border-hairline rounded-3xl p-4 sm:p-6 shadow-md mb-7">
+        <div class="bg-white border border-hairline rounded-3xl p-4 sm:p-6 shadow-md mb-7">
           <div class="flex flex-wrap items-center justify-between gap-3 mb-3.5 px-1">
             <span class="font-mono text-xs font-bold text-cerulean">
               ROUTE DWG: AN-ACAD-ROUTE &bull; SENDING-END FOUNDATION TO RECEIVING-END STATUTORY LICENSURE
@@ -1165,7 +1165,7 @@
         </div>
 
         <!-- Detailed Credential Inspection Panel Below Route Diagram -->
-        <div id="academicDetailContainer" class="bg-white/92 backdrop-blur-md border border-hairline rounded-3xl p-6 sm:p-9 shadow-md"></div>
+        <div id="academicDetailContainer" class="bg-white border border-hairline rounded-3xl p-6 sm:p-9 shadow-md"></div>
       </div>
     </section>
 
@@ -1174,7 +1174,7 @@
          ======================================================================= -->
     <section id="view-research" class="page-view py-12 sm:py-16" aria-label="Research and Technical Publications">
       <div class="max-w-7xl w-full mx-auto px-5 sm:px-8 lg:px-12">
-        <div class="bg-white/92 backdrop-blur-md border border-hairline rounded-3xl p-8 sm:p-12 lg:p-14 shadow-md">
+        <div class="bg-white border border-hairline rounded-3xl p-8 sm:p-12 lg:p-14 shadow-md">
           <span class="block font-mono text-[11.5px] font-bold uppercase tracking-widest text-cerulean">
             SCHOLARLY ARCHIVE
           </span>
@@ -1208,7 +1208,7 @@
 
         <div class="space-y-6 mb-14">
           <!-- Case Study 1: CREGC -->
-          <article id="case-prasauni" class="bg-white/92 backdrop-blur-md border border-hairline rounded-3xl p-6 sm:p-8 shadow-sm">
+          <article id="case-prasauni" class="bg-white border border-hairline rounded-3xl p-6 sm:p-8 shadow-sm">
             <div class="flex flex-wrap gap-2 mb-3">
               <span class="px-3 py-1 rounded-md bg-amber-100/80 text-amberHv font-mono text-[11.5px] font-bold">JUN 2023 &ndash; PRESENT &bull; SENIOR PROJECT ENGINEER</span>
               <span class="px-3 py-1 rounded-md bg-linen text-ink font-mono text-[11.5px] font-semibold">132 kV GIS / AIS &amp; 800 MM&sup2; XLPE UG</span>
@@ -1243,7 +1243,7 @@
           </article>
 
           <!-- Case Study 2: Global Electro Mechanical Works -->
-          <article id="case-chilime" class="bg-white/92 backdrop-blur-md border border-hairline rounded-3xl p-6 sm:p-8 shadow-sm">
+          <article id="case-chilime" class="bg-white border border-hairline rounded-3xl p-6 sm:p-8 shadow-sm">
             <div class="flex flex-wrap gap-2 mb-3">
               <span class="px-3 py-1 rounded-md bg-amber-100/80 text-amberHv font-mono text-[11.5px] font-bold">MAR 2022 &ndash; JUN 2023 &bull; ASSISTANT MANAGER (SUBSTATIONS)</span>
               <span class="px-3 py-1 rounded-md bg-linen text-ink font-mono text-[11.5px] font-semibold">220 / 132 / 33 kV GIS &amp; HYBRID AIS</span>
@@ -1278,7 +1278,7 @@
           </article>
 
           <!-- Case Study 3: Cosmic Electrical Engineering -->
-          <article id="case-nagdhunga" class="bg-white/92 backdrop-blur-md border border-hairline rounded-3xl p-6 sm:p-8 shadow-sm">
+          <article id="case-nagdhunga" class="bg-white border border-hairline rounded-3xl p-6 sm:p-8 shadow-sm">
             <div class="flex flex-wrap gap-2 mb-3">
               <span class="px-3 py-1 rounded-md bg-linen text-ink font-mono text-[11.5px] font-bold">AUG 2021 &ndash; MAR 2022 &bull; ELECTRICAL ENGINEER</span>
               <span class="px-3 py-1 rounded-md bg-linen text-ink font-mono text-[11.5px] font-semibold">11 kV TUNNEL CABLING &amp; 220 kV OHL</span>
@@ -1313,7 +1313,7 @@
           </article>
 
           <!-- Case Study 4: ETERN-CCCE-FEPEC JV -->
-          <article id="case-samundratar" class="bg-white/92 backdrop-blur-md border border-hairline rounded-3xl p-6 sm:p-8 shadow-sm">
+          <article id="case-samundratar" class="bg-white border border-hairline rounded-3xl p-6 sm:p-8 shadow-sm">
             <div class="flex flex-wrap gap-2 mb-3">
               <span class="px-3 py-1 rounded-md bg-linen text-ink font-mono text-[11.5px] font-bold">OCT 2018 &ndash; AUG 2021 &bull; ELECTRICAL PROJECT ENGINEER</span>
               <span class="px-3 py-1 rounded-md bg-linen text-ink font-mono text-[11.5px] font-semibold">132 / 33 kV SUBSTATION &amp; 26 KM 132 kV OHL</span>
@@ -1368,7 +1368,7 @@
     <!-- =======================================================================
          SHARED FOOTER
          ======================================================================= -->
-    <footer class="border-t border-hairline bg-linen/85 backdrop-blur-md py-9 mt-12">
+    <footer class="border-t border-hairline bg-linen py-9 mt-12">
       <div class="max-w-7xl w-full mx-auto px-5 sm:px-8 lg:px-12 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
           <div class="font-serif text-[24px] font-medium text-ink">Anish Niroula</div>
@@ -1394,7 +1394,7 @@
   <!-- =========================================================================
        MOBILE STICKY BOTTOM NAVIGATION (5 PILLS)
        ========================================================================= -->
-  <nav class="fixed bottom-0 left-0 right-0 z-40 md:hidden grid grid-cols-5 gap-1 bg-alabaster/95 backdrop-blur-md border-t border-hairline p-1.5 pb-[max(0.375rem,env(safe-area-inset-bottom))]" aria-label="Mobile Navigation">
+  <nav class="fixed bottom-0 left-0 right-0 z-40 md:hidden grid grid-cols-5 gap-1 bg-alabaster border-t border-hairline p-1.5 pb-[max(0.375rem,env(safe-area-inset-bottom))]" aria-label="Mobile Navigation">
     <button type="button" class="mobile-pill active py-2 px-1 rounded-lg text-[11px] font-semibold text-slate-600 text-center" data-target="overview" onclick="switchView('overview')">Overview</button>
     <button type="button" class="mobile-pill py-2 px-1 rounded-lg text-[11px] font-semibold text-slate-600 text-center" data-target="career-sld" onclick="switchView('career-sld')">Career SLD</button>
     <button type="button" class="mobile-pill py-2 px-1 rounded-lg text-[11px] font-semibold text-slate-600 text-center" data-target="academics" onclick="switchView('academics')">Academics</button>

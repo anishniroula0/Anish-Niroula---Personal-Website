@@ -599,7 +599,7 @@ function renderSitePhotoArchive() {
     const hasImg = Boolean(src);
 
     return `
-      <div class="bg-white/92 backdrop-blur-md border border-hairline rounded-2xl p-4 flex items-center justify-between gap-3.5 shadow-sm">
+      <div class="bg-white border border-hairline rounded-2xl p-4 flex items-center justify-between gap-3.5 shadow-sm">
         <div class="flex items-center gap-3.5 min-w-0">
           ${hasImg
             ? `<img src="${src}" alt="${item.title}" class="w-16 h-12 rounded-lg object-cover border border-hairline cursor-zoom-in flex-shrink-0" onclick="openLightbox('${item.key}', '${item.title.replace(/'/g, "\\'")} — ${item.desc.replace(/'/g, "\\'")}')" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />

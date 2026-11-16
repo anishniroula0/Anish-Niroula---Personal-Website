@@ -52,18 +52,27 @@ function switchView(viewId, updateHash = true) {
   triggerRevealCheck();
 
   if (viewId === 'projects') {
-    setTimeout(() => {
-      if (nepalMapInstance) {
-        nepalMapInstance.invalidateSize();
-      } else {
-        initNepalMap();
-      }
-    }, 100);
-    setTimeout(() => {
-      if (nepalMapInstance) {
-        nepalMapInstance.invalidateSize();
-      }
-    }, 450);
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        if (!nepalMapInstance) {
+          initNepalMap();
+        } else {
+          // If instance was created with 0x0 dimensions while hidden, reset it
+          if (nepalMapInstance.getSize().x === 0 || nepalMapInstance.getSize().y === 0) {
+            nepalMapInstance.remove();
+            nepalMapInstance = null;
+            initNepalMap();
+          } else {
+            nepalMapInstance.invalidateSize(true);
+          }
+        }
+      }, 150);
+      setTimeout(() => {
+        if (nepalMapInstance) {
+          nepalMapInstance.invalidateSize(true);
+        }
+      }, 600);
+    });
   }
 }
 
@@ -611,7 +620,22 @@ let nepalMapRetryCount = 0;
 
 function initNepalMap() {
   const mapContainer = document.getElementById('nepalGisMap');
-  if (!mapContainer || nepalMapInstance) return;
+  if (!mapContainer) return;
+
+  // Do not initialize while parent section is hidden with display:none
+  const projectsView = document.getElementById('view-projects');
+  if (projectsView && !projectsView.classList.contains('active')) {
+    return;
+  }
+
+  // Ensure container has rendered non-zero dimensions
+  if (mapContainer.clientWidth === 0 || mapContainer.clientHeight === 0) {
+    if (nepalMapRetryCount < 30) {
+      nepalMapRetryCount++;
+      setTimeout(initNepalMap, 150);
+    }
+    return;
+  }
 
   if (typeof L === 'undefined') {
     if (nepalMapRetryCount < 30) {
@@ -621,47 +645,84 @@ function initNepalMap() {
     return;
   }
 
+  if (nepalMapInstance) {
+    nepalMapInstance.invalidateSize(true);
+    return;
+  }
+
   try {
-    // Center on Nepal with zoom 7.2
+    // Center on Nepal (Kathmandu / Central Grid Corridor) with zoom 7.2
     nepalMapInstance = L.map('nepalGisMap', {
       center: [27.75, 85.35],
       zoom: 7,
+      minZoom: 6,
+      maxZoom: 16,
       scrollWheelZoom: false
     });
 
-    // Standard OpenStreetMap tiles (universal, reliable, zero CORS restrictions)
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors',
+    // High-performance CartoDB Voyager raster tiles (fast, crisp, no x-blocked headers)
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> &copy; <a href="https://carto.com/" target="_blank" rel="noopener">CARTO</a>',
+      subdomains: 'abcd',
       maxZoom: 18
     }).addTo(nepalMapInstance);
 
     // Custom Cerulean Substation Pin
     const customPin = L.divIcon({
       className: 'custom-substation-pin',
-      html: `<div style="background-color: #0369A1; width: 16px; height: 16px; border-radius: 50%; border: 3px solid #FFFFFF; box-shadow: 0 2px 8px rgba(3,105,161,0.5); cursor: pointer;"></div>`,
-      iconSize: [16, 16],
-      iconAnchor: [8, 8]
+      html: `<div style="background-color: #0369A1; width: 18px; height: 18px; border-radius: 50%; border: 3px solid #FFFFFF; box-shadow: 0 2px 10px rgba(3,105,161,0.6); cursor: pointer; transition: transform 0.2s ease;"></div>`,
+      iconSize: [18, 18],
+      iconAnchor: [9, 9]
     });
 
     if (typeof NEPAL_GRID_PROJECTS !== 'undefined') {
+      substationMarkers = {};
       NEPAL_GRID_PROJECTS.forEach(p => {
         const marker = L.marker(p.coords, { icon: customPin }).addTo(nepalMapInstance);
+        substationMarkers[p.id] = marker;
         marker.bindPopup(`
-          <div style="font-family: 'Plus Jakarta Sans', sans-serif; padding: 4px; max-width: 250px;">
-            <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; color: #B45309; text-transform: uppercase;">${p.voltage}</div>
-            <h4 style="margin: 4px 0 2px 0; font-size: 14px; font-weight: 700; color: #182230;">${p.title}</h4>
-            <div style="font-size: 11px; font-weight: 600; color: #0369A1; margin-bottom: 5px;">${p.contractor} &bull; ${p.location}</div>
-            <p style="margin: 0; font-size: 11.5px; color: #475569; line-height: 1.4;">${p.desc}</p>
+          <div style="font-family: 'Plus Jakarta Sans', sans-serif; padding: 6px 4px; max-width: 260px;">
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; color: #B45309; text-transform: uppercase; margin-bottom: 2px;">${p.voltage}</div>
+            <h4 style="margin: 0 0 3px 0; font-size: 14.5px; font-weight: 700; color: #182230; line-height: 1.3;">${p.title}</h4>
+            <div style="font-size: 11px; font-weight: 600; color: #0369A1; margin-bottom: 6px;">${p.contractor} &bull; ${p.location}</div>
+            <p style="margin: 0; font-size: 12px; color: #475569; line-height: 1.45;">${p.desc}</p>
           </div>
         `);
       });
     }
 
     setTimeout(() => {
-      if (nepalMapInstance) nepalMapInstance.invalidateSize();
-    }, 300);
+      if (nepalMapInstance) nepalMapInstance.invalidateSize(true);
+    }, 250);
   } catch (err) {
     console.warn('Leaflet GIS Map initialization deferred:', err);
+  }
+}
+
+let substationMarkers = {};
+
+function focusSubstation(id) {
+  if (!nepalMapInstance) {
+    initNepalMap();
+  }
+  const project = (typeof NEPAL_GRID_PROJECTS !== 'undefined') && NEPAL_GRID_PROJECTS.find(p => p.id === id);
+  if (!project || !nepalMapInstance) return;
+
+  nepalMapInstance.setView(project.coords, 10, { animate: true });
+  if (substationMarkers[id]) {
+    setTimeout(() => {
+      substationMarkers[id].openPopup();
+    }, 250);
+  }
+}
+
+function resetNepalMap() {
+  if (!nepalMapInstance) {
+    initNepalMap();
+  }
+  if (nepalMapInstance) {
+    nepalMapInstance.setView([27.75, 85.35], 7, { animate: true });
+    nepalMapInstance.closePopup();
   }
 }
 
@@ -786,9 +847,6 @@ function initApp() {
   renderSitePhotoArchive();
   initScrollReveal();
   setupKeyboardNavigation();
-
-  // Pre-initialize Leaflet GIS map in background
-  setTimeout(initNepalMap, 300);
 
   // Read URL Hash or default to overview
   const initialHash = window.location.hash.replace('#', '');

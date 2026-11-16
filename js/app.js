@@ -293,7 +293,7 @@ const memoryPhotos = {};
 function getStoredPhoto(slotKey) {
   if (memoryPhotos[slotKey]) return memoryPhotos[slotKey];
   try {
-    const local = localStorage.getItem('aniroula_v4_photo_' + slotKey);
+    const local = localStorage.getItem('aniroula_v5_photo_' + slotKey);
     if (local) return local;
   } catch (e) { }
   return STATIC_IMAGE_REGISTRY[slotKey] || null;
@@ -302,7 +302,7 @@ function getStoredPhoto(slotKey) {
 function saveStoredPhoto(slotKey, dataUrl) {
   memoryPhotos[slotKey] = dataUrl;
   try {
-    localStorage.setItem('aniroula_v4_photo_' + slotKey, dataUrl);
+    localStorage.setItem('aniroula_v5_photo_' + slotKey, dataUrl);
   } catch (e) {
     console.warn('localStorage quota reached or unavailable; storing in session memory.', e);
   }

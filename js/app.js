@@ -660,10 +660,9 @@ function initNepalMap() {
       scrollWheelZoom: false
     });
 
-    // High-performance CartoDB Voyager raster tiles (fast, crisp, no x-blocked headers)
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> &copy; <a href="https://carto.com/" target="_blank" rel="noopener">CARTO</a>',
-      subdomains: 'abcd',
+    // Professional Esri World Topographic & Grid Base Layer (100% Free, Zero API Keys, No Watermarks)
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
+      attribution: 'Tiles &copy; <a href="https://www.esri.com/" target="_blank" rel="noopener">Esri</a> &bull; Nepal Transmission GIS',
       maxZoom: 18
     }).addTo(nepalMapInstance);
 

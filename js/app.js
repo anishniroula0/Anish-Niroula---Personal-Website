@@ -323,13 +323,19 @@ function handlePhotoUpload(event, slotKey, refreshBay = false) {
 }
 
 function syncHeroPortrait() {
-  const src = getStoredPhoto('slot_portrait');
+  const src = getStoredPhoto('slot_portrait') || 'assets/images/portrait.jpg';
   const img = document.getElementById('heroPortraitImg');
   const fallback = document.getElementById('heroPortraitFallback');
   if (!img || !fallback) return;
 
-  if (src) {
+  if (img.src !== src) {
     img.src = src;
+  }
+
+  if (img.complete && img.naturalWidth > 0) {
+    img.classList.remove('hidden');
+    fallback.classList.add('hidden');
+  } else {
     img.onload = () => {
       img.classList.remove('hidden');
       fallback.classList.add('hidden');
@@ -338,9 +344,6 @@ function syncHeroPortrait() {
       img.classList.add('hidden');
       fallback.classList.remove('hidden');
     };
-  } else {
-    img.classList.add('hidden');
-    fallback.classList.remove('hidden');
   }
 }
 

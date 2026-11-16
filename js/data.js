@@ -11,12 +11,12 @@ const LINKEDIN_URL = "https://www.linkedin.com/in/anish-niroula-bb448713a/";
    ------------------------------------------------------------------------- */
 const STATIC_IMAGE_REGISTRY = {
   slot_portrait: 'assets/images/portrait.jpg',
-  slot_field_banner: 'assets/images/himalayan-river-corridor.jpg',
-  slot_prasauni: 'assets/images/portrait.jpg',
-  slot_chilime: 'assets/images/transformer-erection-site.jpg',
+  slot_field_banner: 'assets/images/banner-corridor.jpg',
+  slot_prasauni: 'assets/images/prasauni-132kv.jpg',
+  slot_chilime: 'assets/images/chilime-220kv.jpg',
   slot_nagdhunga: 'assets/images/nagdhunga-11kv.jpg',
-  slot_samundratar: 'assets/images/himalayan-river-corridor.jpg',
-  slot_trishuli3b: 'assets/images/substation-control-room.jpg'
+  slot_samundratar: 'assets/images/samundratar-132kv.jpg',
+  slot_trishuli3b: 'assets/images/trishuli3b-220kv.jpg'
 };
 
 /* -------------------------------------------------------------------------
@@ -334,60 +334,12 @@ const PROJECT_ARCHIVE_FILTERS = [
 
 const PROJECT_SITE_ARCHIVES = [
   {
-    id: 'arch_prasauni_ais',
-    projectId: 'prasauni',
-    projectTitle: 'Prasauni – Birgunj 132 kV Substation & UG Line',
-    contractor: 'China Railway No.2 Engineering Group (CREGC)',
-    voltage: '132/220 kV Switchyard',
-    src: 'assets/images/portrait.jpg',
-    title: '132/220 kV AIS Switchyard Gantry & Busbar Inspection',
-    desc: 'High-voltage tubular busbars, post insulator alignment, circuit breakers, and gantry structure supervision in the main switchyard.',
-    date: '2023–Present',
-    location: 'Bara / Parsa Corridor, Nepal'
-  },
-  {
-    id: 'arch_chilime_tr',
-    projectId: 'chilime',
-    projectTitle: 'Chilime Hub 220/132/33 kV GIS Substation',
-    contractor: 'Pinggao Group / Global Electro Mechanical',
-    voltage: '220/132 kV Power Transformer',
-    src: 'assets/images/transformer-erection-site.jpg',
-    title: 'High-Voltage Power Transformer Erection on Site',
-    desc: 'Main power transformer placement on rail plinth, conservator tank assembly, and radiator bank alignment on substation site.',
-    date: '2022–2023',
-    location: 'Chilime, Rasuwa (High Altitude)'
-  },
-  {
-    id: 'arch_trishuli_control',
-    projectId: 'trishuli3b',
-    projectTitle: 'Trishuli-3B Hub 220 kV Hybrid AIS Substation',
-    contractor: 'Pinggao Group / Global Electro Mechanical',
-    voltage: 'SCADA Dispatch & Control',
-    src: 'assets/images/substation-control-room.jpg',
-    title: 'Substation Control Room & SCADA Dispatch Console',
-    desc: 'Central control room display wall, multi-monitor dispatcher consoles, protection relay communications, and system energization monitoring.',
-    date: '2022–2023',
-    location: 'Trishuli Substation Hub'
-  },
-  {
-    id: 'arch_samundratar_corridor',
-    projectId: 'samundratar',
-    projectTitle: 'Samundratar – Trishuli 3B 132 kV Substation & Line',
-    contractor: 'ETERN-CCCE-FEPEC Joint Venture',
-    voltage: '132 kV Mountain Corridor',
-    src: 'assets/images/himalayan-river-corridor.jpg',
-    title: 'Himalayan River Corridor & Mountain Transmission Line',
-    desc: 'Double-circuit 132 kV lattice transmission line traversing rugged Himalayan river valley terrain connecting Nuwakot to the grid.',
-    date: '2018–2021',
-    location: 'Trishuli / Samundratar Corridor'
-  },
-  {
     id: 'arch_prasauni_1',
     projectId: 'prasauni',
     projectTitle: 'Prasauni – Birgunj 132 kV Substation & UG Line',
     contractor: 'China Railway No.2 Engineering Group (CREGC)',
     voltage: '132/66 kV GIS & AIS',
-    src: 'assets/images/portrait.jpg',
+    src: 'assets/images/prasauni-132kv.jpg',
     title: '132/66 kV GIS Hall & Power Transformers',
     desc: 'GIS indoor building construction, SF6 gas compartment filling, and busduct installation at Prasauni Substation.',
     date: '2023–Present',

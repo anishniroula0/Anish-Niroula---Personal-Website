@@ -261,13 +261,48 @@ html, body {
 }
 
 .mobile-pill {
-  transition: all 0.2s ease;
+  min-height: 46px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.mobile-pill svg {
+  transition: transform 0.2s ease, stroke 0.2s ease;
 }
 
 .mobile-pill.active {
   background-color: #FFFFFF;
   color: var(--hv-cerulean);
-  box-shadow: 0 1px 5px rgba(24, 34, 48, 0.08);
+  box-shadow: 0 2px 8px rgba(3, 105, 161, 0.12);
+}
+
+.mobile-pill.active svg {
+  stroke: var(--hv-cerulean);
+  transform: translateY(-1px);
+}
+
+/* Prevent iOS Safari 15+ auto-zoom on input focus */
+@media screen and (max-width: 768px) {
+  input[type="text"],
+  input[type="email"],
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+
+  .photo-slider-track,
+  .overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    overscroll-behavior-x: contain;
+  }
 }
 
 /* -------------------------------------------------------------------------

@@ -329,7 +329,7 @@ function syncHeroPortrait() {
   const custom = getStoredPhoto('slot_portrait');
   const targetSrc = (custom && custom.startsWith('data:image/'))
     ? custom
-    : (STATIC_IMAGE_REGISTRY.slot_portrait || 'assets/images/portrait.jpg?v=3.3');
+    : (STATIC_IMAGE_REGISTRY.slot_portrait || 'assets/images/portrait.jpg?v=3.4');
 
   const img = document.getElementById('heroPortraitImg');
   const fallback = document.getElementById('heroPortraitFallback');
@@ -411,7 +411,7 @@ function navigateLightbox(direction) {
 function openLightbox(slotKey, caption) {
   let src = getStoredPhoto(slotKey);
   if (slotKey === 'slot_portrait' && (!src || !src.startsWith('data:image/'))) {
-    src = 'assets/images/portrait.jpg?v=3.3';
+    src = 'assets/images/portrait.jpg?v=3.4';
   }
   if (!src) return;
 
@@ -452,6 +452,37 @@ document.addEventListener('keydown', e => {
   } else if (e.key === 'ArrowRight') {
     navigateLightbox(1);
   }
+});
+
+/* Mobile Touch Swipe Gestures for Lightbox (iOS Safari & Android Chrome) */
+let lightboxTouchStartX = 0;
+let lightboxTouchStartY = 0;
+
+document.addEventListener('DOMContentLoaded', () => {
+  const box = document.getElementById('siteLightbox');
+  if (!box) return;
+
+  box.addEventListener('touchstart', e => {
+    if (!e.touches || !e.touches[0]) return;
+    lightboxTouchStartX = e.touches[0].clientX;
+    lightboxTouchStartY = e.touches[0].clientY;
+  }, { passive: true });
+
+  box.addEventListener('touchend', e => {
+    if (!e.changedTouches || !e.changedTouches[0]) return;
+    const diffX = e.changedTouches[0].clientX - lightboxTouchStartX;
+    const diffY = e.changedTouches[0].clientY - lightboxTouchStartY;
+    // Horizontal swipe threshold 45px
+    if (Math.abs(diffX) > 45 && Math.abs(diffX) > Math.abs(diffY)) {
+      if (diffX < 0) {
+        navigateLightbox(1);  // Swipe left -> next image
+      } else {
+        navigateLightbox(-1); // Swipe right -> previous image
+      }
+    } else if (diffY > 80 && Math.abs(diffY) > Math.abs(diffX)) {
+      closeLightbox(); // Swipe down -> close
+    }
+  }, { passive: true });
 });
 
 /* -------------------------------------------------------------------------
@@ -765,17 +796,13 @@ function renderCareerBayDetail() {
 
       <div class="lg:col-span-5">
         <div class="cad-frame">
-          <!-- Slider Header with Counter & Batch Upload Button -->
+          <!-- Slider Header with Counter -->
           <div class="flex items-center justify-between gap-2 pb-2.5 px-1 border-b border-hairline mb-3">
             <div class="flex items-center gap-2">
               <span class="font-mono text-xs font-bold text-cerulean">FIELD PHOTOS (${allPhotos.length})</span>
               ${allPhotos.length > 0 ? `<span class="px-2 py-0.5 rounded bg-sky-100 text-cerulean font-mono text-[11px] font-bold">${currIndex + 1} / ${allPhotos.length}</span>` : ''}
             </div>
-            <label class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cerulean hover:bg-sky-700 text-white font-mono text-[11px] font-semibold cursor-pointer shadow-sm transition-colors" title="Select several images at once">
-              <span class="font-bold">+</span>
-              <span>Add Photos (Batch)</span>
-              <input type="file" accept="image/*" multiple class="hidden" onchange="handleCareerBayPhotosUpload(event, '${bay.id}')" />
-            </label>
+            <span class="font-mono text-[10.5px] text-slate-400">Click photo to zoom</span>
           </div>
 
           <!-- Main Slide Viewport -->
@@ -785,20 +812,13 @@ function renderCareerBayDetail() {
               <div class="hidden text-center p-5 w-full h-full bg-linen flex flex-col items-center justify-center">
                 <div class="font-mono text-xs font-bold text-cerulean">${bay.ds} / ${bay.cb} SITE PHOTO SLOT</div>
                 <p class="text-xs text-slate-600 mt-1.5">${currentPhoto.title}</p>
-                <p class="text-[10.5px] font-mono text-slate-500 mt-1">Place photo in assets/images/ or click '+ Add Photos'</p>
+                <p class="text-[10.5px] font-mono text-slate-500 mt-1">High-voltage project archive documentation</p>
               </div>
 
               <!-- Overlay Navigation Arrows -->
               ${allPhotos.length > 1 ? `
                 <button type="button" onclick="changeBaySlide('${bay.id}', -1)" class="absolute left-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-ink/75 hover:bg-cerulean text-white flex items-center justify-center text-sm shadow-md cursor-pointer transition-all opacity-85 group-hover:opacity-100" aria-label="Previous photo">&#10094;</button>
                 <button type="button" onclick="changeBaySlide('${bay.id}', 1)" class="absolute right-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-ink/75 hover:bg-cerulean text-white flex items-center justify-center text-sm shadow-md cursor-pointer transition-all opacity-85 group-hover:opacity-100" aria-label="Next photo">&#10095;</button>
-              ` : ''}
-
-              <!-- Delete Button for User Uploaded Photos -->
-              ${currentPhoto.isCustom ? `
-                <button type="button" onclick="handleDeleteCareerPhoto('${bay.id}', '${currentPhoto.id}')" class="absolute top-2.5 right-2.5 px-2.5 py-1 rounded-md bg-rose-600 hover:bg-rose-700 text-white font-mono text-[10.5px] font-bold shadow-md cursor-pointer transition-colors" title="Delete uploaded photo">
-                  &times; Remove
-                </button>
               ` : ''}
 
               <!-- Bottom Gradient Caption Bar -->
@@ -810,7 +830,7 @@ function renderCareerBayDetail() {
               <div class="text-center p-5">
                 <div class="font-mono text-xs font-bold text-cerulean">${bay.ds} / ${bay.cb} SITE PHOTO ARCHIVE</div>
                 <p class="text-xs text-slate-600 mt-1.5">${bay.photoTitle}</p>
-                <p class="text-[10.5px] font-mono text-slate-500 mt-1">Click '+ Add Photos (Batch)' above to attach multiple project photographs</p>
+                <p class="text-[10.5px] font-mono text-slate-500 mt-1">High-voltage project site documentation</p>
               </div>
             `}
           </div>
@@ -1111,8 +1131,8 @@ function renderProjectArchiveSlider() {
     if (!photos.length) {
       track.innerHTML = `
         <div class="w-full text-center py-12 px-4 bg-white border border-hairline rounded-2xl">
-          <div class="font-mono text-xs font-bold text-cerulean mb-1.5">NO PHOTOGRAPHS CURRENTLY IN THIS ARCHIVE</div>
-          <p class="text-sm text-slate-600 mb-3">Click '+ Add Site Photos (Batch)' above to upload 5, 10, or 15 photos to this project.</p>
+          <div class="font-mono text-xs font-bold text-cerulean mb-1.5">SITE PHOTOGRAPHS IN PREPARATION</div>
+          <p class="text-sm text-slate-600">Field documentation for this project is currently being cataloged.</p>
         </div>
       `;
       return;
@@ -1128,12 +1148,6 @@ function renderProjectArchiveSlider() {
             <div class="absolute top-2.5 left-2.5 px-2.5 py-1 rounded-md bg-ink/80 text-white font-mono text-[10px] font-bold shadow">
               ${item.voltage || 'HIGH VOLTAGE'}
             </div>
-
-            ${item.isCustom ? `
-              <button type="button" onclick="event.stopPropagation(); handleDeleteProjectPhoto('${item.id}', '${item.category || item.projectId}')" class="absolute top-2.5 right-2.5 px-2 py-0.5 rounded bg-rose-600 hover:bg-rose-700 text-white font-mono text-[10px] font-bold shadow-md cursor-pointer transition-colors" title="Delete photograph">
-                &times; Remove
-              </button>
-            ` : ''}
 
             <div class="absolute inset-0 bg-gradient-to-t from-ink/75 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-3">
               <span class="text-white text-xs font-bold font-mono">&#128269; View High-Resolution</span>

@@ -96,65 +96,133 @@ const CAREER_BAYS = {
 };
 
 /* -------------------------------------------------------------------------
-   ACADEMIC & LICENSURE TRANSMISSION ROUTE (T-01 to T-04 + NEC-1977)
+   ACADEMIC & LICENSURE TRANSMISSION ROUTE (VOLTAGE ESCALATION)
+   400V Distribution -> 11kV Distribution -> 33kV Sub-Transmission -> 
+   132/220kV Grid Licensure (NEC-1977) -> Grid Operations & Management Hub (MBA)
    ------------------------------------------------------------------------- */
 const ACADEMIC_NODES = {
   t01: {
     id: 't01',
-    code: 'TOWER T-01',
-    level: 'SECONDARY EDUCATION',
+    code: 'NODE T-01 • 400 V DISTRIBUTION',
+    level: 'SECONDARY FOUNDATION',
     year: '2011',
     degree: 'School Leaving Certificate (SLC)',
     institution: 'Everest Secondary English School',
     location: 'Biratnagar, Nepal',
+    voltage: '400 V Low-Voltage Distribution',
     spanIds: [],
-    details: 'Completed secondary-level foundation in mathematics, physical sciences, and English at Everest Secondary English School, Biratnagar.'
+    details: 'Completed secondary-level foundation in mathematics, physical sciences, and English at Everest Secondary English School, Biratnagar, initiating the foundational stepping-stone into engineering sciences.'
   },
   t02: {
     id: 't02',
-    code: 'TOWER T-02',
+    code: 'NODE T-02 • 11 kV MEDIUM VOLTAGE',
     level: 'HIGHER SECONDARY EDUCATION',
     year: '2011 – 2013',
     degree: 'GCE A-Levels (Cambridge International Examinations — CIE)',
     institution: "King's College",
     location: 'Kathmandu, Nepal',
+    voltage: '11 kV Medium-Voltage Distribution',
     spanIds: ['acad-span-1'],
-    details: 'Completed Cambridge International A-Levels with focus on Physics, Mathematics, and analytical problem-solving.'
+    details: 'Completed Cambridge International A-Levels specializing in Physics, Advanced Mathematics, and analytical problem-solving, building the core quantitative foundation for power systems analysis.'
   },
   t03: {
     id: 't03',
-    code: 'TOWER T-03',
+    code: 'NODE T-03 • 33 kV SUB-TRANSMISSION',
     level: 'UNDERGRADUATE DEGREE',
     year: '2014 – 2018',
     degree: 'Bachelor of Engineering (B.E.) in Electrical & Electronics Engineering',
     institution: 'Nepal Engineering College (Affiliated to Pokhara University)',
     location: 'Bhaktapur, Nepal',
+    voltage: '33 kV Sub-Transmission & Primary Substations',
     spanIds: ['acad-span-1', 'acad-span-2'],
-    details: 'Comprehensive undergraduate engineering education in high-voltage engineering, electrical machines, power system protection, switchgear design, and transmission/distribution networks.'
-  },
-  t04: {
-    id: 't04',
-    code: 'TOWER T-04',
-    level: 'POSTGRADUATE DEGREE',
-    year: 'Graduated 2023',
-    degree: 'Master of Business Administration (MBA) — Operations Management',
-    institution: 'Indira Gandhi National Open University (IGNOU)',
-    location: 'Operations & Infrastructure Management',
-    spanIds: ['acad-span-1', 'acad-span-2', 'acad-span-3'],
-    details: 'Graduate management degree specializing in operations management, supply chain coordination, project cost control, and commercial contract administration.'
+    details: 'Comprehensive four-year undergraduate engineering degree covering power system analysis, high-voltage engineering, switchgear and protection, electrical machine design, power electronics, and electrical grid synchronization.'
   },
   nec1977: {
     id: 'nec1977',
-    code: 'RECEIVING TERMINAL NEC-1977',
+    code: 'TOWER T-04 • 132/220 kV HIGH-VOLTAGE GRID',
     level: 'STATUTORY ENGINEERING LICENSURE',
     year: 'Registered Electrical & Electronics Engineer',
     degree: 'Nepal Engineering Council — License Registration No. 1977',
     institution: 'Nepal Engineering Council (NEC)',
     location: 'Kathmandu, Nepal',
+    voltage: '132 kV & 220 kV National Grid & High-Voltage Substations',
+    spanIds: ['acad-span-1', 'acad-span-2', 'acad-span-3'],
+    details: 'Statutory registered Electrical & Electronics Engineer (License Registration No. 1977) officially authorized for high-voltage substation and transmission line engineering design, site supervision, quality control, testing, and commissioning across Nepal.'
+  },
+  t04: {
+    id: 't04',
+    code: 'TERMINAL T-05 • GRID OPERATIONS & DISPATCH',
+    level: 'POSTGRADUATE MANAGEMENT DEGREE',
+    year: 'Graduated 2023',
+    degree: 'Master of Business Administration (MBA) — Operations Management',
+    institution: 'Indira Gandhi National Open University (IGNOU)',
+    location: 'Operations & Commercial Infrastructure Management',
+    voltage: 'System Load Dispatch & EPC Contract Governance',
     spanIds: ['acad-span-1', 'acad-span-2', 'acad-span-3', 'acad-span-4'],
-    details: 'Statutory registered Electrical & Electronics Engineer (Registration No. 1977) authorized for high-voltage substation and transmission line engineering design, site supervision, testing, and commissioning.'
+    details: 'Graduate management degree specializing in operations management, supply chain logistics, project cost accounting, FIDIC commercial contract administration, and utility risk governance, bridging high-voltage electrical engineering precision with multi-million dollar EPC leadership.'
   }
 };
+
+/* -------------------------------------------------------------------------
+   NEPAL HIGH-VOLTAGE TRANSMISSION & SUBSTATION GIS MAP MARKERS
+   Open-source Leaflet.js interactive map coordinates across Nepal
+   ------------------------------------------------------------------------- */
+const NEPAL_GRID_PROJECTS = [
+  {
+    id: 'prasauni',
+    title: 'Prasauni – Birgunj 132 kV Substation & UG Line',
+    voltage: '132/66 kV GIS, 132/33/11 kV AIS & 800 mm² UG',
+    contractor: 'China Railway No.2 Engineering Group (CREGC)',
+    location: 'Bara / Parsa Corridor',
+    coords: [27.0167, 84.8833],
+    desc: '4 km 800 sq.mm double-circuit 132 kV XLPE underground line, 132/66 kV GIS hall & 132/33/11 kV AIS substation.'
+  },
+  {
+    id: 'chilime',
+    title: 'Chilime Hub 220/132/33 kV GIS Substation',
+    voltage: '220/132/33 kV Gas Insulated Switchgear',
+    contractor: 'Global Electro Mechanical Works / Pinggao Group',
+    location: 'Chilime, Rasuwa',
+    coords: [28.1833, 85.3167],
+    desc: 'High-altitude 220 kV SF6 GIS bay assembly, power transformer installation, and Trishuli hydropower evacuation.'
+  },
+  {
+    id: 'trishuli3b',
+    title: 'Trishuli-3B Hub 220 kV Hybrid AIS Substation',
+    voltage: '220(Hybrid)/132/33 kV Air Insulated Switchgear',
+    contractor: 'Global Electro Mechanical Works / Pinggao Group',
+    location: 'Trishuli, Rasuwa / Nuwakot',
+    coords: [27.9833, 85.1833],
+    desc: 'Switchyard erection, testing, and commissioning for 220 kV hybrid air-insulated transmission hub.'
+  },
+  {
+    id: 'samundratar',
+    title: 'Samundratar – Trishuli 3B 132 kV Substation & OHL',
+    voltage: '132/33 kV Substation & 26 km 132 kV OHL',
+    contractor: 'ETERN-CCCE-FEPEC Joint Venture',
+    location: 'Samundratar, Nuwakot',
+    coords: [27.9500, 85.3000],
+    desc: '132/33 kV substation turnkey construction, transformer testing, and 26 km double-circuit transmission corridor.'
+  },
+  {
+    id: 'nagdhunga',
+    title: 'Nagdhunga Tunnel 11 kV Underground Cabling',
+    voltage: '11 kV Medium-Voltage Tunnel Cabling',
+    contractor: 'Cosmic Electrical / Hazama Ando Corp. (JICA)',
+    location: 'Nagdhunga, Kathmandu / Dhading',
+    coords: [27.7050, 85.2050],
+    desc: 'Tunnel power distribution, 11 kV underground cable laying, and switchgear installation under Japanese safety standards.'
+  },
+  {
+    id: 'tamor',
+    title: 'Sanima Middle Tamor 220 kV Transmission Line (73 MW)',
+    voltage: '220 kV High-Altitude Transmission Line',
+    contractor: 'Cosmic Electrical Engineering Associates',
+    location: 'Taplejung, Eastern Nepal',
+    coords: [27.3500, 87.6700],
+    desc: 'Supervision of 220 kV high-altitude line construction and grid interconnection for 73 MW hydropower generation.'
+  }
+];
 
 /* -------------------------------------------------------------------------
    SITE PHOTO ARCHIVE SLOTS

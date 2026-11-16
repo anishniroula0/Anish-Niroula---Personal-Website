@@ -50,6 +50,16 @@ function switchView(viewId, updateHash = true) {
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
   triggerRevealCheck();
+
+  if (viewId === 'projects') {
+    setTimeout(() => {
+      if (nepalMapInstance) {
+        nepalMapInstance.invalidateSize();
+      } else {
+        initNepalMap();
+      }
+    }, 150);
+  }
 }
 
 function jumpToContact() {
@@ -565,6 +575,7 @@ function renderAcademicDetail() {
         <div class="flex flex-wrap gap-2 mb-3">
           <span class="px-3 py-1 rounded-md bg-amber-100/80 text-amberHv font-mono text-[11.5px] font-bold">${node.code} • ${node.year}</span>
           <span class="px-3 py-1 rounded-md bg-linen text-ink font-mono text-[11.5px] font-semibold">${node.level}</span>
+          <span class="px-3 py-1 rounded-md bg-sky-100 text-cerulean font-mono text-[11.5px] font-bold">${node.voltage}</span>
         </div>
 
         <h3 class="font-serif text-[28px] sm:text-[34px] font-medium text-ink leading-tight mb-1.5">
@@ -579,12 +590,64 @@ function renderAcademicDetail() {
       </div>
 
       <div class="flex-shrink-0">
-        <a href="${NEC_LICENSE_URL}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-cerulean hover:bg-sky-800 text-white text-sm font-semibold shadow-sm transition-all">
-          <span>Verify NEC License #1977 Online &nearr;</span>
-        </a>
+        ${node.id === 'nec1977' ? `
+          <a href="${NEC_LICENSE_URL}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-cerulean hover:bg-sky-800 text-white text-sm font-semibold shadow-sm transition-all">
+            <span>Verify NEC License #1977 Online &nearr;</span>
+          </a>
+        ` : `
+          <button type="button" onclick="switchView('career-sld')" class="inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-white hover:bg-sky-50 border border-stone-300 hover:border-cerulean text-ink hover:text-cerulean text-sm font-semibold shadow-sm transition-all cursor-pointer">
+            <span>Inspect EPC Single-Line Diagram &rarr;</span>
+          </button>
+        `}
       </div>
     </div>
   `;
+}
+
+/* -------------------------------------------------------------------------
+   6. INTERACTIVE NEPAL HIGH-VOLTAGE TRANSMISSION GIS MAP (LEAFLET.JS)
+   ------------------------------------------------------------------------- */
+let nepalMapInstance = null;
+
+function initNepalMap() {
+  const mapContainer = document.getElementById('nepalGisMap');
+  if (!mapContainer || nepalMapInstance || typeof L === 'undefined') return;
+
+  // Center on Nepal with zoom 7.2
+  nepalMapInstance = L.map('nepalGisMap', {
+    center: [27.75, 85.35],
+    zoom: 7,
+    scrollWheelZoom: false
+  });
+
+  // Open-source light architectural CartoDB Positron tiles matching our palette
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+    subdomains: 'abcd',
+    maxZoom: 18
+  }).addTo(nepalMapInstance);
+
+  // Custom Cerulean Substation Pin
+  const customPin = L.divIcon({
+    className: 'custom-substation-pin',
+    html: `<div style="background-color: #0369A1; width: 16px; height: 16px; border-radius: 50%; border: 3px solid #FFFFFF; box-shadow: 0 2px 8px rgba(3,105,161,0.5); cursor: pointer;"></div>`,
+    iconSize: [16, 16],
+    iconAnchor: [8, 8]
+  });
+
+  if (typeof NEPAL_GRID_PROJECTS !== 'undefined') {
+    NEPAL_GRID_PROJECTS.forEach(p => {
+      const marker = L.marker(p.coords, { icon: customPin }).addTo(nepalMapInstance);
+      marker.bindPopup(`
+        <div style="font-family: 'Plus Jakarta Sans', sans-serif; padding: 4px; max-width: 250px;">
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; color: #B45309; text-transform: uppercase;">${p.voltage}</div>
+          <h4 style="margin: 4px 0 2px 0; font-size: 14px; font-weight: 700; color: #182230;">${p.title}</h4>
+          <div style="font-size: 11px; font-weight: 600; color: #0369A1; margin-bottom: 5px;">${p.contractor} &bull; ${p.location}</div>
+          <p style="margin: 0; font-size: 11.5px; color: #475569; line-height: 1.4;">${p.desc}</p>
+        </div>
+      `);
+    });
+  }
 }
 
 /* -------------------------------------------------------------------------

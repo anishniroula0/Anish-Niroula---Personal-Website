@@ -1,0 +1,256 @@
+/* =========================================================================
+   ANISH NIROULA — ELECTRICAL ENGINEERING PORTFOLIO (aniroula.com.np)
+   STYLESHEET: ARCHITECTURAL DRAFTING PALETTE & COMPONENT SYSTEM
+   ========================================================================= */
+
+:root {
+  --bg-alabaster: #F6F5F0;
+  --bg-linen: #ECEAE2;
+  --border-hairline: #DCD8CD;
+  --border-strong: #C5BFB0;
+  --ink-primary: #182230;
+  --ink-secondary: #475569;
+  --hv-cerulean: #0369A1;
+  --hv-cerulean-bright: #0284C7;
+  --hv-amber: #B45309;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100vh;
+  background-color: var(--bg-alabaster);
+  color: var(--ink-primary);
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* -------------------------------------------------------------------------
+   1. ARCHITECTURAL DRAFTING COORDINATE GRID
+   ------------------------------------------------------------------------- */
+.drafting-grid-bg {
+  background-image:
+    linear-gradient(to right, rgba(24, 34, 48, 0.026) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(24, 34, 48, 0.026) 1px, transparent 1px);
+  background-size: 56px 56px;
+}
+
+/* -------------------------------------------------------------------------
+   2. PERSISTENT BACKGROUND ANIMATIONS (HIMALAYAN PEAKS & POWER CORRIDORS)
+   ------------------------------------------------------------------------- */
+@keyframes ridgeDriftSlow {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(-14px, 0, 0); }
+}
+
+@keyframes ridgeDriftReverse {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(12px, 0, 0); }
+}
+
+@keyframes transmissionFlow {
+  0% { stroke-dashoffset: 48; }
+  100% { stroke-dashoffset: 0; }
+}
+
+@keyframes sldCurrentFlow {
+  0% { stroke-dashoffset: 28; }
+  100% { stroke-dashoffset: 0; }
+}
+
+@keyframes statusPulse {
+  0%, 100% { opacity: 0.45; }
+  50% { opacity: 1; }
+}
+
+.mountain-layer-far {
+  animation: ridgeDriftSlow 34s ease-in-out infinite;
+  will-change: transform;
+}
+
+.mountain-layer-mid {
+  animation: ridgeDriftReverse 28s ease-in-out infinite;
+  will-change: transform;
+}
+
+.bg-conductor-pulse {
+  stroke-dasharray: 10 14;
+  animation: transmissionFlow 1.7s linear infinite;
+}
+
+.energized-conductor {
+  stroke-dasharray: 8 6;
+  animation: sldCurrentFlow 0.85s linear infinite;
+}
+
+.substation-telemetry-blink {
+  animation: statusPulse 2.4s ease-in-out infinite;
+}
+
+/* Accessibility: Respect Reduced Motion Preferences */
+@media (prefers-reduced-motion: reduce) {
+  .mountain-layer-far,
+  .mountain-layer-mid,
+  .bg-conductor-pulse,
+  .energized-conductor,
+  .substation-telemetry-blink {
+    animation: none !important;
+  }
+}
+
+/* -------------------------------------------------------------------------
+   3. ARCHITECTURAL CAD FRAMING & CORNER BRACKETS
+   ------------------------------------------------------------------------- */
+.cad-frame {
+  position: relative;
+  background-color: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-hairline);
+  border-radius: 20px;
+  padding: 14px;
+  box-shadow: 0 14px 36px rgba(24, 34, 48, 0.065);
+}
+
+.cad-frame::before,
+.cad-frame::after {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.cad-frame::before {
+  top: 10px;
+  left: 10px;
+  border-top: 2px solid var(--hv-cerulean);
+  border-left: 2px solid var(--hv-cerulean);
+}
+
+.cad-frame::after {
+  bottom: 10px;
+  right: 10px;
+  border-bottom: 2px solid var(--hv-cerulean);
+  border-right: 2px solid var(--hv-cerulean);
+}
+
+/* -------------------------------------------------------------------------
+   4. MULTI-PAGE VIEW TRANSITIONS & SCROLL REVEAL
+   ------------------------------------------------------------------------- */
+.page-view {
+  display: none;
+  opacity: 0;
+}
+
+.page-view.active {
+  display: block;
+  animation: viewFadeUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes viewFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.reveal-block {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1), transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal-block.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* -------------------------------------------------------------------------
+   5. NAVIGATION PILLS
+   ------------------------------------------------------------------------- */
+.nav-pill {
+  transition: all 0.2s ease;
+}
+
+.nav-pill.active {
+  background-color: #FFFFFF;
+  color: var(--hv-cerulean);
+  box-shadow: 0 2px 8px rgba(24, 34, 48, 0.08);
+}
+
+.mobile-pill {
+  transition: all 0.2s ease;
+}
+
+.mobile-pill.active {
+  background-color: #FFFFFF;
+  color: var(--hv-cerulean);
+  box-shadow: 0 1px 5px rgba(24, 34, 48, 0.08);
+}
+
+/* -------------------------------------------------------------------------
+   6. FULL-SCREEN LIGHTBOX VIEWER
+   ------------------------------------------------------------------------- */
+.lightbox-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  background-color: rgba(24, 34, 48, 0.94);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.lightbox-backdrop.open {
+  display: flex;
+}
+
+/* -------------------------------------------------------------------------
+   7. KEYBOARD ACCESSIBILITY OUTLINES
+   ------------------------------------------------------------------------- */
+:focus-visible {
+  outline: 2px solid var(--hv-cerulean);
+  outline-offset: 3px;
+}
+
+/* -------------------------------------------------------------------------
+   8. SUBTLE CUSTOM SCROLLBAR FOR DIAGRAM PANELS
+   ------------------------------------------------------------------------- */
+.overflow-x-auto::-webkit-scrollbar {
+  height: 6px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-track {
+  background: var(--bg-linen);
+  border-radius: 4px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 4px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb:hover {
+  background: var(--hv-cerulean);
+}

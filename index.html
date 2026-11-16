@@ -95,10 +95,10 @@
   </script>
 
   <!-- Custom Architectural & Animation Stylesheet -->
-  <link rel="stylesheet" href="css/styles.css?v=3.1" />
+  <link rel="stylesheet" href="css/styles.css?v=3.2" />
 
   <!-- Local Self-Hosted Leaflet GIS Map Stylesheet (No CDN dependencies) -->
-  <link rel="stylesheet" href="css/leaflet.css?v=3.1" />
+  <link rel="stylesheet" href="css/leaflet.css?v=3.2" />
 </head>
 
 <body class="drafting-grid-bg pb-20 md:pb-0">
@@ -500,17 +500,21 @@
               </div>
             </div>
 
-            <!-- Right Column (lg:col-span-5): Framed Full-Bleed Site Portrait Card -->
+            <!-- Right Column (lg:col-span-5): Harmonized Architectural Field Plate -->
             <div class="lg:col-span-5">
-              <div class="cad-frame !p-0 overflow-hidden max-w-[440px] w-full mx-auto lg:ml-auto rounded-[20px] shadow-lg border border-hairline group">
-                <div class="relative aspect-[4/5] w-full overflow-hidden flex items-center justify-center">
-                  <!-- Full-Bleed High Voltage Field Portrait -->
-                  <img id="heroPortraitImg" src="assets/images/portrait.jpg?v=3.1"
-                    alt="Anish Niroula — A Day in the Life of a High-Voltage Project Engineer"
-                    class="w-full h-full object-cover cursor-zoom-in transition-transform duration-500 group-hover:scale-[1.02]"
-                    onclick="openLightbox('slot_portrait', 'A Day in the Life of a High-Voltage Project Engineer')" />
+              <div class="cad-frame max-w-[430px] w-full mx-auto lg:ml-auto p-2.5 sm:p-3 bg-white/95 rounded-2xl border border-hairline shadow-sm hover:shadow-md transition-all group">
+                <!-- Inner Image Frame Harmonized with Alabaster Background -->
+                <div class="relative aspect-[4/5] w-full rounded-xl overflow-hidden bg-linen/60 border border-hairline/80 flex items-center justify-center">
+                  <!-- High Voltage Field Portrait with Warm Tone Balancing -->
+                  <img id="heroPortraitImg" src="assets/images/portrait.jpg?v=3.2"
+                    alt="Anish Niroula — A Day in the Life"
+                    class="w-full h-full object-cover cursor-zoom-in filter contrast-[1.01] saturate-[0.92] sepia-[0.04] brightness-[0.99] transition-transform duration-500 group-hover:scale-[1.02]"
+                    onclick="openLightbox('slot_portrait', 'A Day in the Life')" />
 
-                  <!-- Refined Engineering Helmet Portrait Placeholder -->
+                  <!-- Subtle Atmospheric Edge Gradient to Softly Anchor the Subject -->
+                  <div class="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-ink/30 via-ink/10 to-transparent pointer-events-none"></div>
+
+                  <!-- Refined Engineering Helmet Portrait Placeholder (Kept hidden unless image fails) -->
                   <div id="heroPortraitFallback"
                     class="w-full h-full flex flex-col items-center justify-center p-6 text-center select-none hidden">
                     <svg viewBox="0 0 260 280" class="w-56 h-60 mx-auto" fill="none" aria-hidden="true">
@@ -560,6 +564,15 @@
                       132/220 kV AIS Switchyard Field Leadership
                     </p>
                   </div>
+                </div>
+
+                <!-- Architectural Plate Caption Block Harmonized with Site Style -->
+                <div class="mt-2.5 px-1.5 flex items-center justify-between font-mono text-[11px] text-slate-500 select-none">
+                  <div class="flex items-center gap-2">
+                    <span class="w-1.5 h-1.5 rounded-full bg-cerulean"></span>
+                    <span class="font-semibold text-ink">A Day in the Life</span>
+                  </div>
+                  <span class="text-[10px] text-slate-400">132/220 kV AIS Switchyard</span>
                 </div>
               </div>
             </div>
@@ -1853,11 +1866,11 @@
   </div>
 
   <!-- Local Self-Hosted Leaflet GIS Mapping Engine (No CDN dependencies) -->
-  <script src="js/leaflet.js?v=3.1"></script>
+  <script src="js/leaflet.js?v=3.2"></script>
 
   <!-- Application Logic & Data Layer -->
-  <script src="js/data.js?v=3.1"></script>
-  <script src="js/app.js?v=3.1"></script>
+  <script src="js/data.js?v=3.2"></script>
+  <script src="js/app.js?v=3.2"></script>
 </body>
 
 </html>

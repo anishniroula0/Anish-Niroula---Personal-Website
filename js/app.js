@@ -329,7 +329,7 @@ function syncHeroPortrait() {
   const custom = getStoredPhoto('slot_portrait');
   const targetSrc = (custom && custom.startsWith('data:image/'))
     ? custom
-    : (STATIC_IMAGE_REGISTRY.slot_portrait || 'assets/images/portrait.jpg?v=3.1');
+    : (STATIC_IMAGE_REGISTRY.slot_portrait || 'assets/images/portrait.jpg?v=3.2');
 
   const img = document.getElementById('heroPortraitImg');
   const fallback = document.getElementById('heroPortraitFallback');
@@ -390,7 +390,11 @@ function updateLightboxContent() {
 
   if (imgEl) imgEl.src = item.src || '';
   if (titleEl) titleEl.textContent = item.title || '';
-  if (capEl) capEl.textContent = item.caption || item.desc || '';
+  if (capEl) {
+    const text = item.caption || item.desc || '';
+    capEl.textContent = text;
+    capEl.style.display = text ? 'block' : 'none';
+  }
   if (countEl) countEl.textContent = `${lightboxIndex + 1} / ${lightboxAlbum.length}`;
 
   const hasMultiple = lightboxAlbum.length > 1;
@@ -407,15 +411,15 @@ function navigateLightbox(direction) {
 function openLightbox(slotKey, caption) {
   let src = getStoredPhoto(slotKey);
   if (slotKey === 'slot_portrait' && (!src || !src.startsWith('data:image/'))) {
-    src = 'assets/images/portrait.jpg?v=3.1';
+    src = 'assets/images/portrait.jpg?v=3.2';
   }
   if (!src) return;
 
   let title = caption || 'Site Photograph';
   let desc = '';
   if (slotKey === 'slot_portrait') {
-    title = 'A Day in the Life of a High-Voltage Project Engineer';
-    desc = 'Morning pre-commissioning walkthrough along the 132/220 kV AIS switchyard center bay — inspecting tubular busbars, isolator alignments, and SF6 circuit breaker readiness under clear Himalayan skies.';
+    title = 'A Day in the Life';
+    desc = '';
   }
 
   openAlbumLightbox([{

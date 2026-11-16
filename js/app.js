@@ -4,6 +4,121 @@
    ========================================================================= */
 
 /* -------------------------------------------------------------------------
+   0. THEME MANAGEMENT (DARK / LIGHT MODE)
+   Synchronizes local storage, OS media query, and meta theme-color for iOS/Android
+   ------------------------------------------------------------------------- */
+function initTheme() {
+  let saved = null;
+  try {
+    saved = localStorage.getItem('site-theme');
+  } catch (e) {}
+  const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const isDark = saved === 'dark' || (!saved && prefersDark);
+  applyTheme(isDark);
+
+  if (window.matchMedia) {
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+      try {
+        if (!localStorage.getItem('site-theme')) {
+          applyTheme(e.matches);
+        }
+      } catch (err) {}
+    });
+  }
+}
+
+function applyTheme(isDark) {
+  const root = document.documentElement;
+  if (isDark) {
+    root.classList.add('dark');
+  } else {
+    root.classList.remove('dark');
+  }
+
+  // Update theme-color meta tag for Safari iOS and Chrome Android status bars
+  const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+  if (metaThemeColor) {
+    metaThemeColor.setAttribute('content', isDark ? '#0B0F17' : '#F6F5F0');
+  }
+  const metaAppleStatus = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
+  if (metaAppleStatus) {
+    metaAppleStatus.setAttribute('content', isDark ? 'black-translucent' : 'default');
+  }
+
+  // Update toggle button states and icons
+  const toggleBtn = document.getElementById('themeToggleBtn');
+  const toggleText = document.getElementById('themeToggleText');
+  const iconMoon = document.getElementById('themeIconMoon');
+  const iconSun = document.getElementById('themeIconSun');
+  const footerLabel = document.getElementById('footerThemeLabel');
+
+  if (toggleBtn) {
+    toggleBtn.setAttribute('aria-pressed', isDark ? 'true' : 'false');
+    toggleBtn.setAttribute('title', isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode');
+  }
+  if (toggleText) {
+    toggleText.textContent = isDark ? 'Light' : 'Dark';
+  }
+  if (iconMoon && iconSun) {
+    if (isDark) {
+      iconMoon.classList.add('hidden');
+      iconSun.classList.remove('hidden');
+    } else {
+      iconMoon.classList.remove('hidden');
+      iconSun.classList.add('hidden');
+    }
+  }
+  if (footerLabel) {
+    footerLabel.textContent = `Theme: ${isDark ? 'Light Mode ☀' : 'Dark Mode ☾'}`;
+  }
+
+  // Invalidate Leaflet map size if already open
+  if (typeof nepalMapInstance !== 'undefined' && nepalMapInstance) {
+    setTimeout(() => {
+      try { nepalMapInstance.invalidateSize(); } catch (e) {}
+    }, 120);
+  }
+}
+
+function toggleTheme() {
+  const isDark = document.documentElement.classList.contains('dark');
+  const nextState = !isDark;
+  try {
+    localStorage.setItem('site-theme', nextState ? 'dark' : 'light');
+  } catch (e) {}
+  applyTheme(nextState);
+}
+
+function scrollSldToBay(bayId) {
+  const container = document.getElementById('careerSldScrollWrapper');
+  if (!container) return;
+  const bayOffsets = {
+    'bay01': 0,
+    'bay02': 280,
+    'bay03': 600,
+    'bay04': 920
+  };
+  if (typeof bayOffsets[bayId] !== 'undefined') {
+    container.scrollTo({ left: bayOffsets[bayId], behavior: 'smooth' });
+  }
+}
+
+function scrollAcadToNode(nodeId) {
+  const container = document.getElementById('academicSvgScrollWrapper');
+  if (!container) return;
+  const nodeOffsets = {
+    't01': 0,
+    't02': 230,
+    't03': 460,
+    'nec1977': 680,
+    't04': 920
+  };
+  if (typeof nodeOffsets[nodeId] !== 'undefined') {
+    container.scrollTo({ left: nodeOffsets[nodeId], behavior: 'smooth' });
+  }
+}
+
+/* -------------------------------------------------------------------------
    1. MULTI-VIEW NAVIGATION & ROUTING
    ------------------------------------------------------------------------- */
 const VIEW_IDS = ['overview', 'career-sld', 'academics', 'research', 'projects'];
@@ -654,6 +769,13 @@ function syncSldVisuals() {
       }
     }
   });
+
+  // Sync mobile feeder bay selector pills
+  document.querySelectorAll('.mobile-bay-pill').forEach(btn => {
+    const bay = btn.getAttribute('data-bay');
+    const isActive = bay === selectedBayId;
+    btn.classList.toggle('active', isActive);
+  });
 }
 
 const baySlideIndex = { bay01: 0, bay02: 0, bay03: 0, bay04: 0 };
@@ -912,6 +1034,13 @@ function syncAcademicRouteVisuals() {
         box.setAttribute('stroke-width', '1.5');
       }
     }
+  });
+
+  // Sync mobile academic route pills
+  document.querySelectorAll('.mobile-acad-pill').forEach(btn => {
+    const node = btn.getAttribute('data-node');
+    const isSelected = node === selectedAcademicId;
+    btn.classList.toggle('active', isSelected);
   });
 }
 
@@ -1336,6 +1465,9 @@ function setupKeyboardNavigation() {
    9. INITIALIZATION ON DOM READY
    ------------------------------------------------------------------------- */
 async function initApp() {
+  // Initialize Theme (Dark / Light)
+  initTheme();
+
   // Sync External Links
   const overviewNec = document.getElementById('overviewNecLink');
   if (overviewNec) overviewNec.href = NEC_LICENSE_URL;

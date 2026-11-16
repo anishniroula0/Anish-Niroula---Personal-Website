@@ -76,6 +76,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
+      darkMode: 'class',
       theme: {
         extend: {
           colors: {
@@ -85,7 +86,16 @@
             cerulean: '#0369A1',
             ceruleanBright: '#0284C7',
             amberHv: '#B45309',
-            hairline: '#DCD8CD'
+            hairline: '#DCD8CD',
+            // Complimentary SCADA Night Blueprint Palette
+            nightBg: '#0B0F17',
+            nightSurface: '#131B26',
+            nightElevated: '#1A2433',
+            nightBorder: '#233247',
+            nightText: '#F8FAFC',
+            nightMuted: '#94A3B8',
+            nightCyan: '#38BDF8',
+            nightAmber: '#FBBF24'
           },
           fontFamily: {
             serif: ['Newsreader', 'Georgia', 'serif'],
@@ -97,14 +107,29 @@
     };
   </script>
 
+  <!-- Prevent Theme Flash on Initial Load (FOUC) -->
+  <script>
+    (function () {
+      try {
+        var s = localStorage.getItem('site-theme');
+        var d = s === 'dark' || (!s && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        if (d) {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+      } catch (e) {}
+    })();
+  </script>
+
   <!-- Custom Architectural & Animation Stylesheet -->
-  <link rel="stylesheet" href="css/styles.css?v=3.4" />
+  <link rel="stylesheet" href="css/styles.css?v=3.5" />
 
   <!-- Local Self-Hosted Leaflet GIS Map Stylesheet (No CDN dependencies) -->
-  <link rel="stylesheet" href="css/leaflet.css?v=3.4" />
+  <link rel="stylesheet" href="css/leaflet.css?v=3.5" />
 </head>
 
-<body class="drafting-grid-bg pb-28 md:pb-0 antialiased selection:bg-sky-200">
+<body class="drafting-grid-bg pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-0 antialiased selection:bg-sky-200">
 
   <!-- =========================================================================
        GLOBAL PERSISTENT ANIMATED BACKGROUND (VISIBLE ACROSS ALL 5 VIEWS)
@@ -395,41 +420,59 @@
   <div class="relative z-10">
 
     <!-- =======================================================================
-         TOP STICKY HEADER (NO ANIMATION, NO EMBLEM, NO NEC NUMBER ON LEFT)
+         TOP STICKY HEADER (DESKTOP NAV + MOBILE RESPONSIVE + DARK MODE TOGGLE)
          ======================================================================= -->
-    <header class="sticky top-0 z-40 w-full bg-alabaster/95 border-b border-hairline shadow-sm">
+    <header class="sticky top-0 z-40 w-full bg-alabaster/95 dark:bg-[#0B0F17]/95 border-b border-hairline dark:border-[#233247] shadow-sm backdrop-blur-md transition-colors duration-200">
       <div
-        class="max-w-7xl w-full mx-auto px-5 sm:px-8 lg:px-12 min-h-[76px] py-3 flex items-center justify-between gap-4">
+        class="max-w-7xl w-full mx-auto px-4 sm:px-8 lg:px-12 min-h-[70px] sm:min-h-[76px] py-2.5 sm:py-3 flex items-center justify-between gap-3">
         <button type="button" onclick="switchView('overview')"
-          class="text-left bg-transparent border-0 p-0 cursor-pointer group">
+          class="text-left bg-transparent border-0 p-0 cursor-pointer group min-w-0 flex-1">
           <span
-            class="block font-serif text-[27px] sm:text-[31px] font-medium leading-none tracking-tight text-ink group-hover:text-cerulean transition-colors">
+            class="block font-serif text-[22px] sm:text-[27px] lg:text-[31px] font-medium leading-none tracking-tight text-ink dark:text-[#F8FAFC] group-hover:text-cerulean dark:group-hover:text-[#38BDF8] transition-colors truncate">
             Engineering Portfolio
           </span>
-          <span class="block font-mono text-[11px] font-medium text-slate-600 mt-1.5">
+          <span class="block font-mono text-[10px] sm:text-[11px] font-medium text-slate-600 dark:text-[#94A3B8] mt-1.5 truncate">
             High-Voltage Grid &amp; Substation EPC &bull; aniroula.com.np
           </span>
         </button>
 
-        <!-- Desktop 5-Button Navigation -->
-        <nav class="hidden md:flex items-center gap-1 bg-linen/90 border border-hairline rounded-full p-1"
-          aria-label="Primary Navigation">
-          <button type="button"
-            class="nav-pill active px-4 py-2 rounded-full text-[13px] font-semibold text-slate-600 hover:text-ink cursor-pointer"
-            data-target="overview" onclick="switchView('overview')">Overview</button>
-          <button type="button"
-            class="nav-pill px-4 py-2 rounded-full text-[13px] font-semibold text-slate-600 hover:text-ink cursor-pointer"
-            data-target="career-sld" onclick="switchView('career-sld')">Career SLD</button>
-          <button type="button"
-            class="nav-pill px-4 py-2 rounded-full text-[13px] font-semibold text-slate-600 hover:text-ink cursor-pointer"
-            data-target="academics" onclick="switchView('academics')">Academics</button>
-          <button type="button"
-            class="nav-pill px-4 py-2 rounded-full text-[13px] font-semibold text-slate-600 hover:text-ink cursor-pointer"
-            data-target="research" onclick="switchView('research')">Research</button>
-          <button type="button"
-            class="nav-pill px-4 py-2 rounded-full text-[13px] font-semibold text-slate-600 hover:text-ink cursor-pointer"
-            data-target="projects" onclick="switchView('projects')">Projects &amp; Gallery</button>
-        </nav>
+        <div class="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+          <!-- Desktop 5-Button Navigation -->
+          <nav class="hidden md:flex items-center gap-1 bg-linen/90 border border-hairline rounded-full p-1"
+            aria-label="Primary Navigation">
+            <button type="button"
+              class="nav-pill active px-4 py-2 rounded-full text-[13px] font-semibold text-slate-600 hover:text-ink cursor-pointer"
+              data-target="overview" onclick="switchView('overview')">Overview</button>
+            <button type="button"
+              class="nav-pill px-4 py-2 rounded-full text-[13px] font-semibold text-slate-600 hover:text-ink cursor-pointer"
+              data-target="career-sld" onclick="switchView('career-sld')">Career SLD</button>
+            <button type="button"
+              class="nav-pill px-4 py-2 rounded-full text-[13px] font-semibold text-slate-600 hover:text-ink cursor-pointer"
+              data-target="academics" onclick="switchView('academics')">Academics</button>
+            <button type="button"
+              class="nav-pill px-4 py-2 rounded-full text-[13px] font-semibold text-slate-600 hover:text-ink cursor-pointer"
+              data-target="research" onclick="switchView('research')">Research</button>
+            <button type="button"
+              class="nav-pill px-4 py-2 rounded-full text-[13px] font-semibold text-slate-600 hover:text-ink cursor-pointer"
+              data-target="projects" onclick="switchView('projects')">Projects &amp; Gallery</button>
+          </nav>
+
+          <!-- Dark Mode Toggle Button (Accessible on both Mobile & Desktop) -->
+          <button id="themeToggleBtn" type="button" onclick="toggleTheme()"
+            class="theme-toggle-btn inline-flex items-center justify-center gap-2 px-3 py-2 sm:px-3.5 sm:py-2 rounded-full bg-linen dark:bg-[#1A2433] border border-hairline dark:border-[#233247] hover:border-cerulean dark:hover:border-[#38BDF8] text-ink dark:text-[#F8FAFC] font-mono text-xs font-semibold shadow-sm transition-all cursor-pointer min-h-[44px] min-w-[44px] touch-manipulation"
+            aria-label="Toggle dark mode"
+            title="Toggle theme (Light / Dark)">
+            <!-- Moon Icon (shown in light mode) -->
+            <svg id="themeIconMoon" class="w-4 h-4 text-slate-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+            </svg>
+            <!-- Sun Icon (shown in dark mode) -->
+            <svg id="themeIconSun" class="w-4 h-4 text-amber-400 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+            <span id="themeToggleText" class="hidden sm:inline">Dark</span>
+          </button>
+        </div>
       </div>
     </header>
 
@@ -446,21 +489,21 @@
             <!-- Left Column (lg:col-span-7) -->
             <div class="lg:col-span-7">
               <div
-                class="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-white border border-hairline font-mono text-xs text-slate-600 shadow-sm">
-                <span class="w-2 h-2 rounded-full bg-emerald-600 ring-4 ring-emerald-600/15"></span>
+                class="inline-flex flex-wrap items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-hairline font-mono text-[11px] sm:text-xs text-slate-600 shadow-sm max-w-full">
+                <span class="w-2 h-2 rounded-full bg-emerald-600 ring-4 ring-emerald-600/15 flex-shrink-0"></span>
                 <span>Satdobato, Lalitpur, Nepal &bull; High-Voltage Substation &amp; Transmission EPC</span>
               </div>
 
               <h1
-                class="font-serif text-[44px] sm:text-[58px] lg:text-[66px] font-medium leading-[1.03] tracking-tight text-ink mt-5 mb-2.5">
+                class="font-serif text-[36px] sm:text-[50px] lg:text-[66px] font-medium leading-[1.05] tracking-tight text-ink mt-4 sm:mt-5 mb-2.5">
                 Anish Niroula
               </h1>
               <p
-                class="font-serif italic text-[22px] sm:text-[28px] lg:text-[31px] font-normal leading-snug text-cerulean mb-5">
+                class="font-serif italic text-[19px] sm:text-[25px] lg:text-[31px] font-normal leading-snug text-cerulean mb-4 sm:mb-5">
                 Senior High Voltage Electrical Engineer &amp; EPC Project Manager
               </p>
 
-              <p class="text-[15.5px] sm:text-[16.5px] leading-relaxed text-slate-600 mb-7">
+              <p class="text-[15px] sm:text-[16.5px] leading-relaxed text-slate-600 mb-6 sm:mb-7">
                 Over 7+ years of hands-on leadership in engineering design review, installation, testing, commissioning,
                 QA/QC, and contract administration for 132 kV and 220 kV GIS/AIS substations and overhead/underground
                 transmission systems across Nepal, pairing electrical engineering rigor with an MBA in Operations
@@ -468,7 +511,7 @@
               </p>
 
               <!-- 3-Column Credential Card Grid -->
-              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 mb-8">
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 mb-7 sm:mb-8">
                 <div class="bg-white border border-hairline rounded-2xl p-4 shadow-sm">
                   <span class="block font-mono text-[12.5px] font-bold text-ink">2018 &ndash; Present</span>
                   <span class="block text-[12.5px] text-slate-600 mt-1">EPC Field &amp; Project Leadership</span>
@@ -482,22 +525,22 @@
                 <a id="overviewNecLink"
                   href="https://nec.gov.np/registration/1977?programName=Electrical%20%26%20Electronics%20Engineering"
                   target="_blank" rel="noopener noreferrer"
-                  class="bg-white border border-cerulean hover:bg-sky-50/90 rounded-2xl p-4 shadow-sm transition-all block">
-                  <span class="block font-mono text-[12.5px] font-bold text-cerulean">Nepal Engineering Council
+                  class="bg-white border border-cerulean hover:bg-sky-50/90 rounded-2xl p-4 shadow-sm transition-all block group">
+                  <span class="block font-mono text-[12.5px] font-bold text-cerulean group-hover:underline">Nepal Engineering Council
                     &nearr;</span>
                   <span class="block text-[12.5px] font-semibold text-ink mt-1">License Registration No. 1977</span>
                 </a>
               </div>
 
-              <!-- Action Buttons -->
-              <div class="flex flex-wrap items-center gap-3.5">
+              <!-- Action Buttons (Responsive Column on Phone, Row on Tablet/Desktop) -->
+              <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-3.5">
                 <button type="button" onclick="switchView('career-sld')"
-                  class="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-cerulean hover:bg-sky-800 text-white text-sm font-semibold shadow-md shadow-sky-900/15 transition-all cursor-pointer">
+                  class="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-cerulean hover:bg-sky-800 text-white text-sm font-semibold shadow-md shadow-sky-900/15 transition-all cursor-pointer min-h-[46px]">
                   <span>Explore Career SLD</span>
                   <span aria-hidden="true">&rarr;</span>
                 </button>
                 <button type="button" onclick="switchView('projects')"
-                  class="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-white hover:border-cerulean hover:text-cerulean border border-stone-300 text-ink text-sm font-semibold transition-all cursor-pointer">
+                  class="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-white hover:border-cerulean hover:text-cerulean border border-stone-300 text-ink text-sm font-semibold transition-all cursor-pointer min-h-[46px]">
                   <span>Projects &amp; Gallery</span>
                 </button>
               </div>
@@ -509,7 +552,7 @@
                 <!-- Inner Image Frame Harmonized with Alabaster Background -->
                 <div class="relative aspect-[4/5] w-full rounded-xl overflow-hidden bg-linen/60 border border-hairline/80 flex items-center justify-center">
                   <!-- High Voltage Field Portrait with Warm Tone Balancing -->
-                  <img id="heroPortraitImg" src="assets/images/portrait.jpg?v=3.3"
+                  <img id="heroPortraitImg" src="assets/images/portrait.jpg?v=3.5"
                     alt="Anish Niroula — A Day in the Life"
                     class="w-full h-full object-cover cursor-zoom-in filter contrast-[1.01] saturate-[0.92] sepia-[0.04] brightness-[0.99] transition-transform duration-500 group-hover:scale-[1.02]"
                     onclick="openLightbox('slot_portrait', 'A Day in the Life')" />
@@ -883,9 +926,31 @@
             Operate any Disconnecting Switch (DS-01 to DS-04) or Circuit Breaker (CB-01 to CB-04) along the 132/220 kV
             main busbar to inspect switchgear state and full project execution details.
           </p>
+
+          <!-- Mobile Quick Bay Selector Ribbon (Touch-Optimized for Phones) -->
+          <div class="md:hidden mt-3.5 flex items-center gap-1.5 overflow-x-auto pb-1.5 no-scrollbar" aria-label="Mobile Feeder Bay Selector">
+            <span class="font-mono text-[10.5px] font-bold text-slate-500 whitespace-nowrap pl-0.5">FEEDER BAYS:</span>
+            <button type="button" data-bay="bay04" onclick="selectAndEnergizeBay('bay04'); scrollSldToBay('bay04');"
+              class="mobile-bay-pill px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap active transition-all">
+              Bay 04 &bull; CREGC (Active)
+            </button>
+            <button type="button" data-bay="bay03" onclick="selectAndEnergizeBay('bay03'); scrollSldToBay('bay03');"
+              class="mobile-bay-pill px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all">
+              Bay 03 &bull; Global
+            </button>
+            <button type="button" data-bay="bay02" onclick="selectAndEnergizeBay('bay02'); scrollSldToBay('bay02');"
+              class="mobile-bay-pill px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all">
+              Bay 02 &bull; Cosmic
+            </button>
+            <button type="button" data-bay="bay01" onclick="selectAndEnergizeBay('bay01'); scrollSldToBay('bay01');"
+              class="mobile-bay-pill px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all">
+              Bay 01 &bull; Cosmic
+            </button>
+          </div>
+
           <div
-            class="md:hidden mt-2.5 inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-linen border border-hairline font-mono text-[11px] text-cerulean">
-            <span>&larr; Swipe horizontally to view all 4 bays &rarr;</span>
+            class="md:hidden mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-linen border border-hairline font-mono text-[11px] text-cerulean">
+            <span>&larr; Swipe horizontally or tap pills above to switch bays &rarr;</span>
           </div>
         </div>
 
@@ -907,7 +972,7 @@
             </div>
           </div>
 
-          <div class="w-full overflow-x-auto">
+          <div id="careerSldScrollWrapper" class="w-full overflow-x-auto sld-scroll-wrapper">
             <svg viewBox="0 0 1160 395" class="w-full min-w-[940px] h-auto block select-none" role="img"
               aria-label="Interactive IEC Career Single-Line Diagram">
               <defs>
@@ -1193,9 +1258,35 @@
             (T-01) through undergraduate &amp; postgraduate degrees to Receiving-End National Grid Registration
             (NEC-1977).
           </p>
+
+          <!-- Mobile Quick Academic Milestone Ribbon (Touch-Optimized for Phones) -->
+          <div class="md:hidden mt-3.5 flex items-center gap-1.5 overflow-x-auto pb-1.5 no-scrollbar" aria-label="Mobile Academic Milestone Selector">
+            <span class="font-mono text-[10.5px] font-bold text-slate-500 whitespace-nowrap pl-0.5">MILESTONES:</span>
+            <button type="button" data-node="nec1977" onclick="selectAcademicNode('nec1977'); scrollAcadToNode('nec1977');"
+              class="mobile-acad-pill px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap active transition-all">
+              NEC Lic. 1977 (Active)
+            </button>
+            <button type="button" data-node="t04" onclick="selectAcademicNode('t04'); scrollAcadToNode('t04');"
+              class="mobile-acad-pill px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all">
+              MBA Operations
+            </button>
+            <button type="button" data-node="t03" onclick="selectAcademicNode('t03'); scrollAcadToNode('t03');"
+              class="mobile-acad-pill px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all">
+              B.E. Electrical
+            </button>
+            <button type="button" data-node="t02" onclick="selectAcademicNode('t02'); scrollAcadToNode('t02');"
+              class="mobile-acad-pill px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all">
+              GCE A-Levels
+            </button>
+            <button type="button" data-node="t01" onclick="selectAcademicNode('t01'); scrollAcadToNode('t01');"
+              class="mobile-acad-pill px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all">
+              SLC 2011
+            </button>
+          </div>
+
           <div
-            class="md:hidden mt-2.5 inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-linen border border-hairline font-mono text-[11px] text-cerulean">
-            <span>&larr; Swipe horizontally to view all towers &rarr;</span>
+            class="md:hidden mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-linen border border-hairline font-mono text-[11px] text-cerulean">
+            <span>&larr; Swipe horizontally or tap milestones above &rarr;</span>
           </div>
         </div>
 
@@ -1217,7 +1308,7 @@
             </div>
           </div>
 
-          <div class="w-full overflow-x-auto">
+          <div id="academicSvgScrollWrapper" class="w-full overflow-x-auto sld-scroll-wrapper">
             <svg viewBox="0 0 1160 375" class="w-full min-w-[960px] h-auto block select-none" role="img"
               aria-label="Interactive Academic and Licensure Transmission Line Route Diagram">
               <defs>
@@ -1773,7 +1864,7 @@
           </div>
         </div>
 
-        <div class="flex flex-wrap items-center gap-4 text-[13.5px] font-semibold">
+        <div class="flex flex-wrap items-center gap-3 sm:gap-4 text-[13px] sm:text-[13.5px] font-semibold">
           <a href="mailto:diaryofanish@gmail.com" class="text-cerulean hover:underline">diaryofanish@gmail.com</a>
           <span class="text-stone-400">&bull;</span>
           <span class="text-slate-600">Satdobato, Lalitpur, Nepal</span>
@@ -1781,6 +1872,12 @@
           <button type="button" onclick="jumpToContact()"
             class="text-cerulean hover:underline bg-transparent border-0 p-0 cursor-pointer font-semibold">
             Contact Me &uarr;
+          </button>
+          <span class="text-stone-400">&bull;</span>
+          <button type="button" onclick="toggleTheme()"
+            class="text-cerulean hover:underline bg-transparent border-0 p-0 cursor-pointer font-semibold inline-flex items-center gap-1.5"
+            aria-label="Toggle theme in footer">
+            <span id="footerThemeLabel">Theme: Dark Mode ☾</span>
           </button>
         </div>
       </div>
@@ -1793,7 +1890,7 @@
        iOS Safe Area Inset + Android Material 48px Tap Targets
        ========================================================================= -->
   <nav
-    class="fixed bottom-0 left-0 right-0 z-40 md:hidden grid grid-cols-5 gap-1 bg-alabaster/95 backdrop-blur-md border-t border-hairline p-1.5 pb-[max(0.6rem,env(safe-area-inset-bottom))] shadow-lg"
+    class="fixed bottom-0 left-0 right-0 z-40 md:hidden grid grid-cols-5 gap-1 bg-alabaster/95 backdrop-blur-md border-t border-hairline p-1.5 pb-[max(0.6rem,env(safe-area-inset-bottom))] pl-[max(0.4rem,env(safe-area-inset-left))] pr-[max(0.4rem,env(safe-area-inset-right))] shadow-lg"
     aria-label="Mobile Navigation">
     <button type="button"
       class="mobile-pill active py-1.5 px-1 rounded-xl text-[10.5px] font-semibold text-slate-600 text-center min-h-[46px] flex flex-col items-center justify-center gap-0.5"
@@ -1838,7 +1935,7 @@
           class="font-mono text-xs sm:text-sm px-3 py-1 rounded-md bg-ink/80 border border-white/20 text-sky-200">1 /
           1</span>
         <button type="button" onclick="closeLightbox()"
-          class="px-4 py-1.5 rounded-lg border border-white/30 bg-ink/90 text-white font-mono text-xs cursor-pointer hover:border-sky-300 transition-colors">
+          class="px-4 py-1.5 rounded-lg border border-white/30 bg-ink/90 text-white font-mono text-xs cursor-pointer hover:border-sky-300 transition-colors min-h-[44px]">
           ESC / CLOSE &times;
         </button>
       </div>
@@ -1871,11 +1968,11 @@
   </div>
 
   <!-- Local Self-Hosted Leaflet GIS Mapping Engine (No CDN dependencies) -->
-  <script src="js/leaflet.js?v=3.4"></script>
+  <script src="js/leaflet.js?v=3.5"></script>
 
   <!-- Application Logic & Data Layer -->
-  <script src="js/data.js?v=3.4"></script>
-  <script src="js/app.js?v=3.4"></script>
+  <script src="js/data.js?v=3.5"></script>
+  <script src="js/app.js?v=3.5"></script>
 </body>
 
 </html>

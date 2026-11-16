@@ -107,12 +107,13 @@
     };
   </script>
 
-  <!-- Prevent Theme Flash on Initial Load (FOUC) -->
+  <!-- Prevent Theme Flash on Initial Load (Default Strictly Light Mode) -->
   <script>
     (function () {
       try {
         var s = localStorage.getItem('site-theme');
-        var d = s === 'dark' || (!s && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        // Default is strictly Light Mode; Dark Mode only activates when explicitly selected
+        var d = (s === 'dark');
         if (d) {
           document.documentElement.classList.add('dark');
         } else {
@@ -123,10 +124,10 @@
   </script>
 
   <!-- Custom Architectural & Animation Stylesheet -->
-  <link rel="stylesheet" href="css/styles.css?v=3.5" />
+  <link rel="stylesheet" href="css/styles.css?v=3.6" />
 
   <!-- Local Self-Hosted Leaflet GIS Map Stylesheet (No CDN dependencies) -->
-  <link rel="stylesheet" href="css/leaflet.css?v=3.5" />
+  <link rel="stylesheet" href="css/leaflet.css?v=3.6" />
 </head>
 
 <body class="drafting-grid-bg pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-0 antialiased selection:bg-sky-200">
@@ -136,7 +137,7 @@
        Himalayan Peaks + Lattice Transmission Towers + Traveling Conductor Pulses + Valley Substation Yard
        ========================================================================= -->
   <div class="global-backdrop-container" aria-hidden="true">
-    <svg class="w-full h-full" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice" fill="none">
+    <svg class="w-full h-full" viewBox="0 0 2400 900" preserveAspectRatio="xMidYMax slice" fill="none">
       <defs>
         <!-- Soft Atmospheric Sky-to-Valley Gradient -->
         <linearGradient id="himalayaSkyWash" x1="0" y1="0" x2="0" y2="1">
@@ -145,271 +146,345 @@
           <stop offset="100%" stop-color="#E2DFD5" stop-opacity="0.65" />
         </linearGradient>
 
-        <!-- Exact Catenary Conductor Paths for Traveling Power-Flow Pulses -->
-        <!-- Span 1: Ridge Tower T-RIDGE (x=210) to Mid-Slope Tower T-SLOPE (x=540) -->
-        <path id="globalCatenary1" d="M 255 445 Q 395 520, 495 522" />
-        <path id="globalCatenary1Lower" d="M 264 482 Q 400 554, 486 558" />
+        <!-- Exact Full-Page Catenary Conductor Paths for Panoramic Traveling Power-Flow Pulses -->
+        <!-- Span 0: Far-West Inflow from Off-Screen (x=-100) to Far-Left Ridge Tower T0 (x=140) -->
+        <path id="globalCatenary0" d="M -100 480 Q 20 440, 140 435" />
+        <path id="globalCatenary0Lower" d="M -100 515 Q 20 475, 140 472" />
 
-        <!-- Span 2: Mid-Slope Tower T-SLOPE (x=540) to Substation Dead-End Gantry (x=760) -->
-        <path id="globalCatenary2" d="M 585 522 Q 670 605, 760 668" />
-        <path id="globalCatenary2Lower" d="M 594 558 Q 675 632, 760 694" />
+        <!-- Span 1: Far-Left Ridge Tower T0 (x=140) to Slope Tower T1 (x=520) -->
+        <path id="globalCatenary1" d="M 175 435 Q 350 510, 520 490" />
+        <path id="globalCatenary1Lower" d="M 184 472 Q 360 545, 520 528" />
 
-        <!-- Span 3: Right Substation Dead-End Gantry (x=1220) to Valley Terminal Tower T-VALLEY (x=1430) -->
-        <path id="globalCatenary3" d="M 1220 668 Q 1305 605, 1385 512" />
-        <path id="globalCatenary3Lower" d="M 1220 694 Q 1300 632, 1376 548" />
+        <!-- Span 2: Slope Tower T1 (x=520) to Mid-Valley Tower T2 (x=880) -->
+        <path id="globalCatenary2" d="M 555 490 Q 720 540, 880 520" />
+        <path id="globalCatenary2Lower" d="M 564 528 Q 725 575, 880 558" />
 
-        <!-- Substation Overhead High-Voltage Busbar Path -->
-        <path id="substationMainBusPath" d="M 745 694 L 1235 694" />
+        <!-- Span 3: Mid-Valley Tower T2 (x=880) to Substation Infeed Gantry (x=1080) -->
+        <path id="globalCatenary3" d="M 915 520 Q 1000 610, 1080 668" />
+        <path id="globalCatenary3Lower" d="M 924 558 Q 1005 635, 1080 694" />
+
+        <!-- Substation Overhead High-Voltage Busbar Path (x=1065..1535) -->
+        <path id="substationMainBusPath" d="M 1065 694 L 1535 694" />
+
+        <!-- Span 4: Substation Outfeed Gantry (x=1520) to East Slope Tower T3 (x=1720) -->
+        <path id="globalCatenary4" d="M 1520 668 Q 1600 610, 1720 520" />
+        <path id="globalCatenary4Lower" d="M 1520 694 Q 1600 635, 1720 558" />
+
+        <!-- Span 5: East Slope Tower T3 (x=1720) to Far-Right Ridge Tower T4 (x=2080) -->
+        <path id="globalCatenary5" d="M 1755 520 Q 1920 450, 2080 435" />
+        <path id="globalCatenary5Lower" d="M 1764 558 Q 1930 488, 2080 472" />
+
+        <!-- Span 6: Far-Right Ridge Tower T4 (x=2080) to Outflow Off-Screen National Grid (x=2480) -->
+        <path id="globalCatenary6" d="M 2115 435 Q 2240 440, 2480 480" />
+        <path id="globalCatenary6Lower" d="M 2124 472 Q 2240 475, 2480 515" />
       </defs>
 
       <!-- Base Atmospheric Tint -->
-      <rect width="1600" height="900" fill="url(#himalayaSkyWash)" />
+      <rect width="2400" height="900" fill="url(#himalayaSkyWash)" />
 
-      <!-- LAYER 1: DISTANT HIMALAYAN MOUNTAIN RANGE (SUBTLE ATMOSPHERIC DRIFT) -->
+      <!-- LAYER 1: PANORAMIC DISTANT HIMALAYAN MOUNTAIN RANGE (FULL-WIDTH ATMOSPHERIC DRIFT) -->
       <g class="mountain-layer-far">
         <path
-          d="M -40 620 L 140 390 L 290 505 L 470 295 L 665 465 L 880 270 L 1110 455 L 1320 315 L 1500 440 L 1640 375 L 1640 900 L -40 900 Z"
+          d="M -200 620 L -60 380 L 100 490 L 280 295 L 480 470 L 680 270 L 900 455 L 1120 315 L 1340 440 L 1560 275 L 1780 430 L 1980 290 L 2180 440 L 2380 340 L 2600 460 L 2600 900 L -200 900 Z"
           fill="#E6E3D8" fill-opacity="0.58" />
         <!-- Snow-Ridge Drafting Lines -->
-        <path d="M 470 295 L 425 352 L 452 347 L 470 365 L 492 344 L 516 351 Z" fill="#FFFFFF" fill-opacity="0.72" />
-        <path d="M 880 270 L 835 328 L 864 322 L 880 342 L 903 320 L 927 328 Z" fill="#FFFFFF" fill-opacity="0.72" />
-        <path d="M 1320 315 L 1282 365 L 1306 360 L 1320 376 L 1339 358 L 1359 364 Z" fill="#FFFFFF"
-          fill-opacity="0.68" />
+        <path d="M 280 295 L 235 352 L 262 347 L 280 365 L 302 344 L 326 351 Z" fill="#FFFFFF" fill-opacity="0.72" />
+        <path d="M 680 270 L 635 328 L 664 322 L 680 342 L 703 320 L 727 328 Z" fill="#FFFFFF" fill-opacity="0.72" />
+        <path d="M 1120 315 L 1082 365 L 1106 360 L 1120 376 L 1139 358 L 1159 364 Z" fill="#FFFFFF" fill-opacity="0.68" />
+        <path d="M 1560 275 L 1515 332 L 1544 326 L 1560 346 L 1583 324 L 1607 332 Z" fill="#FFFFFF" fill-opacity="0.72" />
+        <path d="M 1980 290 L 1938 348 L 1965 342 L 1980 362 L 2002 340 L 2026 348 Z" fill="#FFFFFF" fill-opacity="0.72" />
+        <path d="M 2380 340 L 2342 390 L 2366 384 L 2380 402 L 2399 382 L 2419 388 Z" fill="#FFFFFF" fill-opacity="0.68" />
       </g>
 
       <!-- LAYER 2: MID-HORIZON RIDGES -->
       <g class="mountain-layer-mid">
         <path
-          d="M -40 690 L 195 510 L 415 620 L 650 455 L 895 600 L 1145 470 L 1385 595 L 1640 505 L 1640 900 L -40 900 Z"
+          d="M -200 690 L 0 520 L 220 620 L 440 455 L 700 600 L 960 470 L 1220 595 L 1480 465 L 1740 580 L 1980 475 L 2240 580 L 2600 500 L 2600 900 L -200 900 Z"
           fill="#DEDAD0" fill-opacity="0.48" />
       </g>
 
-      <!-- LAYER 3: HIGH-VOLTAGE LATTICE TRANSMISSION TOWERS -->
-      <!-- Tower 1: Himalayan Ridge Tower T-RIDGE (x = 210) -->
+      <!-- LAYER 3: PANORAMIC HIGH-VOLTAGE LATTICE TRANSMISSION TOWERS (ACROSS SIDES & CENTER) -->
+      <!-- Tower 0: Far-Left Mountain Ridge Tower (x = 140) — VISIBLE ON LEFT MARGIN -->
       <g stroke="#0369A1" stroke-opacity="0.22" stroke-width="1.35">
-        <line x1="182" y1="735" x2="205" y2="430" />
-        <line x1="238" y1="735" x2="215" y2="430" />
-        <line x1="205" y1="430" x2="210" y2="395" />
-        <line x1="215" y1="430" x2="210" y2="395" />
+        <line x1="112" y1="735" x2="135" y2="430" />
+        <line x1="168" y1="735" x2="145" y2="430" />
+        <line x1="135" y1="430" x2="140" y2="395" />
+        <line x1="145" y1="430" x2="140" y2="395" />
         <!-- Crossarms -->
-        <line x1="165" y1="445" x2="255" y2="445" />
-        <line x1="156" y1="482" x2="264" y2="482" />
-        <line x1="168" y1="518" x2="252" y2="518" />
+        <line x1="95" y1="445" x2="185" y2="445" />
+        <line x1="86" y1="482" x2="194" y2="482" />
+        <line x1="98" y1="518" x2="182" y2="518" />
         <!-- Lattice Bracing -->
-        <line x1="187" y1="675" x2="233" y2="615" />
-        <line x1="233" y1="675" x2="187" y2="615" />
-        <line x1="192" y1="615" x2="228" y2="555" />
-        <line x1="228" y1="615" x2="192" y2="555" />
-        <line x1="197" y1="555" x2="223" y2="495" />
-        <line x1="223" y1="555" x2="197" y2="495" />
+        <line x1="117" y1="675" x2="163" y2="615" />
+        <line x1="163" y1="675" x2="117" y2="615" />
+        <line x1="122" y1="615" x2="158" y2="555" />
+        <line x1="158" y1="615" x2="122" y2="555" />
+        <line x1="127" y1="555" x2="153" y2="495" />
+        <line x1="153" y1="555" x2="127" y2="495" />
       </g>
 
-      <!-- Tower 2: Mid-Slope Tower T-SLOPE (x = 540) -->
+      <!-- Tower 1: Slope Tower (x = 520) -->
       <g stroke="#0369A1" stroke-opacity="0.24" stroke-width="1.35">
-        <line x1="512" y1="810" x2="535" y2="508" />
-        <line x1="568" y1="810" x2="545" y2="508" />
-        <line x1="535" y1="508" x2="540" y2="474" />
-        <line x1="545" y1="508" x2="540" y2="474" />
+        <line x1="492" y1="790" x2="515" y2="490" />
+        <line x1="548" y1="790" x2="525" y2="490" />
+        <line x1="515" y1="490" x2="520" y2="455" />
+        <line x1="525" y1="490" x2="520" y2="455" />
         <!-- Crossarms -->
-        <line x1="495" y1="522" x2="585" y2="522" />
-        <line x1="486" y1="558" x2="594" y2="558" />
-        <line x1="498" y1="594" x2="582" y2="594" />
+        <line x1="475" y1="505" x2="565" y2="505" />
+        <line x1="466" y1="542" x2="574" y2="542" />
+        <line x1="478" y1="578" x2="562" y2="578" />
         <!-- Lattice Bracing -->
-        <line x1="517" y1="750" x2="563" y2="690" />
-        <line x1="563" y1="750" x2="517" y2="690" />
-        <line x1="522" y1="690" x2="558" y2="630" />
-        <line x1="558" y1="690" x2="522" y2="630" />
-        <line x1="527" y1="630" x2="553" y2="570" />
-        <line x1="553" y1="630" x2="527" y2="570" />
+        <line x1="497" y1="735" x2="543" y2="675" />
+        <line x1="543" y1="735" x2="497" y2="675" />
+        <line x1="502" y1="675" x2="538" y2="615" />
+        <line x1="538" y1="675" x2="502" y2="615" />
+        <line x1="507" y1="615" x2="533" y2="555" />
+        <line x1="533" y1="615" x2="507" y2="555" />
       </g>
 
-      <!-- Tower 3: Right Valley Terminal Tower T-VALLEY (x = 1430) -->
+      <!-- Tower 2: Mid-Valley Slope Tower (x = 880) -->
       <g stroke="#0369A1" stroke-opacity="0.24" stroke-width="1.35">
-        <line x1="1400" y1="860" x2="1425" y2="498" />
-        <line x1="1460" y1="860" x2="1435" y2="498" />
-        <line x1="1425" y1="498" x2="1430" y2="462" />
-        <line x1="1435" y1="498" x2="1430" y2="462" />
+        <line x1="852" y1="815" x2="875" y2="515" />
+        <line x1="908" y1="815" x2="885" y2="515" />
+        <line x1="875" y1="515" x2="880" y2="480" />
+        <line x1="885" y1="515" x2="880" y2="480" />
         <!-- Crossarms -->
-        <line x1="1385" y1="512" x2="1475" y2="512" />
-        <line x1="1376" y1="548" x2="1484" y2="548" />
-        <line x1="1388" y1="584" x2="1472" y2="584" />
+        <line x1="835" y1="530" x2="925" y2="530" />
+        <line x1="826" y1="568" x2="934" y2="568" />
+        <line x1="838" y1="604" x2="922" y2="604" />
         <!-- Lattice Bracing -->
-        <line x1="1405" y1="795" x2="1455" y2="730" />
-        <line x1="1455" y1="795" x2="1405" y2="730" />
-        <line x1="1410" y1="730" x2="1450" y2="665" />
-        <line x1="1450" y1="730" x2="1410" y2="665" />
-        <line x1="1415" y1="665" x2="1445" y2="600" />
-        <line x1="1445" y1="665" x2="1415" y2="600" />
+        <line x1="857" y1="760" x2="903" y2="700" />
+        <line x1="903" y1="760" x2="857" y2="700" />
+        <line x1="862" y1="700" x2="898" y2="640" />
+        <line x1="898" y1="700" x2="862" y2="640" />
       </g>
 
-      <!-- LAYER 4: SAGGING CATENARY 3-PHASE CONDUCTORS + ANIMATED POWER PULSES -->
+      <!-- Tower 3: East Slope Terminal Tower (x = 1720) -->
+      <g stroke="#0369A1" stroke-opacity="0.24" stroke-width="1.35">
+        <line x1="1692" y1="820" x2="1715" y2="515" />
+        <line x1="1748" y1="820" x2="1725" y2="515" />
+        <line x1="1715" y1="515" x2="1720" y2="480" />
+        <line x1="1725" y1="515" x2="1720" y2="480" />
+        <!-- Crossarms -->
+        <line x1="1675" y1="530" x2="1765" y2="530" />
+        <line x1="1666" y1="568" x2="1774" y2="568" />
+        <line x1="1678" y1="604" x2="1762" y2="604" />
+        <!-- Lattice Bracing -->
+        <line x1="1697" y1="760" x2="1743" y2="700" />
+        <line x1="1743" y1="760" x2="1697" y2="700" />
+        <line x1="1702" y1="700" x2="1738" y2="640" />
+        <line x1="1738" y1="700" x2="1702" y2="640" />
+      </g>
+
+      <!-- Tower 4: Far-Right Mountain Ridge Tower (x = 2080) — VISIBLE ON RIGHT MARGIN -->
+      <g stroke="#0369A1" stroke-opacity="0.22" stroke-width="1.35">
+        <line x1="2052" y1="740" x2="2075" y2="430" />
+        <line x1="2108" y1="740" x2="2085" y2="430" />
+        <line x1="2075" y1="430" x2="2080" y2="395" />
+        <line x1="2085" y1="430" x2="2080" y2="395" />
+        <!-- Crossarms -->
+        <line x1="2035" y1="445" x2="2125" y2="445" />
+        <line x1="2026" y1="482" x2="2134" y2="482" />
+        <line x1="2038" y1="518" x2="2122" y2="518" />
+        <!-- Lattice Bracing -->
+        <line x1="2057" y1="675" x2="2103" y2="615" />
+        <line x1="2103" y1="675" x2="2057" y2="615" />
+        <line x1="2062" y1="615" x2="2098" y2="555" />
+        <line x1="2098" y1="615" x2="2062" y2="555" />
+      </g>
+
+      <!-- LAYER 4: PANORAMIC CATENARY CONDUCTORS & TRAVELING ELECTRON PULSES -->
       <!-- Shield Wires -->
-      <path d="M 210 395 Q 375 462, 540 474" stroke="#0369A1" stroke-opacity="0.16" stroke-width="1" />
-      <path d="M 540 474 Q 650 562, 760 662" stroke="#0369A1" stroke-opacity="0.16" stroke-width="1" />
-      <path d="M 1220 662 Q 1325 555, 1430 462" stroke="#0369A1" stroke-opacity="0.16" stroke-width="1" />
+      <path d="M -100 440 Q 20 400, 140 395" stroke="#0369A1" stroke-opacity="0.16" stroke-width="1" />
+      <path d="M 140 395 Q 350 470, 520 455" stroke="#0369A1" stroke-opacity="0.16" stroke-width="1" />
+      <path d="M 520 455 Q 700 500, 880 480" stroke="#0369A1" stroke-opacity="0.16" stroke-width="1" />
+      <path d="M 880 480 Q 980 570, 1080 662" stroke="#0369A1" stroke-opacity="0.16" stroke-width="1" />
+      <path d="M 1520 662 Q 1620 570, 1720 480" stroke="#0369A1" stroke-opacity="0.16" stroke-width="1" />
+      <path d="M 1720 480 Q 1900 450, 2080 395" stroke="#0369A1" stroke-opacity="0.16" stroke-width="1" />
+      <path d="M 2080 395 Q 2240 400, 2480 440" stroke="#0369A1" stroke-opacity="0.16" stroke-width="1" />
 
-      <!-- Base Catenary Conductors -->
+      <!-- Base Catenary Conductors (Double Circuit 3-Phase) -->
+      <use href="#globalCatenary0" stroke="#0369A1" stroke-opacity="0.22" stroke-width="1.2" />
+      <use href="#globalCatenary0Lower" stroke="#0369A1" stroke-opacity="0.22" stroke-width="1.2" />
       <use href="#globalCatenary1" stroke="#0369A1" stroke-opacity="0.22" stroke-width="1.2" />
       <use href="#globalCatenary1Lower" stroke="#0369A1" stroke-opacity="0.22" stroke-width="1.2" />
       <use href="#globalCatenary2" stroke="#0369A1" stroke-opacity="0.24" stroke-width="1.2" />
       <use href="#globalCatenary2Lower" stroke="#0369A1" stroke-opacity="0.24" stroke-width="1.2" />
       <use href="#globalCatenary3" stroke="#0369A1" stroke-opacity="0.24" stroke-width="1.2" />
       <use href="#globalCatenary3Lower" stroke="#0369A1" stroke-opacity="0.24" stroke-width="1.2" />
+      <use href="#globalCatenary4" stroke="#0369A1" stroke-opacity="0.24" stroke-width="1.2" />
+      <use href="#globalCatenary4Lower" stroke="#0369A1" stroke-opacity="0.24" stroke-width="1.2" />
+      <use href="#globalCatenary5" stroke="#0369A1" stroke-opacity="0.22" stroke-width="1.2" />
+      <use href="#globalCatenary5Lower" stroke="#0369A1" stroke-opacity="0.22" stroke-width="1.2" />
+      <use href="#globalCatenary6" stroke="#0369A1" stroke-opacity="0.22" stroke-width="1.2" />
+      <use href="#globalCatenary6Lower" stroke="#0369A1" stroke-opacity="0.22" stroke-width="1.2" />
 
-      <!-- Animated Dashed Power-Flow Stream Overlay -->
-      <use href="#globalCatenary1" stroke="#0284C7" stroke-opacity="0.32" stroke-width="1.6"
-        class="bg-conductor-pulse" />
-      <use href="#globalCatenary2" stroke="#0284C7" stroke-opacity="0.34" stroke-width="1.6"
-        class="bg-conductor-pulse" />
-      <use href="#globalCatenary3" stroke="#0284C7" stroke-opacity="0.34" stroke-width="1.6"
-        class="bg-conductor-pulse" />
+      <!-- Animated Dashed Power-Flow Streams -->
+      <use href="#globalCatenary0" stroke="#0284C7" stroke-opacity="0.32" stroke-width="1.6" class="bg-conductor-pulse" />
+      <use href="#globalCatenary1" stroke="#0284C7" stroke-opacity="0.32" stroke-width="1.6" class="bg-conductor-pulse" />
+      <use href="#globalCatenary2" stroke="#0284C7" stroke-opacity="0.34" stroke-width="1.6" class="bg-conductor-pulse" />
+      <use href="#globalCatenary3" stroke="#0284C7" stroke-opacity="0.34" stroke-width="1.6" class="bg-conductor-pulse" />
+      <use href="#globalCatenary4" stroke="#0284C7" stroke-opacity="0.34" stroke-width="1.6" class="bg-conductor-pulse" />
+      <use href="#globalCatenary5" stroke="#0284C7" stroke-opacity="0.32" stroke-width="1.6" class="bg-conductor-pulse" />
+      <use href="#globalCatenary6" stroke="#0284C7" stroke-opacity="0.32" stroke-width="1.6" class="bg-conductor-pulse" />
 
-      <!-- Traveling Glowing Energy Pulses Along Catenary Spans -->
-      <circle r="3.2" fill="#0284C7" fill-opacity="0.72">
-        <animateMotion dur="3.4s" repeatCount="indefinite">
+      <!-- Traveling Glowing Energy Pulses Across Full Panoramic Width -->
+      <circle r="3.2" fill="#0284C7" fill-opacity="0.75">
+        <animateMotion dur="2.8s" repeatCount="indefinite">
+          <mpath href="#globalCatenary0" />
+        </animateMotion>
+      </circle>
+      <circle r="3.2" fill="#0284C7" fill-opacity="0.75">
+        <animateMotion dur="3.4s" begin="0.4s" repeatCount="indefinite">
           <mpath href="#globalCatenary1" />
         </animateMotion>
       </circle>
-      <circle r="3.2" fill="#0284C7" fill-opacity="0.72">
+      <circle r="3.2" fill="#0284C7" fill-opacity="0.75">
         <animateMotion dur="3.2s" begin="1.1s" repeatCount="indefinite">
           <mpath href="#globalCatenary2" />
         </animateMotion>
       </circle>
-      <circle r="3.2" fill="#0284C7" fill-opacity="0.72">
-        <animateMotion dur="3.2s" begin="0.6s" repeatCount="indefinite">
+      <circle r="3.2" fill="#0284C7" fill-opacity="0.75">
+        <animateMotion dur="2.9s" begin="0.6s" repeatCount="indefinite">
           <mpath href="#globalCatenary3" />
         </animateMotion>
       </circle>
+      <circle r="3.2" fill="#0284C7" fill-opacity="0.75">
+        <animateMotion dur="2.9s" begin="1.5s" repeatCount="indefinite">
+          <mpath href="#globalCatenary4" />
+        </animateMotion>
+      </circle>
+      <circle r="3.2" fill="#0284C7" fill-opacity="0.75">
+        <animateMotion dur="3.4s" begin="0.8s" repeatCount="indefinite">
+          <mpath href="#globalCatenary5" />
+        </animateMotion>
+      </circle>
+      <circle r="3.2" fill="#0284C7" fill-opacity="0.75">
+        <animateMotion dur="2.8s" begin="1.8s" repeatCount="indefinite">
+          <mpath href="#globalCatenary6" />
+        </animateMotion>
+      </circle>
 
-      <!-- LAYER 5: VALLEY HIGH-VOLTAGE SUBSTATION YARD (x = 745..1345, y = 660..865) -->
+      <!-- LAYER 5: VALLEY HIGH-VOLTAGE SUBSTATION YARD (x = 1060..1540, y = 660..865) -->
       <g>
         <!-- Lattice Substation Take-Off Gantry Columns & Overhead Beam -->
         <g stroke="#182230" stroke-opacity="0.18" stroke-width="1.3">
-          <rect x="754" y="662" width="12" height="198" />
-          <line x1="754" y1="695" x2="766" y2="715" />
-          <line x1="766" y1="695" x2="754" y2="715" />
-          <line x1="754" y1="745" x2="766" y2="765" />
-          <line x1="766" y1="745" x2="754" y2="765" />
+          <rect x="1074" y="662" width="12" height="198" />
+          <line x1="1074" y1="695" x2="1086" y2="715" />
+          <line x1="1086" y1="695" x2="1074" y2="715" />
+          <line x1="1074" y1="745" x2="1086" y2="765" />
+          <line x1="1086" y1="745" x2="1074" y2="765" />
 
-          <rect x="985" y="662" width="12" height="198" />
-          <line x1="985" y1="695" x2="997" y2="715" />
-          <line x1="997" y1="695" x2="985" y2="715" />
+          <rect x="1295" y="662" width="12" height="198" />
+          <line x1="1295" y1="695" x2="1307" y2="715" />
+          <line x1="1307" y1="695" x2="1295" y2="715" />
 
-          <rect x="1214" y="662" width="12" height="198" />
-          <line x1="1214" y1="695" x2="1226" y2="715" />
-          <line x1="1226" y1="695" x2="1214" y2="715" />
+          <rect x="1514" y="662" width="12" height="198" />
+          <line x1="1514" y1="695" x2="1526" y2="715" />
+          <line x1="1526" y1="695" x2="1514" y2="715" />
 
           <!-- Upper Gantry Truss -->
-          <rect x="742" y="664" width="496" height="9" />
+          <rect x="1062" y="664" width="476" height="9" />
         </g>
 
         <!-- Energized Overhead Substation Busbar + Traveling Pulse -->
         <use href="#substationMainBusPath" stroke="#0369A1" stroke-opacity="0.26" stroke-width="1.8" />
-        <use href="#substationMainBusPath" stroke="#0284C7" stroke-opacity="0.4" stroke-width="2"
-          class="bg-conductor-pulse" />
+        <use href="#substationMainBusPath" stroke="#0284C7" stroke-opacity="0.4" stroke-width="2" class="bg-conductor-pulse" />
         <circle r="3" fill="#B45309" fill-opacity="0.65">
           <animateMotion dur="4.2s" repeatCount="indefinite">
             <mpath href="#substationMainBusPath" />
           </animateMotion>
         </circle>
 
-        <!-- Equipment A: Surge Arrester & CVT/CT Column (x = 795..845) -->
+        <!-- Equipment A: Surge Arrester & CVT/CT Column (x = 1115..1165) -->
         <g stroke="#182230" stroke-opacity="0.22" stroke-width="1.25">
-          <line x1="798" y1="860" x2="798" y2="792" />
-          <line x1="790" y1="792" x2="806" y2="792" />
-          <rect x="793" y="754" width="10" height="38" />
-          <line x1="788" y1="763" x2="808" y2="763" />
-          <line x1="788" y1="772" x2="808" y2="772" />
-          <line x1="788" y1="781" x2="808" y2="781" />
-          <line x1="798" y1="754" x2="798" y2="694" stroke="#0369A1" stroke-opacity="0.24" />
+          <line x1="1118" y1="860" x2="1118" y2="792" />
+          <line x1="1110" y1="792" x2="1126" y2="792" />
+          <rect x="1113" y="754" width="10" height="38" />
+          <line x1="1108" y1="763" x2="1128" y2="763" />
+          <line x1="1108" y1="772" x2="1128" y2="772" />
+          <line x1="1108" y1="781" x2="1128" y2="781" />
+          <line x1="1118" y1="754" x2="1118" y2="694" stroke="#0369A1" stroke-opacity="0.24" />
 
           <!-- CVT / CT -->
-          <line x1="840" y1="860" x2="840" y2="796" />
-          <rect x="831" y="785" width="18" height="11" />
-          <rect x="835" y="742" width="10" height="43" />
-          <line x1="829" y1="752" x2="851" y2="752" />
-          <line x1="829" y1="762" x2="851" y2="762" />
-          <line x1="829" y1="772" x2="851" y2="772" />
-          <circle cx="840" cy="734" r="7.5" />
-          <line x1="840" y1="726" x2="840" y2="694" stroke="#0369A1" stroke-opacity="0.24" />
+          <line x1="1160" y1="860" x2="1160" y2="796" />
+          <rect x="1151" y="785" width="18" height="11" />
+          <rect x="1155" y="742" width="10" height="43" />
+          <line x1="1149" y1="752" x2="1171" y2="752" />
+          <line x1="1149" y1="762" x2="1171" y2="762" />
+          <line x1="1149" y1="772" x2="1171" y2="772" />
+          <circle cx="1160" cy="734" r="7.5" />
+          <line x1="1160" y1="726" x2="1160" y2="694" stroke="#0369A1" stroke-opacity="0.24" />
         </g>
 
-        <!-- Equipment B: Double-Break Disconnecting Switch (x = 875..915) -->
+        <!-- Equipment B: Double-Break Disconnecting Switch (x = 1195..1235) -->
         <g stroke="#0369A1" stroke-opacity="0.26" stroke-width="1.35">
-          <line x1="878" y1="860" x2="878" y2="794" stroke="#182230" stroke-opacity="0.2" />
-          <line x1="914" y1="860" x2="914" y2="794" stroke="#182230" stroke-opacity="0.2" />
-          <line x1="870" y1="794" x2="922" y2="794" stroke="#182230" stroke-opacity="0.2" />
-          <rect x="874" y="754" width="8" height="40" />
-          <rect x="910" y="754" width="8" height="40" />
-          <line x1="878" y1="754" x2="896" y2="740" stroke-width="1.7" />
-          <line x1="914" y1="754" x2="896" y2="740" stroke-width="1.7" />
-          <line x1="878" y1="754" x2="878" y2="694" />
+          <line x1="1198" y1="860" x2="1198" y2="794" stroke="#182230" stroke-opacity="0.2" />
+          <line x1="1234" y1="860" x2="1234" y2="794" stroke="#182230" stroke-opacity="0.2" />
+          <line x1="1190" y1="794" x2="1242" y2="794" stroke="#182230" stroke-opacity="0.2" />
+          <rect x="1194" y="754" width="8" height="40" />
+          <rect x="1230" y="754" width="8" height="40" />
+          <line x1="1198" y1="754" x2="1216" y2="740" stroke-width="1.7" />
+          <line x1="1234" y1="754" x2="1216" y2="740" stroke-width="1.7" />
+          <line x1="1198" y1="754" x2="1198" y2="694" />
         </g>
 
-        <!-- Equipment C: 3-Phase SF6 Circuit Breaker Bay (x = 935..980) -->
+        <!-- Equipment C: 3-Phase SF6 Circuit Breaker Bay (x = 1255..1300) -->
         <g stroke="#182230" stroke-opacity="0.22" stroke-width="1.25">
-          <line x1="940" y1="860" x2="940" y2="798" />
-          <line x1="976" y1="860" x2="976" y2="798" />
-          <line x1="933" y1="798" x2="983" y2="798" />
-          <rect x="950" y="806" width="16" height="24" />
-          <rect x="941" y="752" width="8" height="46" rx="2.5" />
-          <rect x="954" y="752" width="8" height="46" rx="2.5" />
-          <rect x="967" y="752" width="8" height="46" rx="2.5" />
-          <line x1="945" y1="752" x2="945" y2="694" stroke="#0369A1" stroke-opacity="0.24" />
-          <line x1="971" y1="752" x2="971" y2="694" stroke="#0369A1" stroke-opacity="0.24" />
+          <line x1="1260" y1="860" x2="1260" y2="798" />
+          <line x1="1296" y1="860" x2="1296" y2="798" />
+          <line x1="1253" y1="798" x2="1303" y2="798" />
+          <rect x="1270" y="806" width="16" height="24" />
+          <rect x="1261" y="752" width="8" height="46" rx="2.5" />
+          <rect x="1274" y="752" width="8" height="46" rx="2.5" />
+          <rect x="1287" y="752" width="8" height="46" rx="2.5" />
+          <line x1="1265" y1="752" x2="1265" y2="694" stroke="#0369A1" stroke-opacity="0.24" />
+          <line x1="1291" y1="752" x2="1291" y2="694" stroke="#0369A1" stroke-opacity="0.24" />
         </g>
 
-        <!-- Equipment D: 220/132 kV Three-Phase Power Transformer (x = 1025..1195) -->
+        <!-- Equipment D: 220/132 kV Three-Phase Power Transformer (x = 1335..1495) -->
         <g stroke="#182230" stroke-opacity="0.24" stroke-width="1.35">
           <!-- Concrete Plinth -->
-          <rect x="1025" y="850" width="170" height="10" />
+          <rect x="1335" y="850" width="160" height="10" />
           <!-- Main Tank -->
-          <rect x="1042" y="772" width="136" height="78" rx="3" fill="#FFFFFF" fill-opacity="0.35" />
+          <rect x="1350" y="772" width="130" height="78" rx="3" fill="#FFFFFF" fill-opacity="0.35" />
           <!-- Radiator Cooling Fins -->
-          <rect x="1027" y="782" width="15" height="58" />
-          <line x1="1032" y1="782" x2="1032" y2="840" />
-          <line x1="1037" y1="782" x2="1037" y2="840" />
-          <rect x="1178" y="782" width="15" height="58" />
-          <line x1="1183" y1="782" x2="1183" y2="840" />
-          <line x1="1188" y1="782" x2="1188" y2="840" />
+          <rect x="1337" y="782" width="13" height="58" />
+          <line x1="1342" y1="782" x2="1342" y2="840" />
+          <rect x="1480" y="782" width="13" height="58" />
+          <line x1="1485" y1="782" x2="1485" y2="840" />
           <!-- Cylindrical Conservator Drum -->
-          <rect x="1050" y="740" width="66" height="14" rx="7" fill="#FFFFFF" fill-opacity="0.45" />
-          <line x1="1066" y1="754" x2="1066" y2="772" />
-          <line x1="1100" y1="754" x2="1100" y2="772" />
+          <rect x="1358" y="740" width="60" height="14" rx="7" fill="#FFFFFF" fill-opacity="0.45" />
+          <line x1="1372" y1="754" x2="1372" y2="772" />
+          <line x1="1404" y1="754" x2="1404" y2="772" />
           <!-- Three Shedded HV Porcelain Bushings (R, Y, B) -->
           <g stroke="#0369A1" stroke-opacity="0.28">
-            <line x1="1126" y1="772" x2="1126" y2="722" stroke-width="1.9" />
-            <line x1="1120" y1="732" x2="1132" y2="732" />
-            <line x1="1120" y1="742" x2="1132" y2="742" />
-            <line x1="1120" y1="752" x2="1132" y2="752" />
-            <line x1="1126" y1="722" x2="1126" y2="694" />
+            <line x1="1428" y1="772" x2="1428" y2="722" stroke-width="1.9" />
+            <line x1="1422" y1="732" x2="1434" y2="732" />
+            <line x1="1428" y1="722" x2="1428" y2="694" />
 
-            <line x1="1146" y1="772" x2="1146" y2="722" stroke-width="1.9" />
-            <line x1="1140" y1="732" x2="1152" y2="732" />
-            <line x1="1140" y1="742" x2="1152" y2="742" />
-            <line x1="1140" y1="752" x2="1152" y2="752" />
-            <line x1="1146" y1="722" x2="1146" y2="694" />
+            <line x1="1448" y1="772" x2="1448" y2="722" stroke-width="1.9" />
+            <line x1="1442" y1="732" x2="1454" y2="732" />
+            <line x1="1448" y1="722" x2="1448" y2="694" />
 
-            <line x1="1166" y1="772" x2="1166" y2="722" stroke-width="1.9" />
-            <line x1="1160" y1="732" x2="1172" y2="732" />
-            <line x1="1160" y1="742" x2="1172" y2="742" />
-            <line x1="1160" y1="752" x2="1172" y2="752" />
-            <line x1="1166" y1="722" x2="1166" y2="694" />
+            <line x1="1468" y1="772" x2="1468" y2="722" stroke-width="1.9" />
+            <line x1="1462" y1="732" x2="1474" y2="732" />
+            <line x1="1468" y1="722" x2="1468" y2="694" />
           </g>
         </g>
 
-        <!-- Substation Control & Relay House Outline -->
+        <!-- Substation Control & Relay House -->
         <g stroke="#182230" stroke-opacity="0.2" stroke-width="1.25">
-          <rect x="1250" y="796" width="84" height="64" rx="2" fill="#FFFFFF" fill-opacity="0.3" />
-          <line x1="1244" y1="796" x2="1340" y2="796" />
-          <rect x="1264" y="814" width="22" height="16" />
-          <rect x="1298" y="814" width="22" height="16" />
-          <circle cx="1270" cy="822" r="2.2" fill="#0284C7" class="substation-telemetry-blink" />
-          <circle cx="1304" cy="822" r="2.2" fill="#16A34A" class="substation-telemetry-blink" />
+          <rect x="1500" y="796" width="76" height="64" rx="2" fill="#FFFFFF" fill-opacity="0.3" />
+          <line x1="1494" y1="796" x2="1582" y2="796" />
+          <rect x="1512" y="814" width="20" height="16" />
+          <rect x="1542" y="814" width="20" height="16" />
+          <circle cx="1518" cy="822" r="2.2" fill="#0284C7" class="substation-telemetry-blink" />
+          <circle cx="1548" cy="822" r="2.2" fill="#16A34A" class="substation-telemetry-blink" />
         </g>
 
-        <!-- Valley Datum Ground Line -->
-        <line x1="0" y1="860" x2="1600" y2="860" stroke="#182230" stroke-opacity="0.18" stroke-width="1.4" />
+        <!-- Valley Datum Ground Line (Spans Entire Panoramic Width) -->
+        <line x1="-200" y1="860" x2="2600" y2="860" stroke="#182230" stroke-opacity="0.18" stroke-width="1.4" />
       </g>
     </svg>
   </div>
@@ -552,7 +627,7 @@
                 <!-- Inner Image Frame Harmonized with Alabaster Background -->
                 <div class="relative aspect-[4/5] w-full rounded-xl overflow-hidden bg-linen/60 border border-hairline/80 flex items-center justify-center">
                   <!-- High Voltage Field Portrait with Warm Tone Balancing -->
-                  <img id="heroPortraitImg" src="assets/images/portrait.jpg?v=3.5"
+                  <img id="heroPortraitImg" src="assets/images/portrait.jpg?v=3.6"
                     alt="Anish Niroula — A Day in the Life"
                     class="w-full h-full object-cover cursor-zoom-in filter contrast-[1.01] saturate-[0.92] sepia-[0.04] brightness-[0.99] transition-transform duration-500 group-hover:scale-[1.02]"
                     onclick="openLightbox('slot_portrait', 'A Day in the Life')" />
@@ -1968,11 +2043,11 @@
   </div>
 
   <!-- Local Self-Hosted Leaflet GIS Mapping Engine (No CDN dependencies) -->
-  <script src="js/leaflet.js?v=3.5"></script>
+  <script src="js/leaflet.js?v=3.6"></script>
 
   <!-- Application Logic & Data Layer -->
-  <script src="js/data.js?v=3.5"></script>
-  <script src="js/app.js?v=3.5"></script>
+  <script src="js/data.js?v=3.6"></script>
+  <script src="js/app.js?v=3.6"></script>
 </body>
 
 </html>

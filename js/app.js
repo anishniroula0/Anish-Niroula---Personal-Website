@@ -12,19 +12,9 @@ function initTheme() {
   try {
     saved = localStorage.getItem('site-theme');
   } catch (e) {}
-  const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-  const isDark = saved === 'dark' || (!saved && prefersDark);
+  // Default is strictly Light Mode; Dark Mode only activates when explicitly selected
+  const isDark = (saved === 'dark');
   applyTheme(isDark);
-
-  if (window.matchMedia) {
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
-      try {
-        if (!localStorage.getItem('site-theme')) {
-          applyTheme(e.matches);
-        }
-      } catch (err) {}
-    });
-  }
 }
 
 function applyTheme(isDark) {

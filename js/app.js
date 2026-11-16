@@ -294,7 +294,10 @@ function getStoredPhoto(slotKey) {
   if (memoryPhotos[slotKey]) return memoryPhotos[slotKey];
   try {
     const local = localStorage.getItem('aniroula_v5_photo_' + slotKey);
-    if (local) return local;
+    // Only accept user-uploaded local storage if it's a valid data URL
+    if (local && (local.startsWith('data:image/') || local.startsWith('http://') || local.startsWith('https://'))) {
+      return local;
+    }
   } catch (e) { }
   return STATIC_IMAGE_REGISTRY[slotKey] || null;
 }
@@ -323,27 +326,41 @@ function handlePhotoUpload(event, slotKey, refreshBay = false) {
 }
 
 function syncHeroPortrait() {
-  const src = getStoredPhoto('slot_portrait') || 'assets/images/portrait.jpg';
+  const custom = getStoredPhoto('slot_portrait');
+  const targetSrc = (custom && custom.startsWith('data:image/'))
+    ? custom
+    : (STATIC_IMAGE_REGISTRY.slot_portrait || 'assets/images/portrait.jpg?v=3.0');
+
   const img = document.getElementById('heroPortraitImg');
   const fallback = document.getElementById('heroPortraitFallback');
-  if (!img || !fallback) return;
+  if (!img) return;
 
-  if (img.src !== src) {
-    img.src = src;
+  // Resolve target to absolute URL to compare properly
+  const resolvedTarget = new URL(targetSrc, window.location.href).href;
+  if (img.src !== resolvedTarget) {
+    img.src = targetSrc;
   }
+
+  // Ensure image element is visible by default
+  img.classList.remove('hidden');
+  if (fallback) fallback.classList.add('hidden');
+
+  img.onload = () => {
+    img.classList.remove('hidden');
+    if (fallback) fallback.classList.add('hidden');
+  };
+
+  img.onerror = () => {
+    console.warn('Hero portrait load error for:', img.src);
+    if (!img.naturalWidth) {
+      img.classList.add('hidden');
+      if (fallback) fallback.classList.remove('hidden');
+    }
+  };
 
   if (img.complete && img.naturalWidth > 0) {
     img.classList.remove('hidden');
-    fallback.classList.add('hidden');
-  } else {
-    img.onload = () => {
-      img.classList.remove('hidden');
-      fallback.classList.add('hidden');
-    };
-    img.onerror = () => {
-      img.classList.add('hidden');
-      fallback.classList.remove('hidden');
-    };
+    if (fallback) fallback.classList.add('hidden');
   }
 }
 
@@ -388,12 +405,15 @@ function navigateLightbox(direction) {
 }
 
 function openLightbox(slotKey, caption) {
-  const src = getStoredPhoto(slotKey);
+  let src = getStoredPhoto(slotKey);
+  if (slotKey === 'slot_portrait' && (!src || !src.startsWith('data:image/'))) {
+    src = 'assets/images/portrait.jpg?v=3.0';
+  }
   if (!src) return;
   openAlbumLightbox([{
     src: src,
     title: caption || 'Site Photograph',
-    caption: ''
+    caption: 'High-Voltage Switchyard Field Leadership — Anish Niroula'
   }], 0);
 }
 

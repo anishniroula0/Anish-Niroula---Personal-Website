@@ -329,7 +329,7 @@ function syncHeroPortrait() {
   const custom = getStoredPhoto('slot_portrait');
   const targetSrc = (custom && custom.startsWith('data:image/'))
     ? custom
-    : (STATIC_IMAGE_REGISTRY.slot_portrait || 'assets/images/portrait.jpg?v=3.0');
+    : (STATIC_IMAGE_REGISTRY.slot_portrait || 'assets/images/portrait.jpg?v=3.1');
 
   const img = document.getElementById('heroPortraitImg');
   const fallback = document.getElementById('heroPortraitFallback');
@@ -407,13 +407,21 @@ function navigateLightbox(direction) {
 function openLightbox(slotKey, caption) {
   let src = getStoredPhoto(slotKey);
   if (slotKey === 'slot_portrait' && (!src || !src.startsWith('data:image/'))) {
-    src = 'assets/images/portrait.jpg?v=3.0';
+    src = 'assets/images/portrait.jpg?v=3.1';
   }
   if (!src) return;
+
+  let title = caption || 'Site Photograph';
+  let desc = '';
+  if (slotKey === 'slot_portrait') {
+    title = 'A Day in the Life of a High-Voltage Project Engineer';
+    desc = 'Morning pre-commissioning walkthrough along the 132/220 kV AIS switchyard center bay — inspecting tubular busbars, isolator alignments, and SF6 circuit breaker readiness under clear Himalayan skies.';
+  }
+
   openAlbumLightbox([{
     src: src,
-    title: caption || 'Site Photograph',
-    caption: 'High-Voltage Switchyard Field Leadership — Anish Niroula'
+    title: title,
+    caption: desc
   }], 0);
 }
 

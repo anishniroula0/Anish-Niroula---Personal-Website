@@ -95,10 +95,10 @@
   </script>
 
   <!-- Custom Architectural & Animation Stylesheet -->
-  <link rel="stylesheet" href="css/styles.css?v=3.0" />
+  <link rel="stylesheet" href="css/styles.css?v=3.1" />
 
   <!-- Local Self-Hosted Leaflet GIS Map Stylesheet (No CDN dependencies) -->
-  <link rel="stylesheet" href="css/leaflet.css?v=3.0" />
+  <link rel="stylesheet" href="css/leaflet.css?v=3.1" />
 </head>
 
 <body class="drafting-grid-bg pb-20 md:pb-0">
@@ -500,16 +500,15 @@
               </div>
             </div>
 
-            <!-- Right Column (lg:col-span-5): Framed Site Helmet Portrait Card -->
+            <!-- Right Column (lg:col-span-5): Framed Full-Bleed Site Portrait Card -->
             <div class="lg:col-span-5">
-              <div class="cad-frame max-w-[440px] w-full mx-auto lg:ml-auto">
-                <div
-                  class="relative aspect-[4/4.5] rounded-xl bg-linen/90 border border-hairline overflow-hidden flex items-center justify-center">
-                  <!-- Uploaded or Local Portrait Image -->
-                  <img id="heroPortraitImg" src="assets/images/portrait.jpg?v=3.0"
-                    alt="Anish Niroula — Senior High Voltage Electrical Engineer &amp; EPC Project Manager"
-                    class="w-full h-full object-cover cursor-zoom-in"
-                    onclick="openLightbox('slot_portrait', 'Anish Niroula — On-Site Field Leadership Portrait')" />
+              <div class="cad-frame !p-0 overflow-hidden max-w-[440px] w-full mx-auto lg:ml-auto rounded-[20px] shadow-lg border border-hairline group">
+                <div class="relative aspect-[4/5] w-full overflow-hidden flex items-center justify-center">
+                  <!-- Full-Bleed High Voltage Field Portrait -->
+                  <img id="heroPortraitImg" src="assets/images/portrait.jpg?v=3.1"
+                    alt="Anish Niroula — A Day in the Life of a High-Voltage Project Engineer"
+                    class="w-full h-full object-cover cursor-zoom-in transition-transform duration-500 group-hover:scale-[1.02]"
+                    onclick="openLightbox('slot_portrait', 'A Day in the Life of a High-Voltage Project Engineer')" />
 
                   <!-- Refined Engineering Helmet Portrait Placeholder -->
                   <div id="heroPortraitFallback"
@@ -555,21 +554,12 @@
                         font-weight="700" fill="#FFFFFF">SITE PORTRAIT</text>
                     </svg>
                     <p class="font-mono text-[11.5px] font-semibold text-slate-600 mt-1">
-                      Attach On-Site Helmet Portrait
+                      A Day in the Life
                     </p>
                     <p class="font-mono text-[10px] text-slate-500 mt-0.5">
-                      Or place portrait.jpg in assets/images/
+                      132/220 kV AIS Switchyard Field Leadership
                     </p>
                   </div>
-
-                  <!-- Upload Button Overlay -->
-                  <label
-                    class="absolute bottom-3.5 right-3.5 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-white/95 hover:bg-sky-50 border border-stone-300 hover:border-cerulean text-ink hover:text-cerulean font-mono text-[11.5px] font-semibold shadow-md cursor-pointer transition-all">
-                    <span class="text-cerulean font-bold">+</span>
-                    <span>Attach Portrait</span>
-                    <input type="file" accept="image/*" class="hidden"
-                      onchange="handlePhotoUpload(event, 'slot_portrait')" />
-                  </label>
                 </div>
               </div>
             </div>
@@ -1863,11 +1853,11 @@
   </div>
 
   <!-- Local Self-Hosted Leaflet GIS Mapping Engine (No CDN dependencies) -->
-  <script src="js/leaflet.js?v=3.0"></script>
+  <script src="js/leaflet.js?v=3.1"></script>
 
   <!-- Application Logic & Data Layer -->
-  <script src="js/data.js?v=3.0"></script>
-  <script src="js/app.js?v=3.0"></script>
+  <script src="js/data.js?v=3.1"></script>
+  <script src="js/app.js?v=3.1"></script>
 </body>
 
 </html>

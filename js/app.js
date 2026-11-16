@@ -329,7 +329,7 @@ function syncHeroPortrait() {
   const custom = getStoredPhoto('slot_portrait');
   const targetSrc = (custom && custom.startsWith('data:image/'))
     ? custom
-    : (STATIC_IMAGE_REGISTRY.slot_portrait || 'assets/images/portrait.jpg?v=3.2');
+    : (STATIC_IMAGE_REGISTRY.slot_portrait || 'assets/images/portrait.jpg?v=3.3');
 
   const img = document.getElementById('heroPortraitImg');
   const fallback = document.getElementById('heroPortraitFallback');
@@ -411,7 +411,7 @@ function navigateLightbox(direction) {
 function openLightbox(slotKey, caption) {
   let src = getStoredPhoto(slotKey);
   if (slotKey === 'slot_portrait' && (!src || !src.startsWith('data:image/'))) {
-    src = 'assets/images/portrait.jpg?v=3.2';
+    src = 'assets/images/portrait.jpg?v=3.3';
   }
   if (!src) return;
 

@@ -182,6 +182,12 @@ html, body {
   box-shadow: 0 10px 30px rgba(24, 34, 48, 0.05);
 }
 
+.cad-frame-warm {
+  background-color: #ECEAE2 !important;
+  border-color: #DCD8CD !important;
+  box-shadow: 0 8px 24px rgba(24, 34, 48, 0.04) !important;
+}
+
 .cad-frame::before,
 .cad-frame::after {
   content: '';

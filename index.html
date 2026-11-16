@@ -87,10 +87,10 @@
   </script>
 
   <!-- Custom Architectural & Animation Stylesheet -->
-  <link rel="stylesheet" href="css/styles.css?v=2.4" />
+  <link rel="stylesheet" href="css/styles.css?v=2.5" />
 
   <!-- Local Self-Hosted Leaflet GIS Map Stylesheet (No CDN dependencies) -->
-  <link rel="stylesheet" href="css/leaflet.css?v=2.4" />
+  <link rel="stylesheet" href="css/leaflet.css?v=2.5" />
 </head>
 <body class="drafting-grid-bg pb-20 md:pb-0">
 
@@ -1407,20 +1407,61 @@
           </article>
         </div>
 
-        <!-- Compact Site Photo Archive Grid -->
+        <!-- Multi-Project Continuous Site Photo Archive & Slider -->
         <div class="mb-6">
-          <span class="block font-mono text-[11.5px] font-bold uppercase tracking-widest text-cerulean">
-            FIELD DOCUMENTATION
-          </span>
-          <h2 class="font-serif text-[32px] sm:text-[40px] font-medium leading-tight text-ink mt-1.5">
-            Site Photo Archive
-          </h2>
-          <p class="text-[15px] text-slate-600 mt-1.5">
-            Photographs from high-voltage substation switchyards, GIS halls, and transmission corridors. Click any card to inspect full-screen.
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <span class="block font-mono text-[11.5px] font-bold uppercase tracking-widest text-cerulean">
+                FIELD DOCUMENTATION &amp; SITE ARCHIVES
+              </span>
+              <h2 class="font-serif text-[32px] sm:text-[40px] font-medium leading-tight text-ink mt-1">
+                Continuous Site Photo Archive
+              </h2>
+            </div>
+            <span id="sitePhotoTotalBadge" class="px-3 py-1 rounded-md bg-amber-100/80 text-amberHv font-mono text-xs font-bold">
+              MULTI-PROJECT GALLERY
+            </span>
+          </div>
+          <p class="text-[15px] text-slate-600 mt-2 max-w-3xl">
+            Interactive high-voltage substation switchyards, GIS halls, 132 kV underground cabling, and transmission line photo archives. Select any project, watch the auto-slider, and attach several site photographs (5, 10, or 15+ at a time) to build your project portfolios.
           </p>
         </div>
 
-        <div id="sitePhotoArchiveList" class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full"></div>
+        <!-- Project Archive Filter Pills & Slider Controls Toolbar -->
+        <div class="bg-white border border-hairline rounded-2xl p-4 sm:p-5 mb-6 shadow-sm">
+          <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <!-- Filter Pills -->
+            <div id="projectArchiveFilterPills" class="flex flex-wrap items-center gap-2"></div>
+
+            <!-- Carousel Controls & Upload Action -->
+            <div class="flex flex-wrap items-center gap-2.5 sm:self-auto self-start">
+              <button type="button" id="sliderAutoPlayBtn" onclick="toggleSiteSliderAutoplay()" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-alabaster hover:bg-sky-50 border border-stone-300 hover:border-cerulean text-ink hover:text-cerulean font-mono text-[11px] font-semibold transition-colors cursor-pointer" aria-label="Toggle auto-slide">
+                <span id="sliderPlayPauseIcon">&#9646;&#9646;</span>
+                <span id="sliderPlayPauseText">Pause Auto-Slide</span>
+              </button>
+
+              <div class="inline-flex items-center rounded-lg border border-stone-300 overflow-hidden bg-alabaster">
+                <button type="button" onclick="slideProjectArchive(-1)" class="px-3 py-1.5 hover:bg-sky-50 hover:text-cerulean text-ink text-sm font-bold border-r border-stone-300 cursor-pointer transition-colors" title="Previous photos">&#10094;</button>
+                <button type="button" onclick="slideProjectArchive(1)" class="px-3 py-1.5 hover:bg-sky-50 hover:text-cerulean text-ink text-sm font-bold cursor-pointer transition-colors" title="Next photos">&#10095;</button>
+              </div>
+
+              <label class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-cerulean hover:bg-sky-700 text-white font-mono text-[11px] font-semibold cursor-pointer shadow-sm transition-colors">
+                <span class="font-bold">+</span>
+                <span>Add Site Photos (Batch)</span>
+                <input type="file" id="projectPhotoUploadInput" accept="image/*" multiple class="hidden" onchange="handleProjectArchiveUpload(event)" />
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Continuous Photo Slider Track -->
+        <div class="relative w-full mb-12">
+          <div id="projectSliderTrack" class="photo-slider-track w-full"></div>
+          <div class="flex items-center justify-between pt-2 px-1 text-slate-500 font-mono text-xs">
+            <span id="projectSliderCountText">Showing site documentation</span>
+            <span class="text-[11px] text-slate-400">Click any photograph to view high-resolution &bull; Scroll or hover to pause</span>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -1462,23 +1503,44 @@
   </nav>
 
   <!-- =========================================================================
-       FULL-SCREEN LIGHTBOX VIEWER
+       FULL-SCREEN LIGHTBOX VIEWER WITH ALBUM SLIDER NAVIGATION
        ========================================================================= -->
   <div id="siteLightbox" class="lightbox-backdrop" onclick="closeLightboxBackdrop(event)">
-    <div class="max-w-5xl w-full flex flex-col items-center">
-      <button type="button" onclick="closeLightbox()" class="self-end mb-3 px-4 py-1.5 rounded-lg border border-white/30 bg-ink/90 text-white font-mono text-xs cursor-pointer hover:border-sky-300">
-        ESC / CLOSE &times;
-      </button>
-      <img id="lightboxImageEl" class="max-h-[78vh] max-w-[92vw] rounded-xl border border-white/25 shadow-2xl object-contain" src="" alt="Full-screen site photograph" />
-      <p id="lightboxCaptionEl" class="font-mono text-xs sm:text-sm text-sky-100 mt-3.5 text-center"></p>
+    <div class="max-w-5xl w-full flex flex-col items-center relative px-2">
+      <!-- Lightbox Header: Counter & Close -->
+      <div class="w-full flex items-center justify-between mb-3 text-white">
+        <span id="lightboxCounterEl" class="font-mono text-xs sm:text-sm px-3 py-1 rounded-md bg-ink/80 border border-white/20 text-sky-200">1 / 1</span>
+        <button type="button" onclick="closeLightbox()" class="px-4 py-1.5 rounded-lg border border-white/30 bg-ink/90 text-white font-mono text-xs cursor-pointer hover:border-sky-300 transition-colors">
+          ESC / CLOSE &times;
+        </button>
+      </div>
+
+      <!-- Main Lightbox Image with Floating Left & Right Nav Buttons -->
+      <div class="relative w-full flex items-center justify-center">
+        <button type="button" id="lightboxPrevBtn" onclick="navigateLightbox(-1)" class="lightbox-nav-btn absolute left-2 sm:left-4 z-20 w-11 h-11 rounded-full bg-ink/80 text-white border border-white/30 flex items-center justify-center text-lg shadow-xl cursor-pointer" aria-label="Previous photograph">
+          &#10094;
+        </button>
+
+        <img id="lightboxImageEl" class="max-h-[74vh] max-w-[90vw] rounded-xl border border-white/25 shadow-2xl object-contain select-none" src="" alt="Full-screen site photograph" />
+
+        <button type="button" id="lightboxNextBtn" onclick="navigateLightbox(1)" class="lightbox-nav-btn absolute right-2 sm:right-4 z-20 w-11 h-11 rounded-full bg-ink/80 text-white border border-white/30 flex items-center justify-center text-lg shadow-xl cursor-pointer" aria-label="Next photograph">
+          &#10095;
+        </button>
+      </div>
+
+      <!-- Caption Container -->
+      <div class="mt-3 text-center max-w-3xl">
+        <h4 id="lightboxTitleEl" class="font-serif text-base sm:text-lg text-white font-semibold"></h4>
+        <p id="lightboxCaptionEl" class="font-mono text-xs sm:text-sm text-sky-200 mt-1"></p>
+      </div>
     </div>
   </div>
 
   <!-- Local Self-Hosted Leaflet GIS Mapping Engine (No CDN dependencies) -->
-  <script src="js/leaflet.js?v=2.4"></script>
+  <script src="js/leaflet.js?v=2.5"></script>
 
   <!-- Application Logic & Data Layer -->
-  <script src="js/data.js?v=2.4"></script>
-  <script src="js/app.js?v=2.4"></script>
+  <script src="js/data.js?v=2.5"></script>
+  <script src="js/app.js?v=2.5"></script>
 </body>
 </html>

@@ -40,7 +40,27 @@ const CAREER_BAYS = {
       'Prepared technical submittals, QA/QC documentation, and commissioning test records under EIB and ADB engineering standards.'
     ],
     photoSlot: 'slot_samundratar',
-    photoTitle: 'Samundratar – Trishuli 3B 132 kV Line & Substation'
+    photoTitle: 'Samundratar – Trishuli 3B 132 kV Line & Substation',
+    defaultPhotos: [
+      {
+        id: 'bay01_p1',
+        src: 'assets/images/samundratar-132kv.jpg',
+        title: 'Samundratar 132/33 kV Substation Yard',
+        caption: '132/33 kV switchyard equipment erection and power transformer pre-commissioning (Nuwakot).'
+      },
+      {
+        id: 'bay01_p2',
+        src: 'assets/images/banner-corridor.jpg',
+        title: '26 km Double-Circuit 132 kV Transmission Towers',
+        caption: 'Lattice tower assembly and conductor stringing along mountain corridors to Trishuli 3B Hub.'
+      },
+      {
+        id: 'bay01_p3',
+        src: 'assets/images/samundratar-control.jpg',
+        title: 'Control & Relay Protection Panel Testing',
+        caption: 'Substation secondary wiring verification, CT/PT injection, and trip circuit interlocks.'
+      }
+    ]
   },
   bay02: {
     id: 'bay02',
@@ -57,7 +77,27 @@ const CAREER_BAYS = {
       'Verified electrical layout drawings, medium-voltage cable terminations, and site safety compliance.'
     ],
     photoSlot: 'slot_nagdhunga',
-    photoTitle: 'Nagdhunga Tunnel 11 kV Cabling & Tamor 220 kV'
+    photoTitle: 'Nagdhunga Tunnel 11 kV Cabling & Tamor 220 kV',
+    defaultPhotos: [
+      {
+        id: 'bay02_p1',
+        src: 'assets/images/nagdhunga-11kv.jpg',
+        title: 'Nagdhunga Tunnel 11 kV Underground Cabling',
+        caption: 'Medium-voltage power cable pulling and bracket installation inside the main tunnel (JICA).'
+      },
+      {
+        id: 'bay02_p2',
+        src: 'assets/images/tamor-220kv.jpg',
+        title: 'Middle Tamor 220 kV High-Altitude Transmission',
+        caption: 'Tower foundation and line supervision across rugged Himalayan slopes for 73 MW evacuation.'
+      },
+      {
+        id: 'bay02_p3',
+        src: 'assets/images/nagdhunga-switchgear.jpg',
+        title: 'Tunnel Medium-Voltage Switchgear Installation',
+        caption: 'Distribution switchboards, vacuum circuit breaker alignments, and Japanese standard HSE.'
+      }
+    ]
   },
   bay03: {
     id: 'bay03',
@@ -74,7 +114,27 @@ const CAREER_BAYS = {
       'Coordinated protection/control panel wiring checks, HV dielectric testing, and switchyard commissioning schedules.'
     ],
     photoSlot: 'slot_chilime',
-    photoTitle: '220 kV Chilime Hub GIS & Trishuli-3B Hybrid AIS'
+    photoTitle: '220 kV Chilime Hub GIS & Trishuli-3B Hybrid AIS',
+    defaultPhotos: [
+      {
+        id: 'bay03_p1',
+        src: 'assets/images/chilime-220kv.jpg',
+        title: 'Chilime Hub 220 kV SF6 GIS Bay Assembly',
+        caption: 'High-altitude SF6 gas insulated switchgear module alignment and vacuum treatment (Pinggao Group).'
+      },
+      {
+        id: 'bay03_p2',
+        src: 'assets/images/trishuli3b-220kv.jpg',
+        title: 'Trishuli-3B Hub 220 kV Hybrid AIS Switchyard',
+        caption: 'High-voltage gantry erection, busbar clamping, and CT/PT instrument transformer testing.'
+      },
+      {
+        id: 'bay03_p3',
+        src: 'assets/images/chilime-transformer.jpg',
+        title: '220/132/33 kV Main Power Transformer Installation',
+        caption: 'Bushing mounting, oil filtration, and dielectric breakdown testing at mountain site.'
+      }
+    ]
   },
   bay04: {
     id: 'bay04',
@@ -91,7 +151,33 @@ const CAREER_BAYS = {
       'Managing testing and commissioning procedures, HSE compliance, and multidisciplinary site engineering teams.'
     ],
     photoSlot: 'slot_prasauni',
-    photoTitle: 'Prasauni – Birgunj 132 kV GIS/AIS & 800 mm² UG Line'
+    photoTitle: 'Prasauni – Birgunj 132 kV GIS/AIS & 800 mm² UG Line',
+    defaultPhotos: [
+      {
+        id: 'bay04_p1',
+        src: 'assets/images/prasauni-132kv.jpg',
+        title: 'Prasauni 132/66 kV GIS Hall & Building',
+        caption: '132 kV indoor gas-insulated switchgear building civil execution and equipment layout (CREGC).'
+      },
+      {
+        id: 'bay04_p2',
+        src: 'assets/images/prasauni-cable.jpg',
+        title: '800 sq.mm XLPE 132 kV Underground Cable Pulling',
+        caption: 'Duct-bank cable pulling, motorized winching, and tension monitoring along Birgunj commercial corridor.'
+      },
+      {
+        id: 'bay04_p3',
+        src: 'assets/images/prasauni-jointing.jpg',
+        title: '132 kV Straight-Through Jointing Bay Execution',
+        caption: 'Cleanroom jointing tent, screen interruption, and cross-bonding link box installation.'
+      },
+      {
+        id: 'bay04_p4',
+        src: 'assets/images/prasauni-yard.jpg',
+        title: '132/33/11 kV AIS Outdoor Switchyard Gantry',
+        caption: 'Outdoor air-insulated switchgear foundation, tubular busbars, and disconnect switch alignment.'
+      }
+    ]
   }
 };
 
@@ -225,7 +311,7 @@ const NEPAL_GRID_PROJECTS = [
 ];
 
 /* -------------------------------------------------------------------------
-   SITE PHOTO ARCHIVE SLOTS
+   SITE PHOTO ARCHIVE SLOTS & MULTI-PROJECT PHOTO REGISTRY
    ------------------------------------------------------------------------- */
 const ARCHIVE_SLOTS = [
   { key: 'slot_portrait', label: '01 • Portrait', title: 'On-Site Helmet Portrait', desc: 'Substations & Transmission Field Leadership' },
@@ -234,4 +320,113 @@ const ARCHIVE_SLOTS = [
   { key: 'slot_trishuli3b', label: '04 • 220 kV Hybrid AIS', title: 'Trishuli-3B Hub 220 kV Hybrid AIS', desc: 'Switchyard Commissioning & HV Testing, Rasuwa' },
   { key: 'slot_nagdhunga', label: '05 • 11 kV Tunnel', title: 'Nagdhunga Tunnel 11 kV Cabling', desc: 'Underground Tunnel Electrical Installation (JICA)' },
   { key: 'slot_samundratar', label: '06 • 132 kV OHL', title: 'Samundratar – Trishuli 3B 132 kV', desc: '132/33 kV Substation & 26 km Double-Circuit Line' }
+];
+
+const PROJECT_ARCHIVE_FILTERS = [
+  { id: 'all', label: 'All Projects' },
+  { id: 'prasauni', label: 'Prasauni 132 kV (CREGC)' },
+  { id: 'chilime', label: 'Chilime Hub 220 kV (Pinggao)' },
+  { id: 'trishuli3b', label: 'Trishuli-3B 220 kV' },
+  { id: 'nagdhunga', label: 'Nagdhunga 11 kV (Cosmic)' },
+  { id: 'samundratar', label: 'Samundratar 132 kV (ETERN)' },
+  { id: 'tamor', label: 'Middle Tamor 220 kV' }
+];
+
+const PROJECT_SITE_ARCHIVES = [
+  {
+    id: 'arch_prasauni_1',
+    projectId: 'prasauni',
+    projectTitle: 'Prasauni – Birgunj 132 kV Substation & UG Line',
+    contractor: 'China Railway No.2 Engineering Group (CREGC)',
+    voltage: '132/66 kV GIS & AIS',
+    src: 'assets/images/prasauni-132kv.jpg',
+    title: '132/66 kV GIS Hall & Power Transformers',
+    desc: 'GIS indoor building construction, SF6 gas compartment filling, and busduct installation at Prasauni Substation.',
+    date: '2023–Present',
+    location: 'Bara / Parsa, Nepal'
+  },
+  {
+    id: 'arch_prasauni_2',
+    projectId: 'prasauni',
+    projectTitle: 'Prasauni – Birgunj 132 kV Substation & UG Line',
+    contractor: 'China Railway No.2 Engineering Group (CREGC)',
+    voltage: '132 kV Underground',
+    src: 'assets/images/prasauni-cable.jpg',
+    title: '4 km 800 sq.mm XLPE Cable Pulling & Trenching',
+    desc: 'Deep civil duct-bank trenching, motorized cable pulling, and straight-through jointing bays in urban Birgunj.',
+    date: '2023–Present',
+    location: 'Birgunj Commercial Corridor'
+  },
+  {
+    id: 'arch_chilime_1',
+    projectId: 'chilime',
+    projectTitle: 'Chilime Hub 220/132/33 kV GIS Substation',
+    contractor: 'Pinggao Group / Global Electro Mechanical',
+    voltage: '220/132/33 kV SF6 GIS',
+    src: 'assets/images/chilime-220kv.jpg',
+    title: 'High-Altitude 220 kV SF6 GIS Bay Assembly',
+    desc: 'Substation bay assembly, precision alignment, SF6 gas vacuuming, and high-voltage dielectric withstand testing in Rasuwa.',
+    date: '2022–2023',
+    location: 'Chilime, Rasuwa (Himalayan Gorge)'
+  },
+  {
+    id: 'arch_trishuli3b_1',
+    projectId: 'trishuli3b',
+    projectTitle: 'Trishuli-3B Hub 220 kV Hybrid AIS Substation',
+    contractor: 'Pinggao Group / Global Electro Mechanical',
+    voltage: '220 kV Hybrid AIS',
+    src: 'assets/images/trishuli3b-220kv.jpg',
+    title: '220 kV Switchyard Gantry & Transformer Bay',
+    desc: 'Switchyard civil foundations, high-voltage busbar connections, circuit breaker timing tests, and control cabling.',
+    date: '2022–2023',
+    location: 'Trishuli, Nuwakot / Rasuwa'
+  },
+  {
+    id: 'arch_nagdhunga_1',
+    projectId: 'nagdhunga',
+    projectTitle: 'Nagdhunga Tunnel Construction Project',
+    contractor: 'Cosmic Electrical / Hazama Ando (JICA)',
+    voltage: '11 kV Medium Voltage',
+    src: 'assets/images/nagdhunga-11kv.jpg',
+    title: 'Tunnel 11 kV Power Cable Laying & Switchgear',
+    desc: 'Underground medium-voltage distribution cabling, bracket mounting, and substations under Japanese JICA safety standards.',
+    date: '2021–2022',
+    location: 'Nagdhunga Tunnel, Kathmandu / Dhading'
+  },
+  {
+    id: 'arch_tamor_1',
+    projectId: 'tamor',
+    projectTitle: 'Sanima Middle Tamor 220 kV Transmission Line',
+    contractor: 'Cosmic Electrical Engineering Associates',
+    voltage: '220 kV Transmission Line',
+    src: 'assets/images/tamor-220kv.jpg',
+    title: '220 kV Mountain Transmission Tower Erection',
+    desc: 'Lattice tower erection, cliffside foundation inspection, and conductor stringing for 73 MW hydropower generation.',
+    date: '2021–2022',
+    location: 'Taplejung, Eastern Nepal'
+  },
+  {
+    id: 'arch_samundratar_1',
+    projectId: 'samundratar',
+    projectTitle: 'Samundratar – Trishuli 3B 132 kV Substation & Line',
+    contractor: 'ETERN-CCCE-FEPEC Joint Venture',
+    voltage: '132/33 kV Substation & OHL',
+    src: 'assets/images/samundratar-132kv.jpg',
+    title: '132/33 kV Substation Switchyard Commissioning',
+    desc: 'Turnkey substation construction, 132/33 kV power transformer energization, and protection relay testing under EIB/ADB standards.',
+    date: '2018–2021',
+    location: 'Samundratar, Nuwakot'
+  },
+  {
+    id: 'arch_samundratar_2',
+    projectId: 'samundratar',
+    projectTitle: 'Samundratar – Trishuli 3B 132 kV Substation & Line',
+    contractor: 'ETERN-CCCE-FEPEC Joint Venture',
+    voltage: '132 kV Double-Circuit Line',
+    src: 'assets/images/banner-corridor.jpg',
+    title: '26 km Double-Circuit 132 kV Transmission Corridor',
+    desc: 'High-voltage conductor stringing across steep mountain terrain connecting Samundratar to the national transmission grid.',
+    date: '2018–2021',
+    location: 'Nuwakot Ridge Corridors'
+  }
 ];

@@ -311,3 +311,92 @@ html, body {
 .overflow-x-auto::-webkit-scrollbar-thumb:hover {
   background: var(--hv-cerulean);
 }
+
+/* -------------------------------------------------------------------------
+   10. MULTI-PHOTO SLIDERS & CONTINUOUS CAROUSEL
+   ------------------------------------------------------------------------- */
+.photo-slider-track {
+  display: flex;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: #CBD5E1 transparent;
+  gap: 1.25rem;
+  padding: 0.5rem 0.25rem 1rem 0.25rem;
+}
+
+.photo-slider-track::-webkit-scrollbar {
+  height: 6px;
+}
+
+.photo-slider-track::-webkit-scrollbar-track {
+  background: var(--bg-linen);
+  border-radius: 4px;
+}
+
+.photo-slider-track::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 4px;
+}
+
+.photo-slider-track::-webkit-scrollbar-thumb:hover {
+  background: var(--hv-cerulean);
+}
+
+.photo-slider-card {
+  scroll-snap-align: start;
+  flex-shrink: 0;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
+}
+
+.photo-slider-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px -5px rgba(24, 34, 48, 0.12), 0 8px 10px -6px rgba(24, 34, 48, 0.08);
+}
+
+.career-thumb-btn {
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.career-thumb-btn.active {
+  border-color: var(--hv-cerulean) !important;
+  box-shadow: 0 0 0 2px var(--hv-cerulean);
+}
+
+.career-thumb-btn.active::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 14px;
+  height: 3px;
+  background-color: var(--hv-cerulean);
+  border-radius: 2px;
+}
+
+.project-filter-pill {
+  transition: all 0.2s ease;
+}
+
+.project-filter-pill.active {
+  background-color: var(--hv-cerulean) !important;
+  color: #FFFFFF !important;
+  border-color: var(--hv-cerulean) !important;
+  box-shadow: 0 2px 8px rgba(3, 105, 161, 0.3);
+}
+
+.lightbox-nav-btn {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: all 0.2s ease;
+}
+
+.lightbox-nav-btn:hover {
+  background-color: var(--hv-cerulean);
+  border-color: #BAE6FD;
+  transform: scale(1.08);
+}

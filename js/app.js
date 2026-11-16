@@ -125,8 +125,169 @@ function triggerRevealCheck() {
 }
 
 /* -------------------------------------------------------------------------
-   3. HYBRID IMAGE RESOLUTION (STATIC PATHS + LOCAL IN-MEMORY DRAFTING)
+   3. MULTI-PHOTO STORAGE & CLIENT-SIDE IMAGE COMPRESSION ENGINE
+   IndexedDB backed with in-memory caching & HTML5 Canvas downsampling.
+   Allows uploading 5, 10, 15+ high-res camera photos smoothly without quota issues.
    ------------------------------------------------------------------------- */
+const DB_NAME = 'AniroulaPortfolioPhotosDB';
+const DB_VERSION = 1;
+const PHOTO_STORE = 'photos';
+
+let dbInstance = null;
+const CUSTOM_PHOTOS_CACHE = {
+  bay01: [],
+  bay02: [],
+  bay03: [],
+  bay04: [],
+  prasauni: [],
+  chilime: [],
+  trishuli3b: [],
+  nagdhunga: [],
+  samundratar: [],
+  tamor: [],
+  portrait: []
+};
+
+function getPhotoDB() {
+  if (dbInstance) return Promise.resolve(dbInstance);
+  return new Promise(resolve => {
+    if (!window.indexedDB) {
+      console.warn('IndexedDB not supported; using in-memory and local storage fallback.');
+      resolve(null);
+      return;
+    }
+    try {
+      const req = indexedDB.open(DB_NAME, DB_VERSION);
+      req.onupgradeneeded = e => {
+        const db = e.target.result;
+        if (!db.objectStoreNames.contains(PHOTO_STORE)) {
+          const store = db.createObjectStore(PHOTO_STORE, { keyPath: 'id' });
+          store.createIndex('category', 'category', { unique: false });
+        }
+      };
+      req.onsuccess = e => {
+        dbInstance = e.target.result;
+        resolve(dbInstance);
+      };
+      req.onerror = () => resolve(null);
+    } catch (err) {
+      resolve(null);
+    }
+  });
+}
+
+async function loadAllCustomPhotosFromDB() {
+  const db = await getPhotoDB();
+  if (!db) {
+    try {
+      const saved = localStorage.getItem('aniroula_custom_photos_json');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        Object.keys(parsed).forEach(k => {
+          if (CUSTOM_PHOTOS_CACHE[k]) CUSTOM_PHOTOS_CACHE[k] = parsed[k];
+        });
+      }
+    } catch (e) { }
+    return;
+  }
+  return new Promise(resolve => {
+    try {
+      const tx = db.transaction(PHOTO_STORE, 'readonly');
+      const store = tx.objectStore(PHOTO_STORE);
+      const req = store.getAll();
+      req.onsuccess = () => {
+        const list = req.result || [];
+        // Reset cache arrays
+        Object.keys(CUSTOM_PHOTOS_CACHE).forEach(k => CUSTOM_PHOTOS_CACHE[k] = []);
+        list.forEach(item => {
+          const cat = item.category || 'prasauni';
+          if (!CUSTOM_PHOTOS_CACHE[cat]) {
+            CUSTOM_PHOTOS_CACHE[cat] = [];
+          }
+          CUSTOM_PHOTOS_CACHE[cat].push(item);
+        });
+        resolve();
+      };
+      req.onerror = () => resolve();
+    } catch (err) {
+      resolve();
+    }
+  });
+}
+
+async function persistCustomPhoto(photoObj) {
+  const cat = photoObj.category || 'prasauni';
+  if (!CUSTOM_PHOTOS_CACHE[cat]) {
+    CUSTOM_PHOTOS_CACHE[cat] = [];
+  }
+  CUSTOM_PHOTOS_CACHE[cat].unshift(photoObj);
+
+  const db = await getPhotoDB();
+  if (db) {
+    try {
+      const tx = db.transaction(PHOTO_STORE, 'readwrite');
+      tx.objectStore(PHOTO_STORE).put(photoObj);
+    } catch (e) {
+      console.warn('Error saving to IndexedDB:', e);
+    }
+  } else {
+    try {
+      localStorage.setItem('aniroula_custom_photos_json', JSON.stringify(CUSTOM_PHOTOS_CACHE));
+    } catch (e) { }
+  }
+}
+
+async function deleteCustomPhotoFromDB(photoId, category) {
+  if (CUSTOM_PHOTOS_CACHE[category]) {
+    CUSTOM_PHOTOS_CACHE[category] = CUSTOM_PHOTOS_CACHE[category].filter(p => p.id !== photoId);
+  }
+  const db = await getPhotoDB();
+  if (db) {
+    try {
+      const tx = db.transaction(PHOTO_STORE, 'readwrite');
+      tx.objectStore(PHOTO_STORE).delete(photoId);
+    } catch (e) { }
+  } else {
+    try {
+      localStorage.setItem('aniroula_custom_photos_json', JSON.stringify(CUSTOM_PHOTOS_CACHE));
+    } catch (e) { }
+  }
+}
+
+// Client-side HTML5 Canvas Image Downsampler (handles 5, 10, 15+ camera uploads smoothly)
+function compressImageFile(file, maxWidth = 1600, maxHeight = 1200, quality = 0.82) {
+  return new Promise(resolve => {
+    if (!file || !file.type.startsWith('image/')) {
+      resolve(null);
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > maxWidth || height > maxHeight) {
+          const ratio = Math.min(maxWidth / width, maxHeight / height);
+          width = Math.round(width * ratio);
+          height = Math.round(height * ratio);
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = () => resolve(e.target.result);
+      img.src = e.target.result;
+    };
+    reader.onerror = () => resolve(null);
+    reader.readAsDataURL(file);
+  });
+}
+
 const memoryPhotos = {};
 
 function getStoredPhoto(slotKey) {
@@ -134,7 +295,7 @@ function getStoredPhoto(slotKey) {
   try {
     const local = localStorage.getItem('aniroula_v4_photo_' + slotKey);
     if (local) return local;
-  } catch (e) {}
+  } catch (e) { }
   return STATIC_IMAGE_REGISTRY[slotKey] || null;
 }
 
@@ -150,27 +311,15 @@ function saveStoredPhoto(slotKey, dataUrl) {
 function handlePhotoUpload(event, slotKey, refreshBay = false) {
   const file = event.target.files && event.target.files[0];
   if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function (e) {
-    saveStoredPhoto(slotKey, e.target.result);
+  compressImageFile(file, 1400, 1400, 0.85).then(dataUrl => {
+    if (!dataUrl) return;
+    saveStoredPhoto(slotKey, dataUrl);
     syncHeroPortrait();
     renderSitePhotoArchive();
     if (refreshBay) {
       renderCareerBayDetail();
     }
-  };
-  reader.readAsDataURL(file);
-}
-
-function handleFieldBannerUpload(event) {
-  const file = event.target.files && event.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function (e) {
-    saveStoredPhoto('slot_field_banner', e.target.result);
-    syncFieldBanner();
-  };
-  reader.readAsDataURL(file);
+  });
 }
 
 function syncHeroPortrait() {
@@ -186,7 +335,6 @@ function syncHeroPortrait() {
       fallback.classList.add('hidden');
     };
     img.onerror = () => {
-      // If local file not yet placed in assets/images/, show refined CAD placeholder
       img.classList.add('hidden');
       fallback.classList.remove('hidden');
     };
@@ -196,33 +344,54 @@ function syncHeroPortrait() {
   }
 }
 
-function syncFieldBanner() {
-  const src = getStoredPhoto('slot_field_banner');
-  const wrap = document.getElementById('fieldBannerContainer');
-  const img = document.getElementById('fieldBannerImg');
-  if (!wrap || !img) return;
+/* -------------------------------------------------------------------------
+   FULL-FEATURED LIGHTBOX WITH ALBUM SLIDER NAVIGATION
+   ------------------------------------------------------------------------- */
+let lightboxAlbum = [];
+let lightboxIndex = 0;
 
-  if (src) {
-    img.src = src;
-    img.onload = () => {
-      wrap.classList.remove('hidden');
-    };
-    img.onerror = () => {
-      wrap.classList.add('hidden');
-    };
-  } else {
-    wrap.classList.add('hidden');
-  }
+function openAlbumLightbox(album, startIndex = 0) {
+  if (!album || !album.length) return;
+  lightboxAlbum = album;
+  lightboxIndex = Math.max(0, Math.min(startIndex, album.length - 1));
+  updateLightboxContent();
+  document.getElementById('siteLightbox').classList.add('open');
+}
+
+function updateLightboxContent() {
+  if (!lightboxAlbum.length) return;
+  const item = lightboxAlbum[lightboxIndex];
+  const imgEl = document.getElementById('lightboxImageEl');
+  const titleEl = document.getElementById('lightboxTitleEl');
+  const capEl = document.getElementById('lightboxCaptionEl');
+  const countEl = document.getElementById('lightboxCounterEl');
+  const prevBtn = document.getElementById('lightboxPrevBtn');
+  const nextBtn = document.getElementById('lightboxNextBtn');
+
+  if (imgEl) imgEl.src = item.src || '';
+  if (titleEl) titleEl.textContent = item.title || '';
+  if (capEl) capEl.textContent = item.caption || item.desc || '';
+  if (countEl) countEl.textContent = `${lightboxIndex + 1} / ${lightboxAlbum.length}`;
+
+  const hasMultiple = lightboxAlbum.length > 1;
+  if (prevBtn) prevBtn.style.display = hasMultiple ? 'flex' : 'none';
+  if (nextBtn) nextBtn.style.display = hasMultiple ? 'flex' : 'none';
+}
+
+function navigateLightbox(direction) {
+  if (!lightboxAlbum.length) return;
+  lightboxIndex = (lightboxIndex + direction + lightboxAlbum.length) % lightboxAlbum.length;
+  updateLightboxContent();
 }
 
 function openLightbox(slotKey, caption) {
   const src = getStoredPhoto(slotKey);
   if (!src) return;
-  const lightboxImg = document.getElementById('lightboxImageEl');
-  const lightboxCap = document.getElementById('lightboxCaptionEl');
-  lightboxImg.src = src;
-  lightboxCap.textContent = caption || '';
-  document.getElementById('siteLightbox').classList.add('open');
+  openAlbumLightbox([{
+    src: src,
+    title: caption || 'Site Photograph',
+    caption: ''
+  }], 0);
 }
 
 function closeLightbox() {
@@ -237,8 +406,16 @@ function closeLightboxBackdrop(event) {
 }
 
 document.addEventListener('keydown', e => {
+  const box = document.getElementById('siteLightbox');
+  const isOpen = box && box.classList.contains('open');
+  if (!isOpen) return;
+
   if (e.key === 'Escape') {
     closeLightbox();
+  } else if (e.key === 'ArrowLeft') {
+    navigateLightbox(-1);
+  } else if (e.key === 'ArrowRight') {
+    navigateLightbox(1);
   }
 });
 
@@ -413,6 +590,91 @@ function syncSldVisuals() {
   });
 }
 
+const baySlideIndex = { bay01: 0, bay02: 0, bay03: 0, bay04: 0 };
+
+function getBayAllPhotos(bayId) {
+  const bay = CAREER_BAYS[bayId];
+  if (!bay) return [];
+  const custom = CUSTOM_PHOTOS_CACHE[bayId] || [];
+  const defaults = bay.defaultPhotos || [];
+  const combined = [...custom, ...defaults];
+
+  // If no photos yet, check legacy single slot
+  if (combined.length === 0 && bay.photoSlot) {
+    const single = getStoredPhoto(bay.photoSlot);
+    if (single) {
+      combined.push({
+        id: `legacy_${bayId}`,
+        src: single,
+        title: bay.photoTitle || 'Site Photo',
+        caption: bay.project || ''
+      });
+    }
+  }
+  return combined;
+}
+
+function changeBaySlide(bayId, delta) {
+  const photos = getBayAllPhotos(bayId);
+  if (!photos.length) return;
+  const curr = baySlideIndex[bayId] || 0;
+  baySlideIndex[bayId] = (curr + delta + photos.length) % photos.length;
+  renderCareerBayDetail();
+}
+
+function setBaySlide(bayId, index) {
+  const photos = getBayAllPhotos(bayId);
+  if (!photos.length) return;
+  baySlideIndex[bayId] = Math.max(0, Math.min(index, photos.length - 1));
+  renderCareerBayDetail();
+}
+
+function openBayAlbumLightbox(bayId, startIndex = 0) {
+  const photos = getBayAllPhotos(bayId);
+  if (!photos.length) return;
+  openAlbumLightbox(photos, startIndex);
+}
+
+async function handleCareerBayPhotosUpload(event, bayId) {
+  const files = event.target.files;
+  if (!files || !files.length) return;
+
+  const bay = CAREER_BAYS[bayId];
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+    const dataUrl = await compressImageFile(file, 1600, 1200, 0.84);
+    if (!dataUrl) continue;
+
+    const cleanTitle = file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ');
+    const photoObj = {
+      id: `bay_${bayId}_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
+      category: bayId,
+      src: dataUrl,
+      title: cleanTitle.charAt(0).toUpperCase() + cleanTitle.slice(1),
+      caption: `${bay ? bay.company : 'Project Execution'} &bull; On-Site EPC Field Photo`,
+      isCustom: true,
+      timestamp: Date.now()
+    };
+    await persistCustomPhoto(photoObj);
+  }
+
+  baySlideIndex[bayId] = 0;
+  renderCareerBayDetail();
+  // Also sync with project archive so photos appear there too
+  renderProjectArchiveSlider();
+}
+
+async function handleDeleteCareerPhoto(bayId, photoId) {
+  if (!confirm('Remove this photo from your career gallery?')) return;
+  await deleteCustomPhotoFromDB(photoId, bayId);
+  const photos = getBayAllPhotos(bayId);
+  if (baySlideIndex[bayId] >= photos.length) {
+    baySlideIndex[bayId] = Math.max(0, photos.length - 1);
+  }
+  renderCareerBayDetail();
+  renderProjectArchiveSlider();
+}
+
 function renderCareerBayDetail() {
   const container = document.getElementById('careerBayDetailContainer');
   if (!container) return;
@@ -435,7 +697,9 @@ function renderCareerBayDetail() {
   }
 
   const bay = CAREER_BAYS[selectedBayId];
-  const photoSrc = getStoredPhoto(bay.photoSlot);
+  const allPhotos = getBayAllPhotos(selectedBayId);
+  const currIndex = Math.max(0, Math.min(baySlideIndex[selectedBayId] || 0, Math.max(0, allPhotos.length - 1)));
+  const currentPhoto = allPhotos[currIndex] || null;
 
   container.innerHTML = `
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
@@ -466,39 +730,70 @@ function renderCareerBayDetail() {
 
       <div class="lg:col-span-5">
         <div class="cad-frame">
-          <div class="relative aspect-[4/3] rounded-xl bg-linen border border-hairline overflow-hidden flex items-center justify-center">
-            <img id="bayDetailImg" src="${photoSrc || ''}" alt="${bay.photoTitle}" class="w-full h-full object-cover cursor-zoom-in ${photoSrc ? '' : 'hidden'}" onclick="openLightbox('${bay.photoSlot}', '${bay.photoTitle.replace(/'/g, "\\'")}')" />
-            <div id="bayDetailFallback" class="text-center p-5 ${photoSrc ? 'hidden' : ''}">
-              <div class="font-mono text-xs font-bold text-cerulean">${bay.ds} / ${bay.cb} SITE PHOTO SLOT</div>
-              <p class="text-xs text-slate-600 mt-1.5">${bay.photoTitle}</p>
-              <p class="text-[10.5px] font-mono text-slate-500 mt-1">Place photo in assets/images/ or attach</p>
+          <!-- Slider Header with Counter & Batch Upload Button -->
+          <div class="flex items-center justify-between gap-2 pb-2.5 px-1 border-b border-hairline mb-3">
+            <div class="flex items-center gap-2">
+              <span class="font-mono text-xs font-bold text-cerulean">FIELD PHOTOS (${allPhotos.length})</span>
+              ${allPhotos.length > 0 ? `<span class="px-2 py-0.5 rounded bg-sky-100 text-cerulean font-mono text-[11px] font-bold">${currIndex + 1} / ${allPhotos.length}</span>` : ''}
             </div>
-          </div>
-
-          <div class="flex items-center justify-between gap-2.5 pt-3 px-1">
-            <span class="text-xs text-slate-600 truncate">
-              ${bay.photoTitle}
-            </span>
-            <label class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white hover:bg-sky-50 border border-stone-300 hover:border-cerulean text-ink hover:text-cerulean font-mono text-[11px] font-semibold cursor-pointer flex-shrink-0 transition-colors">
-              <span class="text-cerulean font-bold">+</span>
-              <span>Attach Photo</span>
-              <input type="file" accept="image/*" class="hidden" onchange="handlePhotoUpload(event, '${bay.photoSlot}', true)" />
+            <label class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cerulean hover:bg-sky-700 text-white font-mono text-[11px] font-semibold cursor-pointer shadow-sm transition-colors" title="Select several images at once">
+              <span class="font-bold">+</span>
+              <span>Add Photos (Batch)</span>
+              <input type="file" accept="image/*" multiple class="hidden" onchange="handleCareerBayPhotosUpload(event, '${bay.id}')" />
             </label>
           </div>
+
+          <!-- Main Slide Viewport -->
+          <div class="relative aspect-[4/3] rounded-xl bg-linen border border-hairline overflow-hidden flex items-center justify-center group select-none">
+            ${currentPhoto ? `
+              <img id="baySlideMainImg" src="${currentPhoto.src}" alt="${currentPhoto.title}" class="w-full h-full object-cover cursor-zoom-in transition-all" onclick="openBayAlbumLightbox('${bay.id}', ${currIndex})" onerror="this.classList.add('hidden'); this.nextElementSibling.classList.remove('hidden');" />
+              <div class="hidden text-center p-5 w-full h-full bg-linen flex flex-col items-center justify-center">
+                <div class="font-mono text-xs font-bold text-cerulean">${bay.ds} / ${bay.cb} SITE PHOTO SLOT</div>
+                <p class="text-xs text-slate-600 mt-1.5">${currentPhoto.title}</p>
+                <p class="text-[10.5px] font-mono text-slate-500 mt-1">Place photo in assets/images/ or click '+ Add Photos'</p>
+              </div>
+
+              <!-- Overlay Navigation Arrows -->
+              ${allPhotos.length > 1 ? `
+                <button type="button" onclick="changeBaySlide('${bay.id}', -1)" class="absolute left-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-ink/75 hover:bg-cerulean text-white flex items-center justify-center text-sm shadow-md cursor-pointer transition-all opacity-85 group-hover:opacity-100" aria-label="Previous photo">&#10094;</button>
+                <button type="button" onclick="changeBaySlide('${bay.id}', 1)" class="absolute right-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-ink/75 hover:bg-cerulean text-white flex items-center justify-center text-sm shadow-md cursor-pointer transition-all opacity-85 group-hover:opacity-100" aria-label="Next photo">&#10095;</button>
+              ` : ''}
+
+              <!-- Delete Button for User Uploaded Photos -->
+              ${currentPhoto.isCustom ? `
+                <button type="button" onclick="handleDeleteCareerPhoto('${bay.id}', '${currentPhoto.id}')" class="absolute top-2.5 right-2.5 px-2.5 py-1 rounded-md bg-rose-600 hover:bg-rose-700 text-white font-mono text-[10.5px] font-bold shadow-md cursor-pointer transition-colors" title="Delete uploaded photo">
+                  &times; Remove
+                </button>
+              ` : ''}
+
+              <!-- Bottom Gradient Caption Bar -->
+              <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink/90 via-ink/60 to-transparent p-3 pt-6 pointer-events-none text-left">
+                <div class="text-white text-xs sm:text-[13px] font-bold leading-tight truncate">${currentPhoto.title}</div>
+                ${currentPhoto.caption ? `<div class="text-sky-200 text-[11px] truncate mt-0.5">${currentPhoto.caption}</div>` : ''}
+              </div>
+            ` : `
+              <div class="text-center p-5">
+                <div class="font-mono text-xs font-bold text-cerulean">${bay.ds} / ${bay.cb} SITE PHOTO ARCHIVE</div>
+                <p class="text-xs text-slate-600 mt-1.5">${bay.photoTitle}</p>
+                <p class="text-[10.5px] font-mono text-slate-500 mt-1">Click '+ Add Photos (Batch)' above to attach multiple project photographs</p>
+              </div>
+            `}
+          </div>
+
+          <!-- Thumbnail Ribbon -->
+          ${allPhotos.length > 1 ? `
+            <div class="flex items-center gap-2 overflow-x-auto py-2.5 px-0.5 no-scrollbar">
+              ${allPhotos.map((p, idx) => `
+                <button type="button" onclick="setBaySlide('${bay.id}', ${idx})" class="career-thumb-btn w-14 h-10 rounded-lg overflow-hidden border border-hairline flex-shrink-0 cursor-pointer ${idx === currIndex ? 'active ring-2 ring-cerulean' : 'opacity-70 hover:opacity-100'}">
+                  <img src="${p.src}" alt="" class="w-full h-full object-cover" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2250%22 height=%2240%22><rect width=%2250%22 height=%2240%22 fill=%22%23ECEAE2%22/><text x=%2225%22 y=%2224%22 font-family=%22monospace%22 font-size=%229%22 fill=%22%2364748B%22 text-anchor=%22middle%22>${idx + 1}</text></svg>'" />
+                </button>
+              `).join('')}
+            </div>
+          ` : ''}
         </div>
       </div>
     </div>
   `;
-
-  // Attach error handler to bay image if the static file is missing
-  const imgEl = document.getElementById('bayDetailImg');
-  const fallbackEl = document.getElementById('bayDetailFallback');
-  if (imgEl && fallbackEl) {
-    imgEl.onerror = () => {
-      imgEl.classList.add('hidden');
-      fallbackEl.classList.remove('hidden');
-    };
-  }
 }
 
 /* -------------------------------------------------------------------------
@@ -714,46 +1009,221 @@ function resetNepalMap() {
 }
 
 /* -------------------------------------------------------------------------
-   6. SITE PHOTO ARCHIVE
+   6. MULTI-PROJECT CONTINUOUS SITE PHOTO ARCHIVE SLIDER
+   Supports continuous sliding, project filtering, and batch photo uploads (5, 10, 15+).
    ------------------------------------------------------------------------- */
-function renderSitePhotoArchive() {
-  const container = document.getElementById('sitePhotoArchiveList');
-  if (!container) return;
+let activeProjectFilter = 'all';
+let siteSliderInterval = null;
+let isSiteSliderPaused = false;
 
-  container.innerHTML = ARCHIVE_SLOTS.map(item => {
-    const src = getStoredPhoto(item.key);
-    const hasImg = Boolean(src);
+function getFilteredProjectPhotos() {
+  const customAll = [];
+  const validProjectKeys = ['prasauni', 'chilime', 'trishuli3b', 'nagdhunga', 'samundratar', 'tamor'];
+  validProjectKeys.forEach(cat => {
+    (CUSTOM_PHOTOS_CACHE[cat] || []).forEach(p => customAll.push(p));
+  });
 
-    return `
-      <div class="bg-white border border-hairline rounded-2xl p-4 flex items-center justify-between gap-3.5 shadow-sm">
-        <div class="flex items-center gap-3.5 min-w-0">
-          ${hasImg
-            ? `<img src="${src}" alt="${item.title}" class="w-16 h-12 rounded-lg object-cover border border-hairline cursor-zoom-in flex-shrink-0" onclick="openLightbox('${item.key}', '${item.title.replace(/'/g, "\\'")} — ${item.desc.replace(/'/g, "\\'")}')" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
-               <div class="w-16 h-12 rounded-lg bg-alabaster border border-hairline items-center justify-center flex-shrink-0 font-mono text-[11px] font-bold text-cerulean hidden">
-                 ${item.label.slice(0, 2)}
-               </div>`
-            : `<div class="w-16 h-12 rounded-lg bg-alabaster border border-hairline flex items-center justify-center flex-shrink-0 font-mono text-[11px] font-bold text-cerulean">
-                ${item.label.slice(0, 2)}
-              </div>`
-          }
-          <div class="min-w-0">
-            <div class="font-mono text-[10.5px] font-bold text-amberHv">${item.label}</div>
-            <div class="text-[14.5px] font-bold text-ink truncate">${item.title}</div>
-            <div class="text-xs text-slate-600 truncate">${item.desc}</div>
+  const defaults = typeof PROJECT_SITE_ARCHIVES !== 'undefined' ? PROJECT_SITE_ARCHIVES : [];
+  const combined = [...customAll, ...defaults];
+
+  if (activeProjectFilter === 'all') {
+    return combined;
+  }
+  return combined.filter(p => p.projectId === activeProjectFilter || p.category === activeProjectFilter);
+}
+
+function setProjectArchiveFilter(filterId) {
+  activeProjectFilter = filterId;
+  renderProjectArchiveSlider();
+  const track = document.getElementById('projectSliderTrack');
+  if (track) track.scrollTo({ left: 0, behavior: 'smooth' });
+}
+
+function renderProjectArchiveSlider() {
+  const pillsContainer = document.getElementById('projectArchiveFilterPills');
+  const track = document.getElementById('projectSliderTrack');
+  const totalBadge = document.getElementById('sitePhotoTotalBadge');
+  const countText = document.getElementById('projectSliderCountText');
+
+  const photos = getFilteredProjectPhotos();
+  const filters = typeof PROJECT_ARCHIVE_FILTERS !== 'undefined' ? PROJECT_ARCHIVE_FILTERS : [
+    { id: 'all', label: 'All Projects' }
+  ];
+
+  // Render Filter Pills
+  if (pillsContainer) {
+    pillsContainer.innerHTML = filters.map(f => {
+      const isActive = f.id === activeProjectFilter;
+      return `
+        <button type="button" onclick="setProjectArchiveFilter('${f.id}')" class="project-filter-pill px-3 py-1.5 rounded-lg border font-mono text-[11px] font-semibold cursor-pointer transition-colors ${isActive ? 'active bg-cerulean text-white border-cerulean' : 'bg-alabaster text-ink border-stone-300 hover:border-cerulean hover:text-cerulean'}">
+          ${f.label}
+        </button>
+      `;
+    }).join('');
+  }
+
+  // Update Badges
+  if (totalBadge) {
+    totalBadge.textContent = `${photos.length} PHOTOGRAPHS`;
+  }
+  if (countText) {
+    const activeLabel = filters.find(f => f.id === activeProjectFilter)?.label || 'All Projects';
+    countText.textContent = `Showing ${photos.length} photos (${activeLabel})`;
+  }
+
+  // Render Slider Track
+  if (track) {
+    if (!photos.length) {
+      track.innerHTML = `
+        <div class="w-full text-center py-12 px-4 bg-white border border-hairline rounded-2xl">
+          <div class="font-mono text-xs font-bold text-cerulean mb-1.5">NO PHOTOGRAPHS CURRENTLY IN THIS ARCHIVE</div>
+          <p class="text-sm text-slate-600 mb-3">Click '+ Add Site Photos (Batch)' above to upload 5, 10, or 15 photos to this project.</p>
+        </div>
+      `;
+      return;
+    }
+
+    track.innerHTML = photos.map((item, idx) => {
+      return `
+        <div class="photo-slider-card w-[290px] sm:w-[330px] rounded-2xl bg-white border border-hairline shadow-sm overflow-hidden flex flex-col justify-between flex-shrink-0">
+          <div class="relative aspect-[16/10] bg-linen overflow-hidden cursor-zoom-in group select-none" onclick="openProjectAlbumLightbox(${idx})">
+            <img src="${item.src}" alt="${item.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" onerror="this.classList.add('hidden'); this.nextElementSibling.classList.remove('hidden');" />
+            <div class="hidden w-full h-full bg-linen flex items-center justify-center font-mono text-xs text-cerulean font-bold">${item.voltage || 'SITE PHOTO'}</div>
+            
+            <div class="absolute top-2.5 left-2.5 px-2.5 py-1 rounded-md bg-ink/80 text-white font-mono text-[10px] font-bold shadow">
+              ${item.voltage || 'HIGH VOLTAGE'}
+            </div>
+
+            ${item.isCustom ? `
+              <button type="button" onclick="event.stopPropagation(); handleDeleteProjectPhoto('${item.id}', '${item.category || item.projectId}')" class="absolute top-2.5 right-2.5 px-2 py-0.5 rounded bg-rose-600 hover:bg-rose-700 text-white font-mono text-[10px] font-bold shadow-md cursor-pointer transition-colors" title="Delete photograph">
+                &times; Remove
+              </button>
+            ` : ''}
+
+            <div class="absolute inset-0 bg-gradient-to-t from-ink/75 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-3">
+              <span class="text-white text-xs font-bold font-mono">&#128269; View High-Resolution</span>
+            </div>
+          </div>
+
+          <div class="p-4 flex-1 flex flex-col justify-between">
+            <div>
+              <div class="font-mono text-[10.5px] font-bold text-amberHv mb-1 uppercase truncate">${item.contractor || item.projectTitle || ''}</div>
+              <h4 class="font-bold text-[14px] text-ink leading-snug line-clamp-2 mb-1.5">${item.title}</h4>
+              <p class="text-xs text-slate-600 line-clamp-2 leading-relaxed">${item.desc || item.caption || ''}</p>
+            </div>
+            <div class="flex items-center justify-between pt-3 mt-3 border-t border-hairline text-[11px] font-mono text-slate-500">
+              <span class="truncate max-w-[170px]">${item.location || 'Nepal Grid'}</span>
+              <span class="flex-shrink-0">${item.date || ''}</span>
+            </div>
           </div>
         </div>
+      `;
+    }).join('');
+  }
+}
 
-        <div class="flex items-center gap-2 flex-shrink-0">
-          <button type="button" onclick="openLightbox('${item.key}', '${item.title.replace(/'/g, "\\'")} — ${item.desc.replace(/'/g, "\\'")}')" class="px-2.5 py-1.5 rounded-lg bg-alabaster border border-stone-300 hover:border-cerulean hover:text-cerulean font-mono text-[11px] font-semibold text-ink cursor-pointer">View</button>
-          <label class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white hover:bg-sky-50 border border-stone-300 hover:border-cerulean text-ink hover:text-cerulean font-mono text-[11px] font-semibold cursor-pointer transition-colors">
-            <span class="text-cerulean font-bold">+</span>
-            <span>Attach</span>
-            <input type="file" accept="image/*" class="hidden" onchange="handlePhotoUpload(event, '${item.key}')" />
-          </label>
-        </div>
-      </div>
-    `;
-  }).join('');
+function openProjectAlbumLightbox(index) {
+  const photos = getFilteredProjectPhotos();
+  if (!photos.length) return;
+  openAlbumLightbox(photos, index);
+}
+
+function slideProjectArchive(direction) {
+  const track = document.getElementById('projectSliderTrack');
+  if (!track) return;
+
+  const cardWidth = 340;
+  const maxScroll = track.scrollWidth - track.clientWidth;
+  const currentScroll = track.scrollLeft;
+
+  if (direction > 0 && currentScroll >= maxScroll - 10) {
+    // End reached, loop smoothly back to start
+    track.scrollTo({ left: 0, behavior: 'smooth' });
+  } else if (direction < 0 && currentScroll <= 10) {
+    // Start reached, loop to end
+    track.scrollTo({ left: maxScroll, behavior: 'smooth' });
+  } else {
+    track.scrollBy({ left: direction * cardWidth, behavior: 'smooth' });
+  }
+}
+
+function startSiteSlider() {
+  stopSiteSlider();
+  siteSliderInterval = setInterval(() => {
+    if (!isSiteSliderPaused) {
+      slideProjectArchive(1);
+    }
+  }, 3500);
+}
+
+function stopSiteSlider() {
+  if (siteSliderInterval) {
+    clearInterval(siteSliderInterval);
+    siteSliderInterval = null;
+  }
+}
+
+function toggleSiteSliderAutoplay() {
+  const icon = document.getElementById('sliderPlayPauseIcon');
+  const text = document.getElementById('sliderPlayPauseText');
+
+  if (siteSliderInterval) {
+    stopSiteSlider();
+    if (icon) icon.innerHTML = '&#9654;';
+    if (text) text.textContent = 'Resume Auto-Slide';
+  } else {
+    isSiteSliderPaused = false;
+    startSiteSlider();
+    if (icon) icon.innerHTML = '&#9646;&#9646;';
+    if (text) text.textContent = 'Pause Auto-Slide';
+  }
+}
+
+async function handleProjectArchiveUpload(event) {
+  const files = event.target.files;
+  if (!files || !files.length) return;
+
+  const targetCategory = activeProjectFilter === 'all' ? 'prasauni' : activeProjectFilter;
+  const targetProject = (typeof NEPAL_GRID_PROJECTS !== 'undefined') && NEPAL_GRID_PROJECTS.find(p => p.id === targetCategory);
+
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+    const dataUrl = await compressImageFile(file, 1600, 1200, 0.84);
+    if (!dataUrl) continue;
+
+    const cleanTitle = file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ');
+    const photoObj = {
+      id: `proj_${targetCategory}_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
+      category: targetCategory,
+      projectId: targetCategory,
+      src: dataUrl,
+      title: cleanTitle.charAt(0).toUpperCase() + cleanTitle.slice(1),
+      desc: targetProject ? `${targetProject.title} &bull; ${targetProject.desc}` : 'High-Voltage EPC Substation Field Execution Photo',
+      voltage: targetProject ? targetProject.voltage.split(',')[0] : '132 kV EPC',
+      contractor: targetProject ? targetProject.contractor : 'CREGC / High Voltage EPC',
+      location: targetProject ? targetProject.location : 'Nepal Grid Corridor',
+      date: '2024–Present',
+      isCustom: true,
+      timestamp: Date.now()
+    };
+    await persistCustomPhoto(photoObj);
+  }
+
+  renderProjectArchiveSlider();
+  const track = document.getElementById('projectSliderTrack');
+  if (track) {
+    track.scrollTo({ left: 0, behavior: 'smooth' });
+  }
+}
+
+async function handleDeleteProjectPhoto(photoId, category) {
+  if (!confirm('Remove this photo from the site archive?')) return;
+  await deleteCustomPhotoFromDB(photoId, category);
+  renderProjectArchiveSlider();
+}
+
+function renderSitePhotoArchive() {
+  renderProjectArchiveSlider();
 }
 
 /* -------------------------------------------------------------------------
@@ -793,7 +1263,7 @@ function copyText(elementId, btn) {
     const original = btn.textContent;
     btn.textContent = 'Copied';
     setTimeout(() => { btn.textContent = original; }, 1800);
-  } catch (e) {}
+  } catch (e) { }
   document.body.removeChild(temp);
 }
 
@@ -816,7 +1286,7 @@ function setupKeyboardNavigation() {
 /* -------------------------------------------------------------------------
    9. INITIALIZATION ON DOM READY
    ------------------------------------------------------------------------- */
-function initApp() {
+async function initApp() {
   // Sync External Links
   const overviewNec = document.getElementById('overviewNecLink');
   if (overviewNec) overviewNec.href = NEC_LICENSE_URL;
@@ -824,16 +1294,28 @@ function initApp() {
   const linkedinLink = document.getElementById('contactLinkedinLink');
   if (linkedinLink) linkedinLink.href = LINKEDIN_URL;
 
+  // Load custom photos from IndexedDB
+  await loadAllCustomPhotosFromDB();
+
   // Initialize Modules
   syncHeroPortrait();
-  syncFieldBanner();
   syncSldVisuals();
   renderCareerBayDetail();
   syncAcademicRouteVisuals();
   renderAcademicDetail();
-  renderSitePhotoArchive();
+  renderProjectArchiveSlider();
   initScrollReveal();
   setupKeyboardNavigation();
+
+  // Start continuous site slider auto-play with pause-on-hover
+  const track = document.getElementById('projectSliderTrack');
+  if (track) {
+    track.addEventListener('mouseenter', () => { isSiteSliderPaused = true; });
+    track.addEventListener('mouseleave', () => { isSiteSliderPaused = false; });
+    track.addEventListener('touchstart', () => { isSiteSliderPaused = true; }, { passive: true });
+    track.addEventListener('touchend', () => { isSiteSliderPaused = false; }, { passive: true });
+  }
+  startSiteSlider();
 
   // Read URL Hash or default to overview
   const initialHash = window.location.hash.replace('#', '');

@@ -848,11 +848,48 @@ html.dark svg text[fill="#475569"] {
   fill: #94A3B8 !important;
 }
 
+html.dark svg text[fill="#64748B"] {
+  fill: #94A3B8 !important;
+}
+
+html.dark svg text[fill="#0369A1"] {
+  fill: #38BDF8 !important;
+}
+
+html.dark svg text[fill="#B45309"] {
+  fill: #FBBF24 !important;
+}
+
+html.dark svg rect[fill="#E0F2FE"] {
+  fill: #0C2B45 !important;
+  stroke: #38BDF8 !important;
+}
+
+html.dark svg circle[stroke="#182230"] {
+  stroke: #38BDF8 !important;
+}
+
+html.dark svg rect[stroke="#182230"] {
+  stroke: #38BDF8 !important;
+}
+
+html.dark svg path[stroke="#182230"] {
+  stroke: #94A3B8 !important;
+}
+
 html.dark svg line[stroke="#ECEAE2"] {
   stroke: #223247 !important;
 }
 
 html.dark svg rect[stroke="#DCD8CD"] {
+  stroke: #223247 !important;
+}
+
+html.dark svg path[stroke="#DCD8CD"] {
+  stroke: #223247 !important;
+}
+
+html.dark svg line[stroke="#DCD8CD"] {
   stroke: #223247 !important;
 }
 
@@ -888,4 +925,18 @@ html.dark .leaflet-popup-content-wrapper {
 
 html.dark .leaflet-popup-tip {
   background-color: #131B26 !important;
+}
+
+/* Background Animation Freezing on Tab Hide (Saves Mobile CPU & Battery) */
+.global-backdrop-container.backdrop-paused *,
+.global-backdrop-container.backdrop-paused {
+  animation-play-state: paused !important;
+}
+
+html.dark .text-slate-700 {
+  color: #CBD5E1 !important;
+}
+
+html.dark .text-slate-800 {
+  color: #E2E8F0 !important;
 }

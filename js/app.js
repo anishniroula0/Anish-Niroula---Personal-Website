@@ -1071,9 +1071,42 @@ function renderAcademicDetail() {
 
 /* -------------------------------------------------------------------------
    6. INTERACTIVE NEPAL HIGH-VOLTAGE TRANSMISSION GIS MAP (LEAFLET.JS)
+   Loaded on-demand only when opening Projects & Gallery to optimize initial payload
    ------------------------------------------------------------------------- */
 let nepalMapInstance = null;
 let nepalMapRetryCount = 0;
+let leafletLoading = false;
+
+function loadLeaflet(callback) {
+  if (typeof L !== 'undefined') {
+    if (callback) callback();
+    return;
+  }
+  if (!leafletLoading) {
+    leafletLoading = true;
+    if (!document.getElementById('leafletCssLink')) {
+      const link = document.createElement('link');
+      link.id = 'leafletCssLink';
+      link.rel = 'stylesheet';
+      link.href = 'css/leaflet.css?v=3.9';
+      document.head.appendChild(link);
+    }
+    const script = document.createElement('script');
+    script.id = 'leafletJsScript';
+    script.src = 'js/leaflet.js?v=3.9';
+    script.async = true;
+    script.onload = () => {
+      leafletLoading = false;
+      if (callback) callback();
+    };
+    script.onerror = () => {
+      leafletLoading = false;
+    };
+    document.body.appendChild(script);
+  } else {
+    setTimeout(() => loadLeaflet(callback), 100);
+  }
+}
 
 function initNepalMap() {
   const mapContainer = document.getElementById('nepalGisMap');
@@ -1094,11 +1127,11 @@ function initNepalMap() {
     return;
   }
 
+  // Lazy-load Leaflet on demand if not yet loaded
   if (typeof L === 'undefined') {
-    if (nepalMapRetryCount < 30) {
-      nepalMapRetryCount++;
-      setTimeout(initNepalMap, 150);
-    }
+    loadLeaflet(() => {
+      initNepalMap();
+    });
     return;
   }
 
@@ -1407,12 +1440,12 @@ function handleDirectMessage(event) {
   const confirmBox = document.getElementById('messageConfirmation');
   confirmBox.classList.remove('hidden');
   confirmBox.innerHTML = `
-    <div class="font-semibold">Message Prepared for diaryofanish@gmail.com</div>
-    <div class="mt-1 text-slate-700">Thank you, ${name}. If your email client does not open automatically, you can also write directly to <a href="mailto:diaryofanish@gmail.com" class="text-cerulean underline font-bold">diaryofanish@gmail.com</a>.</div>
+    <div class="font-semibold text-ink dark:text-[#F8FAFC]">Message Prepared for diaryofanish@gmail.com</div>
+    <div class="mt-1 text-slate-700 dark:text-[#94A3B8]">Thank you, ${name}. If your email client does not open automatically, you can also write directly to <a href="mailto:diaryofanish@gmail.com" class="text-cerulean dark:text-[#38BDF8] underline font-bold">diaryofanish@gmail.com</a>.</div>
   `;
 
-  const subject = encodeURIComponent(`[aniroula.com.np] ${topic} — ${name} (${org})`);
-  const body = encodeURIComponent(`Hello Anish,\n\nName: ${name}\nOrganization: ${org}\nSubject: ${topic}\n\nMessage:\n${msg}\n\n---\nSent via aniroula.com.np portfolio`);
+  const subject = encodeURIComponent(`[Portfolio Contact] ${topic} — ${name} (${org})`);
+  const body = encodeURIComponent(`Hello Anish,\n\nName: ${name}\nOrganization: ${org}\nSubject: ${topic}\n\nMessage:\n${msg}\n\n---\nSent via Anish Niroula Engineering Portfolio`);
   window.location.href = `mailto:diaryofanish@gmail.com?subject=${subject}&body=${body}`;
 }
 
@@ -1498,3 +1531,27 @@ if (document.readyState === 'loading') {
 } else {
   initApp();
 }
+
+/* -------------------------------------------------------------------------
+   8. VISIBILITY CHANGE LISTENER (BATTERY & CPU SAVER FOR MOBILE & LAPTOPS)
+   Freezes SMIL <animateMotion> and CSS SVG conductor animations when tab is hidden
+   ------------------------------------------------------------------------- */
+document.addEventListener('visibilitychange', () => {
+  const bgSvg = document.querySelector('.global-backdrop-container svg');
+  const bgContainer = document.querySelector('.global-backdrop-container');
+  if (document.hidden) {
+    if (bgSvg && typeof bgSvg.pauseAnimations === 'function') {
+      try { bgSvg.pauseAnimations(); } catch (e) {}
+    }
+    if (bgContainer) {
+      bgContainer.classList.add('backdrop-paused');
+    }
+  } else {
+    if (bgSvg && typeof bgSvg.unpauseAnimations === 'function') {
+      try { bgSvg.unpauseAnimations(); } catch (e) {}
+    }
+    if (bgContainer) {
+      bgContainer.classList.remove('backdrop-paused');
+    }
+  }
+});

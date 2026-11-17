@@ -92,7 +92,7 @@
   </script>
 
   <!-- Custom Architectural & Animation Stylesheet -->
-  <link rel="stylesheet" href="css/styles.css?v=4.2" />
+  <link rel="stylesheet" href="css/styles.css?v=4.4" />
 </head>
 
 <body class="drafting-grid-bg pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-0 antialiased selection:bg-sky-200">
@@ -455,11 +455,32 @@
   </div>
 
   <!-- =========================================================================
-       FIXED FIELD RUNNER MASCOT (GPU-ACCELERATED PERIMETER RUNNER)
-       Position: fixed; z-index: 35; pointer-events: none (zero click interference)
+       INTERACTIVE FIELD ENGINEER MASCOT (ROAMING, INSPECTING, CLICKABLE)
        ========================================================================= -->
-  <div id="perimeterMascotTrack" class="perimeter-mascot-track" aria-hidden="true">
-    <div id="perimeterMascotSprite" class="perimeter-mascot-sprite"></div>
+  <div id="engineerMascotContainer" class="engineer-mascot-container" aria-label="Interactive Engineer Mascot">
+    <!-- Speech / Inspection Bubble -->
+    <div id="mascotSpeechBubble" class="mascot-speech-bubble" role="dialog" aria-live="polite">
+      <div class="mascot-speech-header">
+        <span id="mascotSpeechRole">⚡ Field Engineer Anish</span>
+        <button type="button" class="mascot-speech-close" onclick="dismissMascotSpeech(event)" aria-label="Close speech bubble">&times;</button>
+      </div>
+      <div id="mascotSpeechText" class="mascot-speech-text">Patrolling 132kV/220kV switchyard... ⚡</div>
+      <div class="mascot-actions-row">
+        <button type="button" class="mascot-action-btn" onclick="triggerMascotAction('inspect', event)">🔍 Inspect</button>
+        <button type="button" class="mascot-action-btn" onclick="triggerMascotAction('sprint', event)">⚡ Sprint</button>
+        <button type="button" class="mascot-action-btn" onclick="triggerMascotAction('chelsea', event)">⚽ Chelsea</button>
+        <button type="button" class="mascot-action-btn" onclick="triggerMascotAction('jam', event)">🎵 Jam</button>
+        <button type="button" class="mascot-action-btn" onclick="triggerMascotAction('rest', event)">☕ Rest</button>
+      </div>
+      <div class="mascot-bubble-tail"></div>
+    </div>
+
+    <!-- Character Body (Click to Jump/Talk, Drag anywhere) -->
+    <div id="mascotCharacterWrapper" class="mascot-character-wrapper" onclick="handleMascotClick(event)">
+      <div id="mascotSprite" class="mascot-sprite"></div>
+      <div class="mascot-shadow"></div>
+      <div id="mascotStatusBadge" class="mascot-status-badge hidden">⚡</div>
+    </div>
   </div>
 
   <!-- =========================================================================
@@ -2036,7 +2057,7 @@
 
   <!-- Application Logic & Data Layer (Leaflet GIS loads dynamically on-demand when opening Projects) -->
   <script src="js/data.js?v=4.2"></script>
-  <script src="js/app.js?v=4.2"></script>
+  <script src="js/app.js?v=4.4"></script>
 </body>
 
 </html>

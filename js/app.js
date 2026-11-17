@@ -1579,14 +1579,12 @@ if (document.readyState === 'loading') {
 
 /* -------------------------------------------------------------------------
    8. VISIBILITY CHANGE & BATTERY OPTIMIZATION (MOBILE & ACCESSIBILITY)
-   Freezes SMIL <animateMotion>, mascot, and CSS SVG conductor animations when
-   tab is hidden or when prefers-reduced-motion is active.
+   Freezes animations, mascot loop, and SVG paths when tab is hidden or
+   when prefers-reduced-motion is active.
    ------------------------------------------------------------------------- */
 function updateSvgAnimationState() {
   const bgSvg = document.querySelector('.global-backdrop-container svg');
   const bgContainer = document.querySelector('.global-backdrop-container');
-  const mascotTrack = document.getElementById('perimeterMascotTrack');
-  const mascotSprite = document.getElementById('perimeterMascotSprite');
   const reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const shouldPause = document.hidden || reducedMotion;
 
@@ -1597,8 +1595,9 @@ function updateSvgAnimationState() {
     if (bgContainer) {
       bgContainer.classList.add('backdrop-paused');
     }
-    if (mascotTrack) mascotTrack.style.animationPlayState = 'paused';
-    if (mascotSprite) mascotSprite.style.animationPlayState = 'paused';
+    if (window.mascotEngine) {
+      window.mascotEngine.pause();
+    }
   } else {
     if (bgSvg && typeof bgSvg.unpauseAnimations === 'function') {
       try { bgSvg.unpauseAnimations(); } catch (e) {}
@@ -1606,8 +1605,9 @@ function updateSvgAnimationState() {
     if (bgContainer) {
       bgContainer.classList.remove('backdrop-paused');
     }
-    if (mascotTrack) mascotTrack.style.animationPlayState = 'running';
-    if (mascotSprite) mascotSprite.style.animationPlayState = 'running';
+    if (window.mascotEngine) {
+      window.mascotEngine.resume();
+    }
   }
 }
 
@@ -1620,35 +1620,430 @@ if (window.matchMedia) {
 updateSvgAnimationState();
 
 /* -------------------------------------------------------------------------
-   9. PERIMETER FIELD RUNNER MASCOT CONTROLLER
+   9. INTERACTIVE FIELD ENGINEER MASCOT COMPANION ENGINE
+   60 FPS roaming, site inspections, interactive dialogues, dragging & physics
    ------------------------------------------------------------------------- */
-function initMascot() {
-  let enabled = true;
-  try {
-    const saved = localStorage.getItem('mascot-enabled');
-    if (saved !== null) enabled = (saved === 'true');
-  } catch (e) {}
-  applyMascotState(enabled);
-}
+class FieldEngineerMascot {
+  constructor() {
+    this.container = document.getElementById('engineerMascotContainer');
+    this.wrapper = document.getElementById('mascotCharacterWrapper');
+    this.sprite = document.getElementById('mascotSprite');
+    this.badge = document.getElementById('mascotStatusBadge');
+    this.bubble = document.getElementById('mascotSpeechBubble');
+    this.speechText = document.getElementById('mascotSpeechText');
+    this.speechRole = document.getElementById('mascotSpeechRole');
 
-function applyMascotState(enabled) {
-  const root = document.documentElement;
-  const label = document.getElementById('footerMascotLabel');
-  if (enabled) {
-    root.classList.remove('mascot-disabled');
-    if (label) label.textContent = 'Mascot: On ⚡';
-  } else {
-    root.classList.add('mascot-disabled');
-    if (label) label.textContent = 'Mascot: Off';
+    this.enabled = true;
+    this.posX = 40;
+    this.posY = 0;
+    this.direction = 1; // 1 = right, -1 = left
+    this.baseSpeed = 1.6;
+    this.currentSpeed = 1.6;
+    this.isPaused = false;
+    this.isInspecting = false;
+    this.isDragging = false;
+    this.dragMoved = false;
+    this.dragStartX = 0;
+    this.dragStartY = 0;
+    this.dragStartPosX = 0;
+    this.dragStartPosY = 0;
+    this.bubbleTimer = null;
+    this.taskTimer = null;
+    this.animFrameId = null;
+
+    this.engineeringQuotes = [
+      "Checking Satdobato 132kV GIS SF6 gas pressure: 0.58 MPa (Nominal) 🟢",
+      "Measuring switchyard ground pit resistance: 0.72 Ω (Compliant) ⚡",
+      "Calibrating distance protection relays: Zone 1 reach 80% locked 📐",
+      "Transformer cooling test: 63MVA oil temp at 46°C, all fans running 🌡️",
+      "Single-line diagram bus coupler interlocking verified! ⚡",
+      "220kV transmission line sag clearance check passed 🏔️",
+      "Up the Blues! Come on Chelsea! 💙⚽",
+      "Humming Dire Straits: Sultans of Swing 🎸",
+      "Listening to Pink Floyd: Shine On You Crazy Diamond 💎",
+      "Tea break with the transmission line stringing crew ☕"
+    ];
+  }
+
+  init() {
+    if (!this.container || !this.sprite) return;
+
+    // Load persisted state
+    try {
+      const saved = localStorage.getItem('mascot-enabled');
+      if (saved !== null) this.enabled = (saved === 'true');
+    } catch (e) {}
+    this.applyState(this.enabled);
+
+    if (!this.enabled) return;
+
+    this.setupGroundPosition();
+    this.setupEvents();
+    this.startLoop();
+    this.scheduleNextTask();
+
+    // Initial greeting after 3 seconds
+    setTimeout(() => {
+      if (this.enabled && !this.isDragging) {
+        this.say("On duty! Patrolling the substation grounds. Tap me to interact! ⚡", 4000);
+      }
+    }, 2800);
+  }
+
+  setupGroundPosition() {
+    const isMobile = window.innerWidth < 768;
+    this.groundBottom = isMobile ? 74 : 24;
+    this.container.style.bottom = `${this.groundBottom}px`;
+    this.updateTransform();
+  }
+
+  setupEvents() {
+    window.addEventListener('resize', () => {
+      this.setupGroundPosition();
+      const maxX = window.innerWidth - (window.innerWidth < 768 ? 60 : 75);
+      if (this.posX > maxX) this.posX = maxX - 10;
+    });
+
+    // Hover pause on desktop so user can easily click or read
+    this.container.addEventListener('mouseenter', () => {
+      if (!this.isDragging) {
+        this.isPaused = true;
+        this.sprite.classList.add('is-paused');
+      }
+    });
+    this.container.addEventListener('mouseleave', () => {
+      if (!this.isDragging && !this.isInspecting) {
+        this.isPaused = false;
+        this.sprite.classList.remove('is-paused');
+      }
+    });
+
+    // Pointer Dragging (Mouse & Touch)
+    this.wrapper.addEventListener('pointerdown', (e) => this.onPointerDown(e));
+    window.addEventListener('pointermove', (e) => this.onPointerMove(e));
+    window.addEventListener('pointerup', (e) => this.onPointerUp(e));
+    window.addEventListener('pointercancel', (e) => this.onPointerUp(e));
+  }
+
+  startLoop() {
+    if (this.animFrameId) cancelAnimationFrame(this.animFrameId);
+
+    const step = () => {
+      if (this.enabled && !this.isPaused && !this.isInspecting && !this.isDragging) {
+        const isMobile = window.innerWidth < 768;
+        const minX = 12;
+        const maxX = window.innerWidth - (isMobile ? 62 : 75);
+
+        this.posX += this.direction * this.currentSpeed;
+
+        if (this.posX >= maxX) {
+          this.posX = maxX;
+          this.direction = -1;
+          this.updateFacing();
+        } else if (this.posX <= minX) {
+          this.posX = minX;
+          this.direction = 1;
+          this.updateFacing();
+        }
+
+        this.updateTransform();
+      }
+      this.animFrameId = requestAnimationFrame(step);
+    };
+
+    this.animFrameId = requestAnimationFrame(step);
+  }
+
+  updateFacing() {
+    if (!this.wrapper) return;
+    this.wrapper.style.transform = this.direction === 1 ? 'scaleX(1)' : 'scaleX(-1)';
+  }
+
+  updateTransform() {
+    if (!this.container) return;
+    this.container.style.transform = `translate3d(${Math.round(this.posX)}px, ${Math.round(this.posY)}px, 0)`;
+  }
+
+  scheduleNextTask() {
+    if (this.taskTimer) clearTimeout(this.taskTimer);
+    // Autonomous inspection or fun quote every 14 - 24 seconds
+    const interval = Math.floor(Math.random() * 10000) + 14000;
+    this.taskTimer = setTimeout(() => {
+      if (this.enabled && !this.isDragging && !this.isPaused) {
+        this.runAutonomousTask();
+      }
+      this.scheduleNextTask();
+    }, interval);
+  }
+
+  runAutonomousTask() {
+    this.isInspecting = true;
+    this.sprite.classList.add('is-inspecting');
+    if (this.badge) this.badge.classList.remove('hidden');
+
+    const quote = this.engineeringQuotes[Math.floor(Math.random() * this.engineeringQuotes.length)];
+    this.say(quote, 4500);
+
+    setTimeout(() => {
+      this.isInspecting = false;
+      this.sprite.classList.remove('is-inspecting');
+      if (this.badge) this.badge.classList.add('hidden');
+    }, 4800);
+  }
+
+  say(text, autoDismissMs = 4500) {
+    if (!this.bubble || !this.speechText) return;
+    this.speechText.textContent = text;
+    this.bubble.classList.add('is-active');
+
+    if (this.bubbleTimer) clearTimeout(this.bubbleTimer);
+    if (autoDismissMs > 0) {
+      this.bubbleTimer = setTimeout(() => {
+        this.dismissBubble();
+      }, autoDismissMs);
+    }
+  }
+
+  dismissBubble() {
+    if (!this.bubble) return;
+    this.bubble.classList.remove('is-active');
+    if (this.bubbleTimer) {
+      clearTimeout(this.bubbleTimer);
+      this.bubbleTimer = null;
+    }
+  }
+
+  jump() {
+    if (!this.wrapper) return;
+    this.wrapper.classList.remove('is-jumping');
+    void this.wrapper.offsetWidth; // Trigger reflow
+    this.wrapper.classList.add('is-jumping');
+    this.emitSparks(3);
+    setTimeout(() => {
+      if (this.wrapper) this.wrapper.classList.remove('is-jumping');
+    }, 600);
+  }
+
+  emitSparks(count = 3) {
+    const emojis = ['⚡', '✨', '💡', '🔋'];
+    for (let i = 0; i < count; i++) {
+      const spark = document.createElement('span');
+      spark.className = 'mascot-spark';
+      spark.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+      spark.style.left = `${20 + Math.random() * 20}px`;
+      spark.style.top = `${10 + Math.random() * 20}px`;
+      spark.style.setProperty('--tx', `${(Math.random() - 0.5) * 45}px`);
+      this.wrapper.appendChild(spark);
+      setTimeout(() => spark.remove(), 800);
+    }
+  }
+
+  onPointerDown(e) {
+    // Only left click or primary touch
+    if (e.button && e.button !== 0) return;
+    this.isDragging = true;
+    this.dragMoved = false;
+    this.dragStartX = e.clientX;
+    this.dragStartY = e.clientY;
+    this.dragStartPosX = this.posX;
+    this.dragStartPosY = this.posY;
+
+    this.container.classList.add('mascot-in-air');
+    this.sprite.classList.add('is-paused');
+    try { this.wrapper.setPointerCapture(e.pointerId); } catch (err) {}
+  }
+
+  onPointerMove(e) {
+    if (!this.isDragging) return;
+    const dx = e.clientX - this.dragStartX;
+    const dy = e.clientY - this.dragStartY;
+
+    if (Math.abs(dx) > 4 || Math.abs(dy) > 4) {
+      this.dragMoved = true;
+    }
+
+    this.posX = Math.max(10, Math.min(window.innerWidth - 70, this.dragStartPosX + dx));
+    // Allow dragging upward (negative posY)
+    this.posY = Math.min(0, this.dragStartPosY + dy);
+    this.updateTransform();
+  }
+
+  onPointerUp(e) {
+    if (!this.isDragging) return;
+    this.isDragging = false;
+    try { this.wrapper.releasePointerCapture(e.pointerId); } catch (err) {}
+
+    this.container.classList.remove('mascot-in-air');
+
+    // If dragged upward, animate gravity fall back to ground
+    if (this.posY < 0) {
+      this.animateDropToGround();
+    } else {
+      this.posY = 0;
+      this.updateTransform();
+      this.sprite.classList.remove('is-paused');
+    }
+  }
+
+  animateDropToGround() {
+    let velocity = 0;
+    const gravity = 1.4;
+    const bounceFactor = -0.4;
+    let currentY = this.posY;
+
+    const fallStep = () => {
+      velocity += gravity;
+      currentY += velocity;
+
+      if (currentY >= 0) {
+        currentY = 0;
+        if (Math.abs(velocity) > 4) {
+          velocity *= bounceFactor; // bounce
+          this.emitSparks(2);
+        } else {
+          // Settled on ground
+          this.posY = 0;
+          this.updateTransform();
+          this.sprite.classList.remove('is-paused');
+          this.say("Touchdown on switchyard ground! ⚡", 2500);
+          return;
+        }
+      }
+
+      this.posY = currentY;
+      this.updateTransform();
+      requestAnimationFrame(fallStep);
+    };
+
+    requestAnimationFrame(fallStep);
+  }
+
+  handleClick(e) {
+    if (this.dragMoved) return; // Prevent triggering click after drag
+    this.jump();
+
+    const greetings = [
+      "All systems operational! 132kV busbars balanced. ⚡",
+      "Ready to inspect high-voltage switchgear! What's next? 🔍",
+      "Substation grid frequency locked at 50.0 Hz! 🟢",
+      "Up the Blues! Chelsea FC all the way! 💙⚽",
+      "Playing some Mark Knopfler & Pink Floyd tunes! 🎸"
+    ];
+    const greeting = greetings[Math.floor(Math.random() * greetings.length)];
+    this.say(greeting, 5000);
+  }
+
+  performAction(action) {
+    this.jump();
+
+    switch (action) {
+      case 'inspect':
+        this.isInspecting = true;
+        this.sprite.classList.add('is-inspecting');
+        if (this.badge) this.badge.classList.remove('hidden');
+        this.say("Diagnostic Check: Satdobato GIS SF6 Pressure: 0.58 MPa | Interlocks: Clear! 📐", 5000);
+        setTimeout(() => {
+          this.isInspecting = false;
+          this.sprite.classList.remove('is-inspecting');
+          if (this.badge) this.badge.classList.add('hidden');
+        }, 5000);
+        break;
+
+      case 'sprint':
+        this.currentSpeed = 3.8;
+        this.sprite.classList.add('is-sprinting');
+        this.say("Emergency switchgear call! Sprinting across the yard! 🏃‍♂️💨", 4000);
+        setTimeout(() => {
+          this.currentSpeed = this.baseSpeed;
+          this.sprite.classList.remove('is-sprinting');
+        }, 6000);
+        break;
+
+      case 'chelsea':
+        this.say("Blue is the colour, football is the game! Come on Chelsea! 💙⚽", 4500);
+        this.emitSparks(4);
+        break;
+
+      case 'jam':
+        this.say("🎸 Mark Knopfler guitar solo playing: Sultans of Swing & Pink Floyd! 🎶", 4500);
+        this.emitSparks(4);
+        break;
+
+      case 'rest':
+        this.isPaused = !this.isPaused;
+        if (this.isPaused) {
+          this.sprite.classList.add('is-paused');
+          this.say("Taking a tea break by the control room. Tap me whenever! ☕", 4000);
+        } else {
+          this.sprite.classList.remove('is-paused');
+          this.say("Break over! Resuming switchyard patrol! ⚡", 3000);
+        }
+        break;
+    }
+  }
+
+  applyState(enabled) {
+    this.enabled = enabled;
+    const root = document.documentElement;
+    const label = document.getElementById('footerMascotLabel');
+
+    if (enabled) {
+      root.classList.remove('mascot-disabled');
+      if (label) label.textContent = 'Mascot: On ⚡';
+      if (!this.animFrameId) this.startLoop();
+    } else {
+      root.classList.add('mascot-disabled');
+      if (label) label.textContent = 'Mascot: Off';
+      this.dismissBubble();
+    }
+  }
+
+  toggle() {
+    this.applyState(!this.enabled);
+    try {
+      localStorage.setItem('mascot-enabled', this.enabled ? 'true' : 'false');
+    } catch (e) {}
+  }
+
+  pause() {
+    this.isPaused = true;
+    if (this.sprite) this.sprite.classList.add('is-paused');
+  }
+
+  resume() {
+    this.isPaused = false;
+    if (this.sprite) this.sprite.classList.remove('is-paused');
   }
 }
 
+// Global functions exposed to inline handlers in HTML
+function initMascot() {
+  window.mascotEngine = new FieldEngineerMascot();
+  window.mascotEngine.init();
+}
+
 function toggleMascot() {
-  const root = document.documentElement;
-  const isCurrentlyDisabled = root.classList.contains('mascot-disabled');
-  const nextState = isCurrentlyDisabled; // if disabled, turn on (true)
-  applyMascotState(nextState);
-  try {
-    localStorage.setItem('mascot-enabled', nextState ? 'true' : 'false');
-  } catch (e) {}
+  if (window.mascotEngine) {
+    window.mascotEngine.toggle();
+  }
+}
+
+function handleMascotClick(e) {
+  if (window.mascotEngine) {
+    window.mascotEngine.handleClick(e);
+  }
+}
+
+function dismissMascotSpeech(e) {
+  if (e) e.stopPropagation();
+  if (window.mascotEngine) {
+    window.mascotEngine.dismissBubble();
+  }
+}
+
+function triggerMascotAction(action, e) {
+  if (e) e.stopPropagation();
+  if (window.mascotEngine) {
+    window.mascotEngine.performAction(action);
+  }
 }

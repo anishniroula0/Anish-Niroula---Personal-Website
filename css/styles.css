@@ -1018,102 +1018,307 @@ html.dark .highlight-case-study {
 }
 
 /* -------------------------------------------------------------------------
-   10. FIELD RUNNER MASCOT PERIMETER ANIMATION (GPU ACCELERATED & RESPONSIVE)
+   10. FIELD ENGINEER MASCOT (INTERACTIVE 60 FPS DESKTOP/MOBILE COMPANION)
    ------------------------------------------------------------------------- */
 :root {
-  --mascot-bottom-offset: 0px;
-  --mascot-top-gap: 135px;
+  --mascot-ground-bottom: 24px;
+  --mascot-width: 60px;
+  --mascot-height: 100px;
+  --mascot-sprite-total-width: 720px;
 }
 
 @media (max-width: 767px) {
   :root {
-    --mascot-bottom-offset: 68px; /* Above the 5-tab mobile navigation bar */
-    --mascot-top-gap: 145px;
+    --mascot-ground-bottom: 74px; /* Perfectly positioned above mobile tab bar */
+    --mascot-width: 50px;
+    --mascot-height: 84px;
+    --mascot-sprite-total-width: 600px;
   }
 }
 
-.perimeter-mascot-track {
+.engineer-mascot-container {
   position: fixed;
   left: 0;
-  bottom: var(--mascot-bottom-offset);
-  width: 32px;
-  height: 54px;
-  pointer-events: none;
-  z-index: 35;
+  bottom: 0;
+  z-index: 45; /* Above page content and cards, below modal overlays */
+  pointer-events: auto;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: grab;
+  touch-action: none;
+  transition: opacity 0.3s ease;
   will-change: transform;
-  transform-origin: center center;
-  animation: perimeterRun 24s linear infinite;
 }
 
-.perimeter-mascot-sprite {
-  width: 32px;
-  height: 54px;
-  background-image: url('../assets/images/anish-runner-sprite.png?v=4.3');
-  background-size: 384px 54px;
+.engineer-mascot-container:active {
+  cursor: grabbing;
+}
+
+/* Character sprite box */
+.mascot-character-wrapper {
+  position: relative;
+  width: var(--mascot-width);
+  height: var(--mascot-height);
+  transform-origin: bottom center;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.mascot-sprite {
+  width: var(--mascot-width);
+  height: var(--mascot-height);
+  background-image: url('../assets/images/anish-runner-sprite.png?v=4.4');
+  background-size: var(--mascot-sprite-total-width) var(--mascot-height);
   background-repeat: no-repeat;
   will-change: background-position;
-  animation: mascotStride 0.7s steps(12) infinite;
+  animation: mascotStrideCycle 0.72s steps(12) infinite;
 }
 
-@keyframes mascotStride {
+.mascot-sprite.is-paused {
+  animation-play-state: paused !important;
+  background-position: 0 0 !important;
+}
+
+.mascot-sprite.is-sprinting {
+  animation-duration: 0.36s !important;
+}
+
+.mascot-sprite.is-inspecting {
+  background-image: url('../assets/images/anish-inspect-sprite.png?v=4.4') !important;
+  animation: mascotInspectCycle 1.5s steps(12) infinite !important;
+}
+
+@keyframes mascotInspectCycle {
   from {
     background-position: 0 0;
   }
   to {
-    background-position: -384px 0;
+    background-position: calc(-1 * var(--mascot-sprite-total-width)) 0;
   }
 }
 
-@keyframes perimeterRun {
-  /* 1. RUNNING LEFT-TO-RIGHT ALONG BOTTOM BORDER */
-  0% {
-    transform: translate3d(12px, 0, 0) rotate(0deg);
+@keyframes mascotStrideCycle {
+  from {
+    background-position: 0 0;
   }
-  30% {
-    transform: translate3d(calc(100vw - 44px), 0, 0) rotate(0deg);
-  }
-  /* TURN CORNER: Plant boots against right border */
-  32.5% {
-    transform: translate3d(calc(100vw - 44px), 0, 0) rotate(-90deg);
-  }
-  /* 2. RUNNING BOTTOM-TO-TOP ALONG RIGHT BORDER */
-  47.5% {
-    transform: translate3d(calc(100vw - 44px), calc(-100vh + var(--mascot-top-gap)), 0) rotate(-90deg);
-  }
-  /* TURN CORNER: Turn along ceiling below sticky header */
-  50% {
-    transform: translate3d(calc(100vw - 44px), calc(-100vh + var(--mascot-top-gap)), 0) rotate(180deg);
-  }
-  /* 3. RUNNING RIGHT-TO-LEFT UNDERNEATH STICKY HEADER */
-  79% {
-    transform: translate3d(12px, calc(-100vh + var(--mascot-top-gap)), 0) rotate(180deg);
-  }
-  /* TURN CORNER: Plant boots against left border */
-  81.5% {
-    transform: translate3d(12px, calc(-100vh + var(--mascot-top-gap)), 0) rotate(90deg);
-  }
-  /* 4. RUNNING TOP-TO-BOTTOM ALONG LEFT BORDER */
-  97.5% {
-    transform: translate3d(12px, 0, 0) rotate(90deg);
-  }
-  100% {
-    transform: translate3d(12px, 0, 0) rotate(0deg);
+  to {
+    background-position: calc(-1 * var(--mascot-sprite-total-width)) 0;
   }
 }
 
-/* Accessibility & Visitor Preference Toggle */
-html.mascot-disabled .perimeter-mascot-track {
+/* Contact shadow on floor */
+.mascot-shadow {
+  width: calc(var(--mascot-width) * 0.7);
+  height: 8px;
+  background: radial-gradient(ellipse at center, rgba(15, 23, 42, 0.35) 0%, rgba(15, 23, 42, 0) 75%);
+  margin: -4px auto 0 auto;
+  border-radius: 50%;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.mascot-in-air .mascot-shadow {
+  transform: scale(0.45);
+  opacity: 0.2;
+}
+
+/* Jump animation */
+.mascot-character-wrapper.is-jumping {
+  animation: mascotJumpAnim 0.55s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+@keyframes mascotJumpAnim {
+  0% { transform: translateY(0) scale(1, 1); }
+  25% { transform: translateY(-40px) scale(0.95, 1.08); }
+  50% { transform: translateY(-46px) scale(1, 1); }
+  75% { transform: translateY(0) scale(1.12, 0.88); }
+  100% { transform: translateY(0) scale(1, 1); }
+}
+
+/* Floating status badge (electric spark/multimeter) */
+.mascot-status-badge {
+  position: absolute;
+  top: -12px;
+  right: -6px;
+  background: #0284C7;
+  color: #FFFFFF;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 9999px;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.45);
+  pointer-events: none;
+  animation: badgeBounce 1.5s infinite ease-in-out;
+}
+
+@keyframes badgeBounce {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-4px) scale(1.12); }
+}
+
+/* Interactive Speech Bubble */
+.mascot-speech-bubble {
+  position: absolute;
+  bottom: calc(var(--mascot-height) + 14px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 250px;
+  max-width: 86vw;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.18), 0 4px 6px -2px rgba(15, 23, 42, 0.05);
+  padding: 10px 12px;
+  color: #0F172A;
+  font-size: 12px;
+  line-height: 1.4;
+  z-index: 50;
+  pointer-events: auto;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), visibility 0.25s;
+  transform: translateX(-50%) translateY(8px) scale(0.95);
+}
+
+.mascot-speech-bubble.is-active {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0) scale(1);
+}
+
+/* Speech bubble tail */
+.mascot-bubble-tail {
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  width: 12px;
+  height: 12px;
+  background: #FFFFFF;
+  border-right: 1px solid #E2E8F0;
+  border-bottom: 1px solid #E2E8F0;
+}
+
+/* Dark mode speech bubble */
+html.dark .mascot-speech-bubble {
+  background: #111827;
+  border-color: #374151;
+  color: #F9FAFB;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+}
+
+html.dark .mascot-bubble-tail {
+  background: #111827;
+  border-right-color: #374151;
+  border-bottom-color: #374151;
+}
+
+.mascot-speech-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+  font-size: 10px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  color: #0284C7;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+html.dark .mascot-speech-header {
+  color: #38BDF8;
+}
+
+.mascot-speech-close {
+  background: transparent;
+  border: none;
+  color: #94A3B8;
+  cursor: pointer;
+  padding: 0 2px;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.mascot-speech-close:hover {
+  color: #EF4444;
+}
+
+.mascot-speech-text {
+  font-size: 12px;
+  margin-bottom: 8px;
+  word-break: break-word;
+}
+
+/* Quick Action Buttons inside Bubble */
+.mascot-actions-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding-top: 6px;
+  border-top: 1px solid #F1F5F9;
+}
+
+html.dark .mascot-actions-row {
+  border-top-color: #1F2937;
+}
+
+.mascot-action-btn {
+  background: #F8FAFC;
+  border: 1px solid #CBD5E1;
+  color: #334155;
+  border-radius: 6px;
+  padding: 3px 6px;
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mascot-action-btn:hover {
+  background: #0284C7;
+  border-color: #0284C7;
+  color: #FFFFFF;
+}
+
+html.dark .mascot-action-btn {
+  background: #1F2937;
+  border-color: #374151;
+  color: #E2E8F0;
+}
+
+html.dark .mascot-action-btn:hover {
+  background: #0284C7;
+  border-color: #0284C7;
+  color: #FFFFFF;
+}
+
+/* Floating Spark FX */
+.mascot-spark {
+  position: absolute;
+  pointer-events: none;
+  font-size: 15px;
+  animation: sparkFloat 0.8s ease-out forwards;
+  z-index: 60;
+}
+
+@keyframes sparkFloat {
+  0% { opacity: 1; transform: translate(0, 0) scale(0.6); }
+  50% { opacity: 1; transform: translate(var(--tx, 15px), -32px) scale(1.2); }
+  100% { opacity: 0; transform: translate(var(--tx, 25px), -58px) scale(0.8); }
+}
+
+/* Disabled and accessibility */
+html.mascot-disabled .engineer-mascot-container {
   display: none !important;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .perimeter-mascot-track {
+  .engineer-mascot-container {
     display: none !important;
   }
 }
 
 @media print {
-  .perimeter-mascot-track {
+  .engineer-mascot-container {
     display: none !important;
   }
 }

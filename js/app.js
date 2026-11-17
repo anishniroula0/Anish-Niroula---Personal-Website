@@ -1627,10 +1627,6 @@ class FieldEngineerMascot {
     this.football = document.getElementById('mascotFootball');
     this.dog = document.getElementById('mascotDog');
     this.dogCorner = document.getElementById('mascotDogCorner');
-    this.audio = document.getElementById('walkOfLifeAudio');
-    this.bubble = document.getElementById('mascotSpeechBubble');
-    this.speechText = document.getElementById('mascotSpeechText');
-    this.bubbleTimer = null;
 
     this.enabled = true;
     this.posX = 40;
@@ -2021,10 +2017,9 @@ class FieldEngineerMascot {
 
   /* -------------------------------------------------------------------------
      SEQUENTIAL CLICK INTERACTIONS:
-     1. Walk of Life (Dire Straits) Music Jam (5.5s intro riff)
-     2. Football Kick (Chelsea FC / Soccer) with dynamic physics
-     3. Black Labrador Dog Companion & Napping in the Corner
-     Subsequent clicks restart and cycle appropriately.
+     1. Football Kick (Chelsea FC / Soccer) with dynamic physics & sparks
+     2. Black Labrador Dog Companion & Napping in the Corner
+     Subsequent clicks cycle smoothly between football and dog play.
      ------------------------------------------------------------------------- */
   handleClick(e) {
     if (this.dragMoved) return;
@@ -2036,8 +2031,6 @@ class FieldEngineerMascot {
     }
 
     if (this.clickSequence === 0) {
-      this.triggerAudioAction();
-    } else if (this.clickSequence === 1) {
       this.triggerFootballAction();
     } else {
       this.triggerDogAction();
@@ -2054,181 +2047,18 @@ class FieldEngineerMascot {
     if (this.dog) {
       this.dog.classList.remove('is-active', 'is-bouncing');
     }
-    this.dismissBubble();
     this.isJamming = false;
     this.isKicking = false;
     this.isDogPlaying = false;
   }
 
-  say(text, autoDismissMs = 4500) {
-    if (!this.bubble || !this.speechText) return;
-    this.speechText.textContent = text;
-    this.bubble.classList.add('is-active');
-
-    if (this.bubbleTimer) clearTimeout(this.bubbleTimer);
-    if (autoDismissMs > 0) {
-      this.bubbleTimer = setTimeout(() => {
-        this.dismissBubble();
-      }, autoDismissMs);
-    }
-  }
-
-  dismissBubble() {
-    if (!this.bubble) return;
-    this.bubble.classList.remove('is-active');
-    if (this.bubbleTimer) {
-      clearTimeout(this.bubbleTimer);
-      this.bubbleTimer = null;
-    }
-  }
-
-  // 1. Dire Straits - Walk of Life Jam (5-6s upbeat intro)
-  triggerAudioAction() {
-    this.cleanupCurrentActions();
-    this.currentAction = 'audio';
-    this.isJamming = true;
-    this.clickSequence = 1;
-    this.clickState = 1;
-
-    this.setFacingFront(true);
-    this.sprite.classList.add('is-jamming');
-    if (this.badge) {
-      this.badge.textContent = '🎵';
-      this.badge.classList.remove('hidden');
-    }
-    this.emitSparks(6, ['🎵', '🎶', '🎸', '⚡']);
-
-    // Display Dire Straits "Walk of Life" lyrics toast
-    this.say("Here comes Johnny singing oldies, goldies... Walk of Life! 🎸🎶", 5500);
-
-    // Play soundtrack (audio asset + Web Audio API synthesizer fallback)
-    this.playAudioSoundtrack();
-
-    this.actionTimer = setTimeout(() => {
-      this.sprite.classList.remove('is-jamming');
-      this.setFacingFront(false);
-      if (this.badge) {
-        this.badge.textContent = '⚡';
-        this.badge.classList.add('hidden');
-      }
-      this.isJamming = false;
-      if (this.currentAction === 'audio') this.currentAction = null;
-    }, 5500);
-  }
-
-  playAudioSoundtrack() {
-    const audio = document.getElementById('walkOfLifeAudio') || this.audio;
-    if (audio) {
-      try {
-        audio.currentTime = 0;
-        const playPromise = audio.play();
-        if (playPromise !== undefined) {
-          playPromise.catch(() => {
-            this.synthesizeWalkOfLife();
-          });
-        }
-      } catch (err) {
-        this.synthesizeWalkOfLife();
-      }
-    } else {
-      this.synthesizeWalkOfLife();
-    }
-  }
-
-  // Authentic Web Audio synthesizer for Dire Straits "Walk of Life" organ hook & boogie groove
-  synthesizeWalkOfLife() {
-    try {
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      if (!AudioCtx) return;
-      const ctx = new AudioCtx();
-      if (ctx.state === 'suspended') ctx.resume();
-
-      const startTime = ctx.currentTime;
-      const master = ctx.createGain();
-      master.gain.setValueAtTime(0.28, startTime);
-      master.gain.exponentialRampToValueAtTime(0.001, startTime + 5.5);
-      master.connect(ctx.destination);
-
-      // Walk of Life chord stabs and Farfisa organ riff frequencies (Key of E major @ 172 BPM)
-      const organNotes = [
-        // Intro stabs
-        { t: 0.0, d: 0.18, f: [329.6, 415.3, 493.9] },
-        { t: 0.35, d: 0.18, f: [329.6, 415.3, 493.9] },
-        { t: 0.70, d: 0.18, f: [329.6, 415.3, 493.9] },
-        // Famous organ riff
-        { t: 1.05, d: 0.18, f: [493.9, 830.6] },
-        { t: 1.23, d: 0.18, f: [415.3, 659.3] },
-        { t: 1.41, d: 0.22, f: [739.9] },
-        { t: 1.63, d: 0.18, f: [659.3] },
-        { t: 1.81, d: 0.32, f: [830.6, 987.8] },
-        // Bar 2: A major boogie
-        { t: 2.12, d: 0.18, f: [277.2, 329.6, 440.0] },
-        { t: 2.47, d: 0.18, f: [277.2, 329.6, 440.0] },
-        { t: 2.82, d: 0.18, f: [440.0, 739.9] },
-        { t: 3.00, d: 0.18, f: [415.3, 659.3] },
-        { t: 3.18, d: 0.22, f: [622.3] },
-        { t: 3.38, d: 0.18, f: [554.4] },
-        { t: 3.56, d: 0.32, f: [659.3, 880.0] },
-        // Bar 3: Resolution
-        { t: 3.88, d: 0.18, f: [329.6, 415.3, 493.9] },
-        { t: 4.23, d: 0.18, f: [329.6, 415.3, 493.9] },
-        { t: 4.58, d: 0.18, f: [493.9, 830.6] },
-        { t: 4.76, d: 0.18, f: [415.3, 659.3] },
-        { t: 4.94, d: 0.22, f: [739.9] },
-        { t: 5.14, d: 0.22, f: [830.6] },
-        { t: 5.36, d: 0.40, f: [329.6, 415.3, 493.9, 659.3] }
-      ];
-
-      organNotes.forEach(note => {
-        note.f.forEach(freq => {
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.type = 'sawtooth';
-          osc.frequency.setValueAtTime(freq, startTime + note.t);
-
-          gain.gain.setValueAtTime(0.001, startTime + note.t);
-          gain.gain.linearRampToValueAtTime(0.08, startTime + note.t + 0.02);
-          gain.gain.exponentialRampToValueAtTime(0.001, startTime + note.t + note.d);
-
-          osc.connect(gain);
-          gain.connect(master);
-          osc.start(startTime + note.t);
-          osc.stop(startTime + note.t + note.d + 0.05);
-        });
-      });
-
-      // Boogie bassline
-      const bassNotes = [
-        { t: 0.0, f: 82.4 }, { t: 0.35, f: 82.4 }, { t: 0.70, f: 103.8 }, { t: 1.05, f: 123.5 },
-        { t: 1.41, f: 138.6 }, { t: 1.76, f: 123.5 }, { t: 2.12, f: 110.0 }, { t: 2.47, f: 138.6 },
-        { t: 2.82, f: 164.8 }, { t: 3.18, f: 138.6 }, { t: 3.53, f: 123.5 }, { t: 3.88, f: 82.4 },
-        { t: 4.23, f: 103.8 }, { t: 4.58, f: 123.5 }, { t: 4.94, f: 138.6 }, { t: 5.25, f: 82.4 }
-      ];
-
-      bassNotes.forEach(b => {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(b.f, startTime + b.t);
-
-        gain.gain.setValueAtTime(0.18, startTime + b.t);
-        gain.gain.exponentialRampToValueAtTime(0.001, startTime + b.t + 0.3);
-
-        osc.connect(gain);
-        gain.connect(master);
-        osc.start(startTime + b.t);
-        osc.stop(startTime + b.t + 0.35);
-      });
-    } catch (e) {}
-  }
-
-  // 2. Football Kick Interaction with realistic trajectory and bounce
+  // 1. Football Kick Interaction with realistic trajectory and bounce
   triggerFootballAction() {
     this.cleanupCurrentActions();
     this.currentAction = 'football';
     this.isKicking = true;
-    this.clickSequence = 2;
-    this.clickState = 2;
+    this.clickSequence = 1;
+    this.clickState = 1;
 
     if (this.badge) {
       this.badge.textContent = '⚽';
@@ -2244,7 +2074,6 @@ class FieldEngineerMascot {
     this.sprite.classList.add('is-sprinting', 'is-kicking');
     this.jump();
     this.emitSparks(5, ['⚽', '💙', '⚡', '✨']);
-    this.say("Blue is the colour, football is the game! Come on Chelsea! ⚽💙", 3000);
 
     if (this.football) {
       let ballX = this.direction === 1 ? 28 : -28;
@@ -2315,7 +2144,6 @@ class FieldEngineerMascot {
 
     this.setFacingFront(true);
     this.emitSparks(5, ['🐾', '🐶', '💖', '✨']);
-    this.say("Good boy! Playing with the black Labrador buddy! 🐶🐾", 3200);
 
     this.actionTimer = setTimeout(() => {
       if (this.dog) {
@@ -2325,7 +2153,6 @@ class FieldEngineerMascot {
         this.dogCorner.classList.add('is-visible');
         this.dogNapping = true;
       }
-      this.say("Taking a peaceful nap in the corner... 🐾💤", 2800);
       this.setFacingFront(false);
       if (this.badge) {
         this.badge.textContent = '⚡';
@@ -2363,7 +2190,6 @@ class FieldEngineerMascot {
       if (this.dogCorner) {
         this.dogCorner.classList.remove('is-visible');
       }
-      this.dismissBubble();
       if (label) label.textContent = 'Mascot: Off';
     }
   }
@@ -2401,13 +2227,6 @@ function toggleMascot() {
 function handleMascotClick(e) {
   if (window.mascotEngine) {
     window.mascotEngine.handleClick(e);
-  }
-}
-
-function dismissMascotSpeech(e) {
-  if (e) e.stopPropagation();
-  if (window.mascotEngine) {
-    window.mascotEngine.dismissBubble();
   }
 }
 

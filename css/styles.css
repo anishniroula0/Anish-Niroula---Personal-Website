@@ -1067,16 +1067,45 @@ html.dark .highlight-case-study {
 .mascot-sprite {
   width: var(--mascot-width);
   height: var(--mascot-height);
-  background-image: url('../assets/images/anish-runner-sprite.png?v=4.6');
+  background-image: url('../assets/images/anish-runner-sprite.png?v=4.8');
   background-size: var(--mascot-sprite-total-width) var(--mascot-height);
   background-repeat: no-repeat;
   will-change: background-position, transform;
-  animation: mascotStrideCycle 0.72s steps(12) infinite;
+  animation: mascotStrideCycle 1.35s steps(12) infinite;
 }
 
 .mascot-sprite.is-paused {
   animation-play-state: paused !important;
   background-position: 0 0 !important;
+}
+
+/* Skyfall / Falling Entrance Animation */
+.engineer-mascot-container.is-falling {
+  transition: none !important;
+}
+.engineer-mascot-container.is-falling .mascot-character-wrapper {
+  animation: mascotFallingWobble 0.3s ease-in-out infinite alternate;
+}
+.engineer-mascot-container.is-falling .mascot-dog {
+  animation: dogFallingWobble 0.3s ease-in-out infinite alternate;
+}
+.mascot-character-wrapper.is-landing-squash {
+  animation: landingSquash 0.38s ease-out;
+}
+
+@keyframes mascotFallingWobble {
+  0% { transform: rotate(-2.5deg) translateY(0); }
+  100% { transform: rotate(2.5deg) translateY(-2px); }
+}
+@keyframes dogFallingWobble {
+  0% { transform: rotate(-3.5deg) translateY(0); }
+  100% { transform: rotate(3.5deg) translateY(-2px); }
+}
+@keyframes landingSquash {
+  0% { transform: scale(1.22, 0.78); }
+  45% { transform: scale(0.92, 1.08); }
+  75% { transform: scale(1.04, 0.96); }
+  100% { transform: scale(1, 1); }
 }
 
 .mascot-sprite.is-sprinting {
@@ -1219,44 +1248,118 @@ html.dark .highlight-case-study {
   visibility: visible;
 }
 
-/* Interactive Black Labrador Dog Companion - Walks alongside Anish */
+/* Articulated Black Labrador Dog Companion - Fully animated walking, trotting, playing */
 .mascot-dog {
   position: absolute;
-  width: 28px;
-  height: 24px;
-  background-image: url('../assets/images/mascot-dog.png?v=4.8');
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center bottom;
+  width: 36px;
+  height: 27px;
   bottom: 0;
-  left: -24px;
+  left: 0;
   z-index: 9998;
-  pointer-events: auto;
+  pointer-events: none;
   cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  transform-origin: bottom center;
+  transition: transform 0.25s ease, opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.mascot-dog.is-active {
+  pointer-events: auto;
   opacity: 1;
   visibility: visible;
-  transform-origin: bottom center;
-  transition: transform 0.2s ease, opacity 0.3s ease;
-  animation: dogTrotBounce 0.36s ease-in-out infinite alternate;
 }
 
-.mascot-dog.is-facing-left {
-  left: 28px;
-  transform: scaleX(-1);
+.dog-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
 }
 
+/* Walking / Trotting State - Active Leg Scissors & Tail Wag */
+.mascot-dog.is-walking .dog-leg-front-near {
+  animation: dogLegSwing 0.55s ease-in-out infinite alternate;
+  transform-origin: 30px 20px;
+}
+.mascot-dog.is-walking .dog-leg-front-far {
+  animation: dogLegSwing 0.55s ease-in-out infinite alternate-reverse;
+  transform-origin: 33px 20px;
+}
+.mascot-dog.is-walking .dog-leg-back-near {
+  animation: dogLegSwing 0.55s ease-in-out infinite alternate-reverse;
+  transform-origin: 16px 19px;
+}
+.mascot-dog.is-walking .dog-leg-back-far {
+  animation: dogLegSwing 0.55s ease-in-out infinite alternate;
+  transform-origin: 19px 19px;
+}
+.mascot-dog.is-walking .dog-torso-group {
+  animation: dogTrotBob 0.28s ease-in-out infinite alternate;
+}
+.mascot-dog.is-walking .dog-tail {
+  animation: dogTailWagFast 0.24s ease-in-out infinite alternate;
+  transform-origin: 14px 17px;
+}
+.mascot-dog.is-walking .dog-ear {
+  animation: dogEarFlap 0.28s ease-in-out infinite alternate;
+  transform-origin: 34px 8px;
+}
+
+/* Idle / Relaxing State - Paws grounded, gentle tail wag & calm breathing */
+.mascot-dog.is-idle .dog-tail {
+  animation: dogTailWagGentle 0.85s ease-in-out infinite alternate;
+  transform-origin: 14px 17px;
+}
+.mascot-dog.is-idle .dog-torso-group {
+  animation: dogBreathe 2.6s ease-in-out infinite;
+}
+
+/* Playing / Ball Fetching State */
+.mascot-dog.is-playing,
 .mascot-dog.is-bouncing {
-  animation: dogPlayBounce 0.28s ease-in-out infinite alternate !important;
+  animation: dogPlayPounce 0.42s ease-in-out infinite alternate !important;
+}
+.mascot-dog.is-playing .dog-tail,
+.mascot-dog.is-bouncing .dog-tail {
+  animation: dogTailWagFast 0.16s ease-in-out infinite alternate !important;
+  transform-origin: 14px 17px;
+}
+.mascot-dog.is-playing .dog-leg-front-near,
+.mascot-dog.is-playing .dog-leg-front-far {
+  animation: dogLegPlayReach 0.42s ease-in-out infinite alternate;
 }
 
-@keyframes dogTrotBounce {
-  0% { transform: translateY(0) scale(1, 1); }
-  100% { transform: translateY(-4px) scale(0.96, 1.05); }
+@keyframes dogLegSwing {
+  0% { transform: rotate(-22deg); }
+  100% { transform: rotate(22deg); }
 }
-
-@keyframes dogPlayBounce {
+@keyframes dogLegPlayReach {
+  0% { transform: rotate(-10deg); }
+  100% { transform: rotate(26deg); }
+}
+@keyframes dogTrotBob {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-1.8px); }
+}
+@keyframes dogTailWagFast {
+  0% { transform: rotate(-16deg); }
+  100% { transform: rotate(24deg); }
+}
+@keyframes dogTailWagGentle {
+  0% { transform: rotate(-8deg); }
+  100% { transform: rotate(12deg); }
+}
+@keyframes dogEarFlap {
+  0% { transform: rotate(-3deg); }
+  100% { transform: rotate(7deg); }
+}
+@keyframes dogBreathe {
+  0%, 100% { transform: scale(1, 1); }
+  50% { transform: scale(1.02, 0.98); }
+}
+@keyframes dogPlayPounce {
   0% { transform: translateY(0) scale(1, 1); }
-  100% { transform: translateY(-8px) scale(0.92, 1.1); }
+  100% { transform: translateY(-7px) scale(0.94, 1.08); }
 }
 
 /* Corner Napping Black Labrador Dog */
@@ -1327,16 +1430,51 @@ html.mascot-disabled .mascot-dog-napping {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  /* Keep mascot and dog visible and active per user preference */
+  /* Keep mascot, companion dog, and corner napping dog visible per GEMINI.md Rule 1 */
   .engineer-mascot-container,
-  .mascot-dog-napping {
+  .mascot-dog-napping,
+  #mascotDogCorner {
     display: block !important;
+    visibility: visible !important;
+  }
+
+  /* Freeze rapid translation, rotation, and infinite animation loops */
+  .engineer-mascot-container,
+  #mascotSprite,
+  .mascot-sprite,
+  .mascot-sprite.is-facing-front,
+  .mascot-sprite.is-front-facing,
+  .mascot-sprite.is-jamming,
+  .mascot-sprite.is-kicking,
+  .mascot-sprite.is-sprinting,
+  .mascot-sprite.is-paused,
+  .mascot-sprite.is-red-variant,
+  .mascot-character-wrapper,
+  .mascot-status-badge,
+  .mascot-spark,
+  .mascot-dog,
+  .mascot-dog.is-active,
+  .mascot-dog.is-bouncing,
+  .mascot-dog-napping,
+  #mascotDogCorner,
+  .mascot-dog-zzz {
+    animation: none !important;
+    animation-play-state: paused !important;
+    transition: none !important;
+  }
+
+  /* Peaceful front-facing static stance */
+  .mascot-sprite {
+    background-image: url('../assets/images/mascot-front.png?v=4.6') !important;
+    background-size: contain !important;
+    background-position: center bottom !important;
   }
 }
 
 @media print {
   .engineer-mascot-container,
-  .mascot-dog-napping {
+  .mascot-dog-napping,
+  #mascotDogCorner {
     display: none !important;
   }
 }

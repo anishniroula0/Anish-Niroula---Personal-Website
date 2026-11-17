@@ -1613,10 +1613,13 @@ document.addEventListener('visibilitychange', updateSvgAnimationState);
 updateSvgAnimationState();
 
 /* -------------------------------------------------------------------------
-   9. INTERACTIVE FIELD ENGINEER MASCOT COMPANION ENGINE
-   Compact half-size design, front-facing views, Dire Straits Walk of Life jams,
-   Chelsea football kicking, Black Labrador companion, periodic red transformation,
-   natural smooth scroll traversal, and accessible reduced-motion support.
+   10. FIELD ENGINEER MASCOT (COMPACT, RELAXED LIVING COMPANION WITH BLACK LABRADOR)
+   - Skyfall physics entrance from top of webpage down to floor
+   - Slow, peaceful stroll & living his life (never frantic sprinting)
+   - Articulated Black Labrador companion with animated moving legs & wagging tail
+   - Interactive dog play routines (ball fetch, pouncing, affectionate pats)
+   - Stationary grounded position during webpage scroll (no racing side-to-side)
+   - Zero layout shift, root body stacking context (z-index: 9999)
    ------------------------------------------------------------------------- */
 class FieldEngineerMascot {
   constructor() {
@@ -1629,17 +1632,20 @@ class FieldEngineerMascot {
     this.dogCorner = document.getElementById('mascotDogCorner');
 
     this.enabled = true;
-    this.posX = 40;
+    this.posX = 60;
     this.posY = 0;
     this.scrollOffset = 0;
     this.targetScrollOffset = 0;
     this.direction = 1; // 1 = right, -1 = left
-    this.baseSpeed = 1.25;
-    this.currentSpeed = 1.25;
+    this.baseSpeed = 0.40; // Leisurely stroll: ~24px per second
+    this.currentSpeed = 0.40;
+
+    // State flags
     this.isPaused = false;
     this.isFacingFront = false;
     this.isTurning = false;
     this.isDragging = false;
+    this.isFallingEntrance = false;
     this.dragMoved = false;
     this.dragStartX = 0;
     this.dragStartY = 0;
@@ -1648,26 +1654,22 @@ class FieldEngineerMascot {
 
     // Interaction states
     this.currentAction = null;
-    this.isJamming = false;
-    this.isKicking = false;
     this.isDogPlaying = false;
     this.dogNapping = false;
     this.actionTimer = null;
+    this.lifeRoutineTimer = null;
 
     // Sequential click state machine:
-    // 0 = Ready for Walk of Life intro riff (Dire Straits)
-    // 1 = Ready for Football kick
-    // 2 = Ready for Black Labrador dog interaction & nap in corner
+    // 0 = Ready for Dog Play session
+    // 1 = Ready for Football Kick
     this.clickSequence = 0;
-    this.clickState = 0; // Synchronized alias for test compatibility
+    this.clickState = 0;
 
     this.lastScrollY = window.pageYOffset || document.documentElement.scrollTop || 0;
     this.scrollTimeout = null;
-    this.frontPauseTimer = null;
     this.redTransformTimer = null;
     this.isRedVariant = false;
     this.animFrameId = null;
-    this.audioCtx = null;
     this.prefersReducedMotion = false;
   }
 
@@ -1684,30 +1686,18 @@ class FieldEngineerMascot {
       if (saved !== null) this.enabled = (saved === 'true');
     } catch (e) {}
 
-    // Check prefers-reduced-motion
-    try {
-      const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-      this.prefersReducedMotion = motionQuery.matches;
-      if (motionQuery.addEventListener) {
-        motionQuery.addEventListener('change', (e) => {
-          this.prefersReducedMotion = e.matches;
-          if (this.prefersReducedMotion) {
-            this.setFacingFront(true);
-          } else {
-            this.setFacingFront(false);
-          }
-        });
-      }
-    } catch (e) {}
-
     this.applyState(this.enabled);
     if (!this.enabled) return;
 
     this.setupGroundPosition();
     this.setupEvents();
     this.startLoop();
-    this.scheduleNextFrontPause();
     this.scheduleRedTransformation();
+
+    // Trigger the charming Skyfall Entrance from the top of the webpage!
+    setTimeout(() => {
+      this.triggerSkyfallEntrance();
+    }, 250);
   }
 
   setupGroundPosition() {
@@ -1726,46 +1716,33 @@ class FieldEngineerMascot {
       this.keepInBounds();
     });
 
-    // Natural Smooth Scroll Following:
-    // As the visitor scrolls, Anish and his Labrador pace forward together with active walking strides!
+    // Webpage Scrolling:
+    // Anish and his Labrador stay relaxed and comfortably grounded at the bottom of the screen.
+    // Absolutely NO frantic horizontal racing across the page!
     window.addEventListener('scroll', () => {
-      if (!this.enabled || this.isDragging) return;
+      if (!this.enabled || this.isDragging || this.isFallingEntrance) return;
       const currentScrollY = window.pageYOffset || document.documentElement.scrollTop || 0;
       const deltaY = currentScrollY - this.lastScrollY;
       this.lastScrollY = currentScrollY;
 
-      // Soft natural vertical step bobbing cadence while scrolling
-      const stepBob = Math.sin(Date.now() / 90) * 4;
-      this.targetScrollOffset = Math.max(-15, Math.min(15, stepBob));
-
-      // Active horizontal walking stride while scrolling down or up
-      if (!this.currentAction && !this.isDragging) {
-        if (this.isFacingFront) {
-          this.setFacingFront(false);
-        }
-        const scrollStride = Math.min(3.5, 1.2 + Math.abs(deltaY) * 0.05);
-        this.posX += this.direction * (this.baseSpeed * scrollStride);
-        this.keepInBounds();
-        this.updateTransform();
-      }
-
-      if (this.scrollTimeout) clearTimeout(this.scrollTimeout);
-      this.scrollTimeout = setTimeout(() => {
-        this.currentSpeed = this.baseSpeed;
-      }, 150);
+      // Subtle, gentle vertical cushion that absorbs scroll inertia (+-3px)
+      const scrollCushion = Math.max(-5, Math.min(5, -deltaY * 0.04));
+      this.targetScrollOffset = Math.max(-6, Math.min(6, this.targetScrollOffset + scrollCushion));
     }, { passive: true });
 
     // Desktop hover: pause and turn to FRONT so user sees friendly engineer face
     this.container.addEventListener('mouseenter', () => {
-      if (!this.isDragging && !this.currentAction) {
+      if (!this.isDragging && !this.currentAction && !this.isFallingEntrance) {
         this.isPaused = true;
         this.setFacingFront(true);
+        this.updateWalkingState(false);
       }
     });
     this.container.addEventListener('mouseleave', () => {
-      if (!this.isDragging && !this.currentAction) {
+      if (!this.isDragging && !this.currentAction && !this.isFallingEntrance) {
         this.isPaused = false;
         this.setFacingFront(false);
+        this.updateWalkingState(true);
       }
     });
 
@@ -1776,10 +1753,279 @@ class FieldEngineerMascot {
     window.addEventListener('pointercancel', (e) => this.onPointerUp(e));
   }
 
+  /* -------------------------------------------------------------------------
+     SKYFALL ENTRANCE:
+     Mascot and Black Labrador fall down smoothly from above the top of the webpage,
+     landing with a gentle 2-bounce landing, dust/sparks, and a cheerful wave!
+     ------------------------------------------------------------------------- */
+  triggerSkyfallEntrance() {
+    this.isFallingEntrance = true;
+    this.isPaused = true;
+    this.container.classList.add('is-falling');
+    this.updateWalkingState(false);
+
+    // Start well above top of viewport
+    this.posY = -window.innerHeight - 80;
+    this.posX = Math.max(50, Math.min(window.innerWidth - 130, Math.floor(window.innerWidth * 0.28)));
+    this.updateTransform();
+
+    let velY = 1.0;
+    const gravity = 0.85;
+    const airDrag = 0.99;
+    let bounces = 0;
+
+    const dropStep = () => {
+      if (!this.isFallingEntrance) return;
+      velY = (velY + gravity) * airDrag;
+      this.posY += velY;
+
+      if (this.posY >= 0) {
+        this.posY = 0;
+        bounces++;
+        if (bounces <= 2) {
+          velY = -velY * 0.36; // Soft landing bounce
+          this.emitSparks(3, ['⚡', '✨', '🐾']);
+          if (this.wrapper) {
+            this.wrapper.classList.remove('is-landing-squash');
+            void this.wrapper.offsetWidth;
+            this.wrapper.classList.add('is-landing-squash');
+          }
+        } else {
+          // Settled on ground cleanly
+          this.posY = 0;
+          this.updateTransform();
+          this.container.classList.remove('is-falling');
+          this.emitSparks(5, ['⚡', '✨', '🐾', '🐶']);
+
+          // Cheerful wave and greeting
+          this.setFacingFront(true);
+          if (this.dog) {
+            this.dog.classList.remove('is-walking');
+            this.dog.classList.add('is-idle');
+          }
+
+          setTimeout(() => {
+            this.setFacingFront(false);
+            this.isPaused = false;
+            this.isFallingEntrance = false;
+            this.updateFacing();
+            this.startLivingRoutine();
+          }, 1800);
+          return;
+        }
+      }
+
+      this.updateTransform();
+      requestAnimationFrame(dropStep);
+    };
+
+    requestAnimationFrame(dropStep);
+  }
+
+  /* -------------------------------------------------------------------------
+     LIVING LIFE STATE MACHINE:
+     Anish slowly strolls, pauses to enjoy life, plays fetch with his black Labrador,
+     and inspects equipment — instead of sprinting back and forth on an endless loop!
+     ------------------------------------------------------------------------- */
+  startLivingRoutine() {
+    if (this.lifeRoutineTimer) clearTimeout(this.lifeRoutineTimer);
+    if (!this.enabled || this.isDragging || this.isFallingEntrance) return;
+
+    // Resume peaceful stroll
+    this.isPaused = false;
+    this.currentAction = null;
+    this.setFacingFront(false);
+    this.updateWalkingState(true);
+
+    // Stroll leisurely for 5 to 8 seconds
+    const strollDuration = Math.floor(Math.random() * 3000) + 5000;
+
+    this.lifeRoutineTimer = setTimeout(() => {
+      if (!this.enabled || this.isDragging || this.currentAction || this.isFallingEntrance) {
+        this.startLivingRoutine();
+        return;
+      }
+
+      // Pick a relaxing life activity:
+      // 55% chance: Play with black Labrador (ball toss & fetch!)
+      // 30% chance: Pause and enjoy life facing front with a smile
+      // 15% chance: Inspect tools / clipboard
+      const roll = Math.random();
+      if (roll < 0.55) {
+        this.performDogPlaySession();
+      } else if (roll < 0.85) {
+        this.performRelaxPause();
+      } else {
+        this.performInspectPause();
+      }
+    }, strollDuration);
+  }
+
+  // 1. Play with Black Labrador Dog (Toss ball, dog fetches & trots back, Anish pats pup)
+  performDogPlaySession() {
+    this.isPaused = true;
+    this.currentAction = 'playing_with_dog';
+    this.updateWalkingState(false);
+
+    if (this.badge) {
+      this.badge.textContent = '⚽';
+      this.badge.classList.remove('hidden');
+    }
+
+    if (this.football) {
+      const tossDir = this.direction;
+      const ballStartX = tossDir === 1 ? 16 : -16;
+      const ballTargetX = tossDir === 1 ? 48 : -48;
+
+      this.football.classList.add('is-active');
+      this.football.style.transform = `translate3d(${ballStartX}px, -4px, 0)`;
+
+      if (this.sprite) this.sprite.classList.add('is-kicking');
+      this.emitSparks(3, ['✨', '⚽']);
+
+      // Ball rolls out smoothly
+      setTimeout(() => {
+        if (this.football) {
+          this.football.style.transition = 'transform 0.6s cubic-bezier(0.25, 1, 0.5, 1)';
+          this.football.style.transform = `translate3d(${ballTargetX}px, 0, 0) rotate(${tossDir * 360}deg)`;
+        }
+      }, 150);
+
+      // Black Labrador perks up, wags tail, and trots forward to fetch ball!
+      setTimeout(() => {
+        if (this.dog) {
+          this.dog.classList.remove('is-idle');
+          this.dog.classList.add('is-walking', 'is-playing');
+          this.dog.style.transition = 'left 0.7s ease, transform 0.25s ease';
+          this.dog.style.left = tossDir === 1 ? '40px' : '-40px';
+        }
+      }, 300);
+
+      // Dog reaches ball, pounces and bounces happily!
+      setTimeout(() => {
+        if (this.dog) {
+          this.dog.classList.remove('is-walking');
+          this.dog.classList.add('is-bouncing');
+          this.emitSparks(4, ['💖', '🐾', '🐶']);
+        }
+        if (this.badge) this.badge.textContent = '🐾';
+      }, 950);
+
+      // Dog trots back to Anish with ball!
+      setTimeout(() => {
+        if (this.dog) {
+          this.dog.classList.remove('is-bouncing');
+          this.dog.classList.add('is-walking');
+          this.dog.style.left = tossDir === 1 ? '-24px' : '20px';
+        }
+        if (this.football) {
+          this.football.style.transition = 'transform 0.5s ease, opacity 0.3s ease';
+          this.football.style.transform = `translate3d(0px, 0, 0)`;
+          this.football.style.opacity = '0';
+        }
+      }, 2000);
+
+      // Anish pats puppy on head with affection!
+      setTimeout(() => {
+        if (this.sprite) this.sprite.classList.remove('is-kicking');
+        this.setFacingFront(true);
+        this.emitSparks(4, ['💖', '✨', '🐾']);
+        if (this.football) {
+          this.football.classList.remove('is-active');
+          this.football.style.transition = '';
+          this.football.style.opacity = '';
+        }
+        if (this.dog) {
+          this.dog.classList.remove('is-walking', 'is-playing');
+          this.dog.classList.add('is-idle');
+          this.dog.style.transition = '';
+        }
+      }, 2600);
+
+      // Wrap up and resume peaceful stroll
+      setTimeout(() => {
+        if (this.badge) this.badge.classList.add('hidden');
+        this.setFacingFront(false);
+        this.currentAction = null;
+        this.isPaused = false;
+        // Occasionally turn around after play session
+        if (Math.random() < 0.45) {
+          this.turnAround(-this.direction);
+        }
+        this.startLivingRoutine();
+      }, 3800);
+    }
+  }
+
+  // 2. Pause and Enjoy Life (facing front with warm smile, dog sits beside him)
+  performRelaxPause() {
+    this.isPaused = true;
+    this.currentAction = 'relaxing';
+    this.updateWalkingState(false);
+    this.setFacingFront(true);
+
+    if (this.dog) {
+      this.dog.classList.remove('is-walking');
+      this.dog.classList.add('is-idle');
+    }
+    this.emitSparks(2, ['🌤️', '✨']);
+
+    setTimeout(() => {
+      this.setFacingFront(false);
+      this.currentAction = null;
+      this.isPaused = false;
+      this.startLivingRoutine();
+    }, 3200);
+  }
+
+  // 3. Inspect Tools / Clipboard Check
+  performInspectPause() {
+    this.isPaused = true;
+    this.currentAction = 'inspecting';
+    this.updateWalkingState(false);
+
+    if (this.sprite) {
+      this.sprite.style.backgroundImage = "url('assets/images/anish-inspect-sprite.png?v=4.8')";
+      this.sprite.classList.remove('is-paused');
+    }
+    if (this.dog) {
+      this.dog.classList.remove('is-walking');
+      this.dog.classList.add('is-idle');
+    }
+
+    setTimeout(() => {
+      if (this.sprite) {
+        this.sprite.style.backgroundImage = '';
+      }
+      this.currentAction = null;
+      this.isPaused = false;
+      this.startLivingRoutine();
+    }, 2800);
+  }
+
+  updateWalkingState(isWalking) {
+    if (this.sprite) {
+      if (isWalking) {
+        this.sprite.classList.remove('is-paused');
+      } else {
+        this.sprite.classList.add('is-paused');
+      }
+    }
+    if (this.dog) {
+      if (isWalking) {
+        this.dog.classList.remove('is-idle');
+        this.dog.classList.add('is-walking');
+      } else {
+        this.dog.classList.remove('is-walking');
+        this.dog.classList.add('is-idle');
+      }
+    }
+  }
+
   keepInBounds() {
     const isMobile = window.innerWidth < 768;
-    const minX = 10;
-    const maxX = window.innerWidth - (isMobile ? 32 : 40);
+    const minX = 35;
+    const maxX = window.innerWidth - (isMobile ? 55 : 75);
     if (this.posX > maxX) this.posX = maxX;
     if (this.posX < minX) this.posX = minX;
   }
@@ -1789,10 +2035,10 @@ class FieldEngineerMascot {
 
     const step = () => {
       if (this.enabled) {
-        // Natural 60 FPS LERP damping for vertical scroll following
-        if (!this.isDragging) {
-          this.scrollOffset += (this.targetScrollOffset - this.scrollOffset) * 0.1;
-          this.targetScrollOffset *= 0.92;
+        // Natural 60 FPS LERP damping for vertical scroll cushion
+        if (!this.isDragging && !this.isFallingEntrance) {
+          this.scrollOffset += (this.targetScrollOffset - this.scrollOffset) * 0.12;
+          this.targetScrollOffset *= 0.90;
           if (Math.abs(this.targetScrollOffset) < 0.04) this.targetScrollOffset = 0;
           if (Math.abs(this.scrollOffset) < 0.04) this.scrollOffset = 0;
 
@@ -1800,18 +2046,19 @@ class FieldEngineerMascot {
           this.updateTransform();
         }
 
-        // Horizontal roaming across screen - always active!
-        if (!this.isPaused && !this.currentAction && !this.isDragging && !this.isTurning && !this.isFacingFront) {
+        // Horizontal peaceful stroll across screen
+        if (!this.isPaused && !this.currentAction && !this.isDragging && !this.isTurning && !this.isFacingFront && !this.isFallingEntrance) {
           const isMobile = window.innerWidth < 768;
-          const minX = 10;
-          const maxX = window.innerWidth - (isMobile ? 32 : 40);
+          const minX = 35;
+          const maxX = window.innerWidth - (isMobile ? 55 : 75);
 
-          this.posX += this.direction * this.currentSpeed;
+          this.posX += this.direction * this.baseSpeed;
 
-          if (this.posX >= maxX) {
+          // Graceful edge detection: stop and turn without hitting walls or teleporting
+          if (this.direction === 1 && this.posX >= maxX) {
             this.posX = maxX;
             this.turnAround(-1);
-          } else if (this.posX <= minX) {
+          } else if (this.direction === -1 && this.posX <= minX) {
             this.posX = minX;
             this.turnAround(1);
           }
@@ -1841,39 +2088,24 @@ class FieldEngineerMascot {
   turnAround(newDir) {
     if (this.isTurning) return;
     this.isTurning = true;
-    // Turn to front pose briefly before walking opposite direction
+    this.updateWalkingState(false);
     this.setFacingFront(true);
+
     setTimeout(() => {
       this.direction = newDir;
+      this.updateFacing();
       this.setFacingFront(false);
       this.isTurning = false;
-    }, 400);
+      this.updateWalkingState(true);
+    }, 450);
   }
 
-  scheduleNextFrontPause() {
-    if (this.frontPauseTimer) clearTimeout(this.frontPauseTimer);
-    // Periodically pause to face front (every 20-30 seconds)
-    const interval = Math.floor(Math.random() * 10000) + 20000;
-    this.frontPauseTimer = setTimeout(() => {
-      if (this.enabled && !this.isDragging && !this.isPaused && !this.currentAction) {
-        this.setFacingFront(true);
-        this.emitSparks(2, ['⚡', '✨']);
-        setTimeout(() => {
-          if (!this.currentAction && !this.isPaused) {
-            this.setFacingFront(false);
-          }
-        }, 2500);
-      }
-      this.scheduleNextFrontPause();
-    }, interval);
-  }
-
-  // Periodic Crimson Red Mascot Transformation (every ~50 seconds for 15 seconds)
+  // Periodic Crimson Red Mascot Transformation (every ~55 seconds for 15 seconds)
   scheduleRedTransformation() {
     if (this.redTransformTimer) clearTimeout(this.redTransformTimer);
-    const interval = 50000; // 50 seconds
+    const interval = 55000;
     this.redTransformTimer = setTimeout(() => {
-      if (this.enabled && !this.isDragging) {
+      if (this.enabled && !this.isDragging && !this.isFallingEntrance) {
         this.triggerRedTransformation();
       } else {
         this.scheduleRedTransformation();
@@ -1888,7 +2120,6 @@ class FieldEngineerMascot {
     }
     this.emitSparks(4, ['🔴', '⚡', '✨', '🔥']);
 
-    // Stays red for 15 seconds without popup dialogs
     setTimeout(() => {
       this.isRedVariant = false;
       if (this.sprite) {
@@ -1899,14 +2130,21 @@ class FieldEngineerMascot {
   }
 
   updateFacing() {
-    if (!this.wrapper) return;
-    if (this.isFacingFront) {
-      this.wrapper.style.transform = 'scaleX(1)';
-    } else {
-      this.wrapper.style.transform = this.direction === 1 ? 'scaleX(1)' : 'scaleX(-1)';
+    if (this.wrapper) {
+      if (this.isFacingFront) {
+        this.wrapper.style.transform = 'scaleX(1)';
+      } else {
+        this.wrapper.style.transform = this.direction === 1 ? 'scaleX(1)' : 'scaleX(-1)';
+      }
     }
     if (this.dog) {
-      this.dog.classList.toggle('is-facing-left', this.direction === -1);
+      if (this.direction === 1) {
+        this.dog.style.left = '-26px';
+        this.dog.style.transform = 'scaleX(1)';
+      } else {
+        this.dog.style.left = '22px';
+        this.dog.style.transform = 'scaleX(-1)';
+      }
     }
   }
 
@@ -1918,7 +2156,7 @@ class FieldEngineerMascot {
   jump() {
     if (!this.wrapper) return;
     this.wrapper.classList.remove('is-jumping');
-    void this.wrapper.offsetWidth; // Trigger reflow
+    void this.wrapper.offsetWidth;
     this.wrapper.classList.add('is-jumping');
     this.emitSparks(3);
     setTimeout(() => {
@@ -1926,7 +2164,7 @@ class FieldEngineerMascot {
     }, 550);
   }
 
-  emitSparks(count = 3, emojis = ['⚡', '✨', '💡', '🔋']) {
+  emitSparks(count = 3, emojis = ['⚡', '✨', '💡', '🐾']) {
     for (let i = 0; i < count; i++) {
       const spark = document.createElement('span');
       spark.className = 'mascot-spark';
@@ -1941,7 +2179,7 @@ class FieldEngineerMascot {
 
   onPointerDown(e) {
     if (e.button && e.button !== 0) return;
-    if (this.currentAction) return;
+    if (this.currentAction || this.isFallingEntrance) return;
     this.isDragging = true;
     this.dragMoved = false;
     this.dragStartX = e.clientX;
@@ -1950,7 +2188,7 @@ class FieldEngineerMascot {
     this.dragStartPosY = this.posY;
 
     this.container.classList.add('mascot-in-air');
-    this.sprite.classList.add('is-paused');
+    this.updateWalkingState(false);
     try { this.wrapper.setPointerCapture(e.pointerId); } catch (err) {}
   }
 
@@ -1964,7 +2202,7 @@ class FieldEngineerMascot {
     }
 
     const isMobile = window.innerWidth < 768;
-    this.posX = Math.max(10, Math.min(window.innerWidth - (isMobile ? 32 : 40), this.dragStartPosX + dx));
+    this.posX = Math.max(20, Math.min(window.innerWidth - (isMobile ? 40 : 60), this.dragStartPosX + dx));
     this.posY = Math.min(0, this.dragStartPosY + dy);
     this.updateTransform();
   }
@@ -1981,7 +2219,7 @@ class FieldEngineerMascot {
     } else {
       this.posY = 0;
       this.updateTransform();
-      this.sprite.classList.remove('is-paused');
+      this.updateWalkingState(true);
     }
   }
 
@@ -1999,12 +2237,12 @@ class FieldEngineerMascot {
         currentY = 0;
         if (Math.abs(velocity) > 4) {
           velocity *= bounceFactor;
-          this.emitSparks(2, ['⚡', '✨']);
+          this.emitSparks(2, ['⚡', '✨', '🐾']);
         } else {
           this.posY = 0;
           this.updateTransform();
-          this.sprite.classList.remove('is-paused');
-          this.emitSparks(3, ['⚡', '🔋']);
+          this.updateWalkingState(true);
+          this.emitSparks(3, ['⚡', '🐾', '🐶']);
           return;
         }
       }
@@ -2017,158 +2255,25 @@ class FieldEngineerMascot {
     requestAnimationFrame(fallStep);
   }
 
-  /* -------------------------------------------------------------------------
-     SEQUENTIAL CLICK INTERACTIONS:
-     1. Football Kick (Chelsea FC / Soccer) with dynamic physics & sparks
-     2. Black Labrador Dog Companion & Napping in the Corner
-     Subsequent clicks cycle smoothly between football and dog play.
-     ------------------------------------------------------------------------- */
+  // Interactive Click Handlers
   handleClick(e) {
-    if (this.dragMoved) return;
+    if (this.dragMoved || this.isFallingEntrance) return;
 
-    // Clear any active action timer so next action starts immediately
     if (this.actionTimer) {
       clearTimeout(this.actionTimer);
       this.actionTimer = null;
     }
 
-    if (this.clickSequence === 0) {
-      this.triggerFootballAction();
-    } else {
-      this.triggerDogAction();
-    }
-  }
-
-  cleanupCurrentActions() {
-    if (this.sprite) {
-      this.sprite.classList.remove('is-jamming', 'is-kicking', 'is-sprinting');
-    }
-    if (this.football) {
-      this.football.classList.remove('is-active');
-    }
-    if (this.dog) {
-      this.dog.classList.remove('is-active', 'is-bouncing');
-    }
-    this.isJamming = false;
-    this.isKicking = false;
-    this.isDogPlaying = false;
-  }
-
-  // 1. Football Kick Interaction with realistic trajectory and bounce
-  triggerFootballAction() {
-    this.cleanupCurrentActions();
-    this.currentAction = 'football';
-    this.isKicking = true;
-    this.clickSequence = 1;
-    this.clickState = 1;
-
-    if (this.badge) {
-      this.badge.textContent = '⚽';
-      this.badge.classList.remove('hidden');
-    }
-
-    if (this.football) {
-      const ballOffset = this.direction === 1 ? 28 : -28;
-      this.football.style.transform = `translate3d(${ballOffset}px, 0, 0) rotate(0deg)`;
-      this.football.classList.add('is-active');
-    }
-
-    this.sprite.classList.add('is-sprinting', 'is-kicking');
-    this.jump();
-    this.emitSparks(5, ['⚽', '💙', '⚡', '✨']);
-
-    if (this.football) {
-      let ballX = this.direction === 1 ? 28 : -28;
-      let ballY = 0;
-      let ballVelX = this.direction === 1 ? 8.5 : -8.5;
-      let ballVelY = -8.0;
-      const ballGravity = 0.65;
-      let ballRot = 0;
-
-      const animateBall = () => {
-        if (this.currentAction !== 'football') return;
-        ballVelY += ballGravity;
-        ballX += ballVelX;
-        ballY += ballVelY;
-        ballRot += this.direction * 16;
-
-        if (ballY >= 0) {
-          ballY = 0;
-          ballVelY = -ballVelY * 0.55;
-          ballVelX *= 0.88;
-        }
-
-        if (this.football) {
-          this.football.style.transform = `translate3d(${ballX}px, ${ballY}px, 0) rotate(${ballRot}deg)`;
-        }
-
-        if (Math.abs(ballVelX) > 0.3 || Math.abs(ballVelY) > 0.5) {
-          requestAnimationFrame(animateBall);
-        } else {
-          if (this.football) this.football.classList.remove('is-active');
-        }
-      };
-
-      requestAnimationFrame(animateBall);
-    }
-
-    this.actionTimer = setTimeout(() => {
-      if (this.football) this.football.classList.remove('is-active');
-      this.sprite.classList.remove('is-sprinting', 'is-kicking');
-      this.setFacingFront(false);
-      if (this.badge) {
-        this.badge.textContent = '⚡';
-        this.badge.classList.add('hidden');
-      }
-      this.isKicking = false;
-      if (this.currentAction === 'football') this.currentAction = null;
-    }, 2500);
-  }
-
-  // 3. Black Labrador Dog Companion Interaction & Napping in the Corner
-  triggerDogAction() {
-    this.cleanupCurrentActions();
-    this.currentAction = 'dog';
-    this.isDogPlaying = true;
-    this.clickSequence = 0;
-    this.clickState = 0;
-
-    if (this.badge) {
-      this.badge.textContent = '🐾';
-      this.badge.classList.remove('hidden');
-    }
-
-    if (this.dog) {
-      const dogOffset = this.direction === 1 ? 32 : -32;
-      this.dog.style.transform = `translate3d(${dogOffset}px, 0, 0) ${this.direction === 1 ? 'scaleX(-1)' : 'scaleX(1)'}`;
-      this.dog.classList.add('is-active', 'is-bouncing');
-    }
-
-    this.setFacingFront(true);
-    this.emitSparks(5, ['🐾', '🐶', '💖', '✨']);
-
-    this.actionTimer = setTimeout(() => {
-      if (this.dog) {
-        this.dog.classList.remove('is-bouncing', 'is-active');
-      }
-      if (this.dogCorner) {
-        this.dogCorner.classList.add('is-visible');
-        this.dogNapping = true;
-      }
-      this.setFacingFront(false);
-      if (this.badge) {
-        this.badge.textContent = '⚡';
-        this.badge.classList.add('hidden');
-      }
-      this.isDogPlaying = false;
-      if (this.currentAction === 'dog') this.currentAction = null;
-    }, 3200);
+    // Direct click immediately plays with black Labrador puppy!
+    this.performDogPlaySession();
   }
 
   // Compatibility aliases
-  playWalkOfLife() { this.triggerAudioAction(); }
-  playFootballKick() { this.triggerFootballAction(); }
-  playWithLabradorDog() { this.triggerDogAction(); }
+  triggerFootballAction() { this.performDogPlaySession(); }
+  triggerDogAction() { this.performDogPlaySession(); }
+  playWalkOfLife() { this.performDogPlaySession(); }
+  playFootballKick() { this.performDogPlaySession(); }
+  playWithLabradorDog() { this.performDogPlaySession(); }
 
   applyState(enabled) {
     this.enabled = enabled;
@@ -2197,20 +2302,25 @@ class FieldEngineerMascot {
   }
 
   toggle() {
-    this.applyState(!this.enabled);
+    const nextState = !this.enabled;
+    this.applyState(nextState);
     try {
-      localStorage.setItem('mascot-enabled', this.enabled ? 'true' : 'false');
+      localStorage.setItem('mascot-enabled', nextState ? 'true' : 'false');
     } catch (e) {}
+
+    if (nextState) {
+      this.triggerSkyfallEntrance();
+    }
   }
 
   pause() {
     this.isPaused = true;
-    if (this.sprite) this.sprite.classList.add('is-paused');
+    this.updateWalkingState(false);
   }
 
   resume() {
     this.isPaused = false;
-    if (this.sprite) this.sprite.classList.remove('is-paused');
+    this.updateWalkingState(true);
   }
 }
 
@@ -2236,6 +2346,14 @@ function handleDogClick(e) {
   if (e) e.stopPropagation();
   if (window.mascotEngine) {
     window.mascotEngine.emitSparks(4, ['🐾', '💖', '🐶']);
+    if (window.mascotEngine.dog) {
+      window.mascotEngine.dog.classList.add('is-bouncing');
+      setTimeout(() => {
+        if (window.mascotEngine && window.mascotEngine.dog) {
+          window.mascotEngine.dog.classList.remove('is-bouncing');
+        }
+      }, 1200);
+    }
   }
 }
 

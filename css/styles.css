@@ -1040,7 +1040,7 @@ html.dark .highlight-case-study {
   position: fixed;
   left: 0;
   bottom: 0;
-  z-index: 45; /* Above page content and cards, below modal overlays */
+  z-index: 9999 !important; /* Topmost overlay above all backgrounds, cards, and footers */
   pointer-events: auto;
   user-select: none;
   -webkit-user-select: none;
@@ -1066,7 +1066,7 @@ html.dark .highlight-case-study {
 .mascot-sprite {
   width: var(--mascot-width);
   height: var(--mascot-height);
-  background-image: url('../assets/images/anish-runner-sprite.png?v=4.4');
+  background-image: url('../assets/images/anish-runner-sprite.png?v=4.5');
   background-size: var(--mascot-sprite-total-width) var(--mascot-height);
   background-repeat: no-repeat;
   will-change: background-position;
@@ -1083,11 +1083,25 @@ html.dark .highlight-case-study {
 }
 
 .mascot-sprite.is-inspecting {
-  background-image: url('../assets/images/anish-inspect-sprite.png?v=4.4') !important;
+  background-image: url('../assets/images/anish-inspect-sprite.png?v=4.5') !important;
   animation: mascotInspectCycle 1.5s steps(12) infinite !important;
 }
 
+.mascot-sprite.is-working {
+  background-image: url('../assets/images/anish-work-sprite.png?v=4.5') !important;
+  animation: mascotWorkCycle 1.5s steps(12) infinite !important;
+}
+
 @keyframes mascotInspectCycle {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: calc(-1 * var(--mascot-sprite-total-width)) 0;
+  }
+}
+
+@keyframes mascotWorkCycle {
   from {
     background-position: 0 0;
   }
@@ -1312,8 +1326,9 @@ html.mascot-disabled .engineer-mascot-container {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  /* Do NOT hide the mascot when reduced motion is preferred; keep him visible and calm */
   .engineer-mascot-container {
-    display: none !important;
+    display: block !important;
   }
 }
 

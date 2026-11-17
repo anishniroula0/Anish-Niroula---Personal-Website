@@ -1579,14 +1579,12 @@ if (document.readyState === 'loading') {
 
 /* -------------------------------------------------------------------------
    8. VISIBILITY CHANGE & BATTERY OPTIMIZATION (MOBILE & ACCESSIBILITY)
-   Freezes animations, mascot loop, and SVG paths when tab is hidden or
-   when prefers-reduced-motion is active.
+   Freezes animations, mascot loop, and SVG paths only when tab is hidden.
    ------------------------------------------------------------------------- */
 function updateSvgAnimationState() {
   const bgSvg = document.querySelector('.global-backdrop-container svg');
   const bgContainer = document.querySelector('.global-backdrop-container');
-  const reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const shouldPause = document.hidden || reducedMotion;
+  const shouldPause = document.hidden;
 
   if (shouldPause) {
     if (bgSvg && typeof bgSvg.pauseAnimations === 'function') {
@@ -1612,11 +1610,6 @@ function updateSvgAnimationState() {
 }
 
 document.addEventListener('visibilitychange', updateSvgAnimationState);
-if (window.matchMedia) {
-  try {
-    window.matchMedia('(prefers-reduced-motion: reduce)').addEventListener('change', updateSvgAnimationState);
-  } catch (e) {}
-}
 updateSvgAnimationState();
 
 /* -------------------------------------------------------------------------
@@ -1778,16 +1771,34 @@ class FieldEngineerMascot {
 
   runAutonomousTask() {
     this.isInspecting = true;
-    this.sprite.classList.add('is-inspecting');
-    if (this.badge) this.badge.classList.remove('hidden');
+    const isWrenchTask = Math.random() > 0.5;
+
+    if (isWrenchTask) {
+      this.sprite.classList.remove('is-inspecting');
+      this.sprite.classList.add('is-working');
+      if (this.badge) {
+        this.badge.textContent = '🔧';
+        this.badge.classList.remove('hidden');
+      }
+    } else {
+      this.sprite.classList.remove('is-working');
+      this.sprite.classList.add('is-inspecting');
+      if (this.badge) {
+        this.badge.textContent = '⚡';
+        this.badge.classList.remove('hidden');
+      }
+    }
 
     const quote = this.engineeringQuotes[Math.floor(Math.random() * this.engineeringQuotes.length)];
-    this.say(quote, 4500);
+    this.say(quote, 4600);
 
     setTimeout(() => {
       this.isInspecting = false;
-      this.sprite.classList.remove('is-inspecting');
-      if (this.badge) this.badge.classList.add('hidden');
+      this.sprite.classList.remove('is-inspecting', 'is-working');
+      if (this.badge) {
+        this.badge.textContent = '⚡';
+        this.badge.classList.add('hidden');
+      }
     }, 4800);
   }
 
@@ -1939,13 +1950,36 @@ class FieldEngineerMascot {
     switch (action) {
       case 'inspect':
         this.isInspecting = true;
+        this.sprite.classList.remove('is-working');
         this.sprite.classList.add('is-inspecting');
-        if (this.badge) this.badge.classList.remove('hidden');
+        if (this.badge) {
+          this.badge.textContent = '⚡';
+          this.badge.classList.remove('hidden');
+        }
         this.say("Diagnostic Check: Satdobato GIS SF6 Pressure: 0.58 MPa | Interlocks: Clear! 📐", 5000);
         setTimeout(() => {
           this.isInspecting = false;
           this.sprite.classList.remove('is-inspecting');
           if (this.badge) this.badge.classList.add('hidden');
+        }, 5000);
+        break;
+
+      case 'work':
+        this.isInspecting = true;
+        this.sprite.classList.remove('is-inspecting');
+        this.sprite.classList.add('is-working');
+        if (this.badge) {
+          this.badge.textContent = '🔧';
+          this.badge.classList.remove('hidden');
+        }
+        this.say("Maintenance: Tightening 132kV terminal clamps & busbar torque inspection! 🔧⚡", 5000);
+        setTimeout(() => {
+          this.isInspecting = false;
+          this.sprite.classList.remove('is-working');
+          if (this.badge) {
+            this.badge.textContent = '⚡';
+            this.badge.classList.add('hidden');
+          }
         }, 5000);
         break;
 
@@ -1989,10 +2023,18 @@ class FieldEngineerMascot {
 
     if (enabled) {
       root.classList.remove('mascot-disabled');
+      if (this.container) {
+        this.container.style.display = 'block';
+        this.container.style.opacity = '1';
+        this.container.style.visibility = 'visible';
+      }
       if (label) label.textContent = 'Mascot: On ⚡';
       if (!this.animFrameId) this.startLoop();
     } else {
       root.classList.add('mascot-disabled');
+      if (this.container) {
+        this.container.style.display = 'none';
+      }
       if (label) label.textContent = 'Mascot: Off';
       this.dismissBubble();
     }

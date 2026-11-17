@@ -1219,39 +1219,44 @@ html.dark .highlight-case-study {
   visibility: visible;
 }
 
-/* Interactive Black Labrador Dog Companion */
+/* Interactive Black Labrador Dog Companion - Walks alongside Anish */
 .mascot-dog {
   position: absolute;
-  width: 30px;
-  height: 25px;
-  background-image: url('../assets/images/mascot-dog.png?v=4.6');
+  width: 28px;
+  height: 24px;
+  background-image: url('../assets/images/mascot-dog.png?v=4.8');
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center bottom;
   bottom: 0;
-  left: 0;
+  left: -24px;
   z-index: 9998;
-  pointer-events: none;
+  pointer-events: auto;
   cursor: pointer;
-  opacity: 0;
-  visibility: hidden;
-  transform-origin: bottom center;
-  transition: opacity 0.3s ease, visibility 0.3s;
-}
-
-.mascot-dog.is-active {
   opacity: 1;
   visibility: visible;
-  pointer-events: auto;
+  transform-origin: bottom center;
+  transition: transform 0.2s ease, opacity 0.3s ease;
+  animation: dogTrotBounce 0.36s ease-in-out infinite alternate;
+}
+
+.mascot-dog.is-facing-left {
+  left: 28px;
+  transform: scaleX(-1);
 }
 
 .mascot-dog.is-bouncing {
-  animation: dogPlayBounce 0.32s ease-in-out infinite alternate;
+  animation: dogPlayBounce 0.28s ease-in-out infinite alternate !important;
+}
+
+@keyframes dogTrotBounce {
+  0% { transform: translateY(0) scale(1, 1); }
+  100% { transform: translateY(-4px) scale(0.96, 1.05); }
 }
 
 @keyframes dogPlayBounce {
   0% { transform: translateY(0) scale(1, 1); }
-  100% { transform: translateY(-5px) scale(0.96, 1.06); }
+  100% { transform: translateY(-8px) scale(0.92, 1.1); }
 }
 
 /* Corner Napping Black Labrador Dog */
@@ -1322,34 +1327,10 @@ html.mascot-disabled .mascot-dog-napping {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  /* Under reduced-motion: keep mascot visible, static, and peaceful per GEMINI.md */
+  /* Keep mascot and dog visible and active per user preference */
   .engineer-mascot-container,
   .mascot-dog-napping {
     display: block !important;
-  }
-  .mascot-sprite,
-  .mascot-sprite.is-facing-front,
-  .mascot-sprite.is-front-facing,
-  .mascot-sprite.is-jamming,
-  .mascot-sprite.is-kicking,
-  .mascot-sprite.is-sprinting,
-  .mascot-sprite.is-paused,
-  .mascot-sprite.is-red-variant,
-  .mascot-character-wrapper,
-  .mascot-status-badge,
-  .mascot-spark,
-  .mascot-dog,
-  .mascot-dog.is-active,
-  .mascot-dog.is-bouncing,
-  .mascot-dog-zzz {
-    animation: none !important;
-    animation-play-state: paused !important;
-    transition: none !important;
-  }
-  .mascot-sprite {
-    background-image: url('../assets/images/mascot-front.png?v=4.6') !important;
-    background-size: contain !important;
-    background-position: center bottom !important;
   }
 }
 

@@ -1708,10 +1708,6 @@ class FieldEngineerMascot {
     this.startLoop();
     this.scheduleNextFrontPause();
     this.scheduleRedTransformation();
-
-    if (this.prefersReducedMotion) {
-      this.setFacingFront(true);
-    }
   }
 
   setupGroundPosition() {
@@ -1731,21 +1727,24 @@ class FieldEngineerMascot {
     });
 
     // Natural Smooth Scroll Following:
-    // Passive scroll listener updates target elevation with low-pass LERP damping
+    // As the visitor scrolls, Anish and his Labrador pace forward together with active walking strides!
     window.addEventListener('scroll', () => {
-      if (!this.enabled || this.isDragging || this.prefersReducedMotion) return;
+      if (!this.enabled || this.isDragging) return;
       const currentScrollY = window.pageYOffset || document.documentElement.scrollTop || 0;
       const deltaY = currentScrollY - this.lastScrollY;
       this.lastScrollY = currentScrollY;
 
-      // Soft vertical impulse proportional to scroll delta (damped to prevent jarring jumps)
-      const scrollImpulse = Math.max(-20, Math.min(20, -deltaY * 0.2));
-      this.targetScrollOffset = Math.max(-25, Math.min(25, this.targetScrollOffset + scrollImpulse));
+      // Soft natural vertical step bobbing cadence while scrolling
+      const stepBob = Math.sin(Date.now() / 90) * 4;
+      this.targetScrollOffset = Math.max(-15, Math.min(15, stepBob));
 
-      // Gentle horizontal stroll while scrolling across sections
-      if (!this.currentAction && !this.isTurning && !this.isFacingFront) {
-        const paceMultiplier = Math.min(2.5, 1.0 + Math.abs(deltaY) * 0.03);
-        this.posX += this.direction * (this.baseSpeed * paceMultiplier);
+      // Active horizontal walking stride while scrolling down or up
+      if (!this.currentAction && !this.isDragging) {
+        if (this.isFacingFront) {
+          this.setFacingFront(false);
+        }
+        const scrollStride = Math.min(3.5, 1.2 + Math.abs(deltaY) * 0.05);
+        this.posX += this.direction * (this.baseSpeed * scrollStride);
         this.keepInBounds();
         this.updateTransform();
       }
@@ -1753,18 +1752,18 @@ class FieldEngineerMascot {
       if (this.scrollTimeout) clearTimeout(this.scrollTimeout);
       this.scrollTimeout = setTimeout(() => {
         this.currentSpeed = this.baseSpeed;
-      }, 200);
+      }, 150);
     }, { passive: true });
 
     // Desktop hover: pause and turn to FRONT so user sees friendly engineer face
     this.container.addEventListener('mouseenter', () => {
-      if (!this.isDragging && !this.currentAction && !this.prefersReducedMotion) {
+      if (!this.isDragging && !this.currentAction) {
         this.isPaused = true;
         this.setFacingFront(true);
       }
     });
     this.container.addEventListener('mouseleave', () => {
-      if (!this.isDragging && !this.currentAction && !this.prefersReducedMotion) {
+      if (!this.isDragging && !this.currentAction) {
         this.isPaused = false;
         this.setFacingFront(false);
       }
@@ -1792,8 +1791,8 @@ class FieldEngineerMascot {
       if (this.enabled) {
         // Natural 60 FPS LERP damping for vertical scroll following
         if (!this.isDragging) {
-          this.scrollOffset += (this.targetScrollOffset - this.scrollOffset) * 0.08;
-          this.targetScrollOffset *= 0.94;
+          this.scrollOffset += (this.targetScrollOffset - this.scrollOffset) * 0.1;
+          this.targetScrollOffset *= 0.92;
           if (Math.abs(this.targetScrollOffset) < 0.04) this.targetScrollOffset = 0;
           if (Math.abs(this.scrollOffset) < 0.04) this.scrollOffset = 0;
 
@@ -1801,8 +1800,8 @@ class FieldEngineerMascot {
           this.updateTransform();
         }
 
-        // Horizontal roaming across screen
-        if (!this.prefersReducedMotion && !this.isPaused && !this.currentAction && !this.isDragging && !this.isTurning && !this.isFacingFront) {
+        // Horizontal roaming across screen - always active!
+        if (!this.isPaused && !this.currentAction && !this.isDragging && !this.isTurning && !this.isFacingFront) {
           const isMobile = window.innerWidth < 768;
           const minX = 10;
           const maxX = window.innerWidth - (isMobile ? 32 : 40);
@@ -1856,11 +1855,11 @@ class FieldEngineerMascot {
     // Periodically pause to face front (every 20-30 seconds)
     const interval = Math.floor(Math.random() * 10000) + 20000;
     this.frontPauseTimer = setTimeout(() => {
-      if (this.enabled && !this.isDragging && !this.isPaused && !this.currentAction && !this.prefersReducedMotion) {
+      if (this.enabled && !this.isDragging && !this.isPaused && !this.currentAction) {
         this.setFacingFront(true);
         this.emitSparks(2, ['⚡', '✨']);
         setTimeout(() => {
-          if (!this.currentAction && !this.isPaused && !this.prefersReducedMotion) {
+          if (!this.currentAction && !this.isPaused) {
             this.setFacingFront(false);
           }
         }, 2500);
@@ -1905,6 +1904,9 @@ class FieldEngineerMascot {
       this.wrapper.style.transform = 'scaleX(1)';
     } else {
       this.wrapper.style.transform = this.direction === 1 ? 'scaleX(1)' : 'scaleX(-1)';
+    }
+    if (this.dog) {
+      this.dog.classList.toggle('is-facing-left', this.direction === -1);
     }
   }
 

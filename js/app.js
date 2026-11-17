@@ -1614,7 +1614,9 @@ updateSvgAnimationState();
 
 /* -------------------------------------------------------------------------
    9. INTERACTIVE FIELD ENGINEER MASCOT COMPANION ENGINE
-   60 FPS roaming, site inspections, interactive dialogues, dragging & physics
+   Compact half-size design, front-facing views, Dire Straits Walk of Life jams,
+   Chelsea football kicking, Black Labrador companion, periodic red transformation,
+   natural smooth scroll traversal, and accessible reduced-motion support.
    ------------------------------------------------------------------------- */
 class FieldEngineerMascot {
   constructor() {
@@ -1622,40 +1624,59 @@ class FieldEngineerMascot {
     this.wrapper = document.getElementById('mascotCharacterWrapper');
     this.sprite = document.getElementById('mascotSprite');
     this.badge = document.getElementById('mascotStatusBadge');
+    this.football = document.getElementById('mascotFootball');
+    this.dog = document.getElementById('mascotDog');
+    this.dogCorner = document.getElementById('mascotDogCorner');
+    this.audio = document.getElementById('walkOfLifeAudio');
     this.bubble = document.getElementById('mascotSpeechBubble');
     this.speechText = document.getElementById('mascotSpeechText');
-    this.speechRole = document.getElementById('mascotSpeechRole');
+    this.bubbleTimer = null;
 
     this.enabled = true;
     this.posX = 40;
     this.posY = 0;
+    this.scrollOffset = 0;
+    this.targetScrollOffset = 0;
     this.direction = 1; // 1 = right, -1 = left
-    this.baseSpeed = 1.6;
-    this.currentSpeed = 1.6;
+    this.baseSpeed = 1.25;
+    this.currentSpeed = 1.25;
     this.isPaused = false;
-    this.isInspecting = false;
+    this.isFacingFront = false;
+    this.isTurning = false;
     this.isDragging = false;
     this.dragMoved = false;
     this.dragStartX = 0;
     this.dragStartY = 0;
     this.dragStartPosX = 0;
     this.dragStartPosY = 0;
-    this.bubbleTimer = null;
-    this.taskTimer = null;
-    this.animFrameId = null;
 
-    this.engineeringQuotes = [
-      "Checking Satdobato 132kV GIS SF6 gas pressure: 0.58 MPa (Nominal) 🟢",
-      "Measuring switchyard ground pit resistance: 0.72 Ω (Compliant) ⚡",
-      "Calibrating distance protection relays: Zone 1 reach 80% locked 📐",
-      "Transformer cooling test: 63MVA oil temp at 46°C, all fans running 🌡️",
-      "Single-line diagram bus coupler interlocking verified! ⚡",
-      "220kV transmission line sag clearance check passed 🏔️",
-      "Up the Blues! Come on Chelsea! 💙⚽",
-      "Humming Dire Straits: Sultans of Swing 🎸",
-      "Listening to Pink Floyd: Shine On You Crazy Diamond 💎",
-      "Tea break with the transmission line stringing crew ☕"
-    ];
+    // Interaction states
+    this.currentAction = null;
+    this.isJamming = false;
+    this.isKicking = false;
+    this.isDogPlaying = false;
+    this.dogNapping = false;
+    this.actionTimer = null;
+
+    // Sequential click state machine:
+    // 0 = Ready for Walk of Life intro riff (Dire Straits)
+    // 1 = Ready for Football kick
+    // 2 = Ready for Black Labrador dog interaction & nap in corner
+    this.clickSequence = 0;
+    this.clickState = 0; // Synchronized alias for test compatibility
+
+    this.lastScrollY = window.pageYOffset || document.documentElement.scrollTop || 0;
+    this.scrollTimeout = null;
+    this.frontPauseTimer = null;
+    this.redTransformTimer = null;
+    this.isRedVariant = false;
+    this.animFrameId = null;
+    this.audioCtx = null;
+    this.prefersReducedMotion = false;
+  }
+
+  get isInteracting() {
+    return !!this.currentAction;
   }
 
   init() {
@@ -1666,48 +1687,90 @@ class FieldEngineerMascot {
       const saved = localStorage.getItem('mascot-enabled');
       if (saved !== null) this.enabled = (saved === 'true');
     } catch (e) {}
-    this.applyState(this.enabled);
 
+    // Check prefers-reduced-motion
+    try {
+      const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+      this.prefersReducedMotion = motionQuery.matches;
+      if (motionQuery.addEventListener) {
+        motionQuery.addEventListener('change', (e) => {
+          this.prefersReducedMotion = e.matches;
+          if (this.prefersReducedMotion) {
+            this.setFacingFront(true);
+          } else {
+            this.setFacingFront(false);
+          }
+        });
+      }
+    } catch (e) {}
+
+    this.applyState(this.enabled);
     if (!this.enabled) return;
 
     this.setupGroundPosition();
     this.setupEvents();
     this.startLoop();
-    this.scheduleNextTask();
+    this.scheduleNextFrontPause();
+    this.scheduleRedTransformation();
 
-    // Initial greeting after 3 seconds
-    setTimeout(() => {
-      if (this.enabled && !this.isDragging) {
-        this.say("On duty! Patrolling the substation grounds. Tap me to interact! ⚡", 4000);
-      }
-    }, 2800);
+    if (this.prefersReducedMotion) {
+      this.setFacingFront(true);
+    }
   }
 
   setupGroundPosition() {
     const isMobile = window.innerWidth < 768;
     this.groundBottom = isMobile ? 74 : 24;
     this.container.style.bottom = `${this.groundBottom}px`;
+    if (this.dogCorner) {
+      this.dogCorner.style.bottom = `${this.groundBottom}px`;
+    }
     this.updateTransform();
   }
 
   setupEvents() {
     window.addEventListener('resize', () => {
       this.setupGroundPosition();
-      const maxX = window.innerWidth - (window.innerWidth < 768 ? 60 : 75);
-      if (this.posX > maxX) this.posX = maxX - 10;
+      this.keepInBounds();
     });
 
-    // Hover pause on desktop so user can easily click or read
+    // Natural Smooth Scroll Following:
+    // Passive scroll listener updates target elevation with low-pass LERP damping
+    window.addEventListener('scroll', () => {
+      if (!this.enabled || this.isDragging || this.prefersReducedMotion) return;
+      const currentScrollY = window.pageYOffset || document.documentElement.scrollTop || 0;
+      const deltaY = currentScrollY - this.lastScrollY;
+      this.lastScrollY = currentScrollY;
+
+      // Soft vertical impulse proportional to scroll delta (damped to prevent jarring jumps)
+      const scrollImpulse = Math.max(-20, Math.min(20, -deltaY * 0.2));
+      this.targetScrollOffset = Math.max(-25, Math.min(25, this.targetScrollOffset + scrollImpulse));
+
+      // Gentle horizontal stroll while scrolling across sections
+      if (!this.currentAction && !this.isTurning && !this.isFacingFront) {
+        const paceMultiplier = Math.min(2.5, 1.0 + Math.abs(deltaY) * 0.03);
+        this.posX += this.direction * (this.baseSpeed * paceMultiplier);
+        this.keepInBounds();
+        this.updateTransform();
+      }
+
+      if (this.scrollTimeout) clearTimeout(this.scrollTimeout);
+      this.scrollTimeout = setTimeout(() => {
+        this.currentSpeed = this.baseSpeed;
+      }, 200);
+    }, { passive: true });
+
+    // Desktop hover: pause and turn to FRONT so user sees friendly engineer face
     this.container.addEventListener('mouseenter', () => {
-      if (!this.isDragging) {
+      if (!this.isDragging && !this.currentAction && !this.prefersReducedMotion) {
         this.isPaused = true;
-        this.sprite.classList.add('is-paused');
+        this.setFacingFront(true);
       }
     });
     this.container.addEventListener('mouseleave', () => {
-      if (!this.isDragging && !this.isInspecting) {
+      if (!this.isDragging && !this.currentAction && !this.prefersReducedMotion) {
         this.isPaused = false;
-        this.sprite.classList.remove('is-paused');
+        this.setFacingFront(false);
       }
     });
 
@@ -1718,28 +1781,48 @@ class FieldEngineerMascot {
     window.addEventListener('pointercancel', (e) => this.onPointerUp(e));
   }
 
+  keepInBounds() {
+    const isMobile = window.innerWidth < 768;
+    const minX = 10;
+    const maxX = window.innerWidth - (isMobile ? 32 : 40);
+    if (this.posX > maxX) this.posX = maxX;
+    if (this.posX < minX) this.posX = minX;
+  }
+
   startLoop() {
     if (this.animFrameId) cancelAnimationFrame(this.animFrameId);
 
     const step = () => {
-      if (this.enabled && !this.isPaused && !this.isInspecting && !this.isDragging) {
-        const isMobile = window.innerWidth < 768;
-        const minX = 12;
-        const maxX = window.innerWidth - (isMobile ? 62 : 75);
+      if (this.enabled) {
+        // Natural 60 FPS LERP damping for vertical scroll following
+        if (!this.isDragging) {
+          this.scrollOffset += (this.targetScrollOffset - this.scrollOffset) * 0.08;
+          this.targetScrollOffset *= 0.94;
+          if (Math.abs(this.targetScrollOffset) < 0.04) this.targetScrollOffset = 0;
+          if (Math.abs(this.scrollOffset) < 0.04) this.scrollOffset = 0;
 
-        this.posX += this.direction * this.currentSpeed;
-
-        if (this.posX >= maxX) {
-          this.posX = maxX;
-          this.direction = -1;
-          this.updateFacing();
-        } else if (this.posX <= minX) {
-          this.posX = minX;
-          this.direction = 1;
-          this.updateFacing();
+          this.posY = this.scrollOffset;
+          this.updateTransform();
         }
 
-        this.updateTransform();
+        // Horizontal roaming across screen
+        if (!this.prefersReducedMotion && !this.isPaused && !this.currentAction && !this.isDragging && !this.isTurning && !this.isFacingFront) {
+          const isMobile = window.innerWidth < 768;
+          const minX = 10;
+          const maxX = window.innerWidth - (isMobile ? 32 : 40);
+
+          this.posX += this.direction * this.currentSpeed;
+
+          if (this.posX >= maxX) {
+            this.posX = maxX;
+            this.turnAround(-1);
+          } else if (this.posX <= minX) {
+            this.posX = minX;
+            this.turnAround(1);
+          }
+
+          this.updateTransform();
+        }
       }
       this.animFrameId = requestAnimationFrame(step);
     };
@@ -1747,9 +1830,86 @@ class FieldEngineerMascot {
     this.animFrameId = requestAnimationFrame(step);
   }
 
+  setFacingFront(front) {
+    this.isFacingFront = front;
+    if (!this.sprite || !this.wrapper) return;
+
+    if (front) {
+      this.sprite.classList.add('is-facing-front', 'is-front-facing');
+      this.wrapper.style.transform = 'scaleX(1)';
+    } else {
+      this.sprite.classList.remove('is-facing-front', 'is-front-facing');
+      this.updateFacing();
+    }
+  }
+
+  turnAround(newDir) {
+    if (this.isTurning) return;
+    this.isTurning = true;
+    // Turn to front pose briefly before walking opposite direction
+    this.setFacingFront(true);
+    setTimeout(() => {
+      this.direction = newDir;
+      this.setFacingFront(false);
+      this.isTurning = false;
+    }, 400);
+  }
+
+  scheduleNextFrontPause() {
+    if (this.frontPauseTimer) clearTimeout(this.frontPauseTimer);
+    // Periodically pause to face front (every 20-30 seconds)
+    const interval = Math.floor(Math.random() * 10000) + 20000;
+    this.frontPauseTimer = setTimeout(() => {
+      if (this.enabled && !this.isDragging && !this.isPaused && !this.currentAction && !this.prefersReducedMotion) {
+        this.setFacingFront(true);
+        this.emitSparks(2, ['⚡', '✨']);
+        setTimeout(() => {
+          if (!this.currentAction && !this.isPaused && !this.prefersReducedMotion) {
+            this.setFacingFront(false);
+          }
+        }, 2500);
+      }
+      this.scheduleNextFrontPause();
+    }, interval);
+  }
+
+  // Periodic Crimson Red Mascot Transformation (every ~50 seconds for 15 seconds)
+  scheduleRedTransformation() {
+    if (this.redTransformTimer) clearTimeout(this.redTransformTimer);
+    const interval = 50000; // 50 seconds
+    this.redTransformTimer = setTimeout(() => {
+      if (this.enabled && !this.isDragging) {
+        this.triggerRedTransformation();
+      } else {
+        this.scheduleRedTransformation();
+      }
+    }, interval);
+  }
+
+  triggerRedTransformation() {
+    this.isRedVariant = true;
+    if (this.sprite) {
+      this.sprite.classList.add('is-red-variant');
+    }
+    this.emitSparks(4, ['🔴', '⚡', '✨', '🔥']);
+
+    // Stays red for 15 seconds without popup dialogs
+    setTimeout(() => {
+      this.isRedVariant = false;
+      if (this.sprite) {
+        this.sprite.classList.remove('is-red-variant');
+      }
+      this.scheduleRedTransformation();
+    }, 15000);
+  }
+
   updateFacing() {
     if (!this.wrapper) return;
-    this.wrapper.style.transform = this.direction === 1 ? 'scaleX(1)' : 'scaleX(-1)';
+    if (this.isFacingFront) {
+      this.wrapper.style.transform = 'scaleX(1)';
+    } else {
+      this.wrapper.style.transform = this.direction === 1 ? 'scaleX(1)' : 'scaleX(-1)';
+    }
   }
 
   updateTransform() {
@@ -1757,49 +1917,147 @@ class FieldEngineerMascot {
     this.container.style.transform = `translate3d(${Math.round(this.posX)}px, ${Math.round(this.posY)}px, 0)`;
   }
 
-  scheduleNextTask() {
-    if (this.taskTimer) clearTimeout(this.taskTimer);
-    // Autonomous inspection or fun quote every 14 - 24 seconds
-    const interval = Math.floor(Math.random() * 10000) + 14000;
-    this.taskTimer = setTimeout(() => {
-      if (this.enabled && !this.isDragging && !this.isPaused) {
-        this.runAutonomousTask();
-      }
-      this.scheduleNextTask();
-    }, interval);
+  jump() {
+    if (!this.wrapper) return;
+    this.wrapper.classList.remove('is-jumping');
+    void this.wrapper.offsetWidth; // Trigger reflow
+    this.wrapper.classList.add('is-jumping');
+    this.emitSparks(3);
+    setTimeout(() => {
+      if (this.wrapper) this.wrapper.classList.remove('is-jumping');
+    }, 550);
   }
 
-  runAutonomousTask() {
-    this.isInspecting = true;
-    const isWrenchTask = Math.random() > 0.5;
+  emitSparks(count = 3, emojis = ['⚡', '✨', '💡', '🔋']) {
+    for (let i = 0; i < count; i++) {
+      const spark = document.createElement('span');
+      spark.className = 'mascot-spark';
+      spark.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+      spark.style.left = `${8 + Math.random() * 14}px`;
+      spark.style.top = `${4 + Math.random() * 16}px`;
+      spark.style.setProperty('--tx', `${(Math.random() - 0.5) * 32}px`);
+      this.wrapper.appendChild(spark);
+      setTimeout(() => spark.remove(), 750);
+    }
+  }
 
-    if (isWrenchTask) {
-      this.sprite.classList.remove('is-inspecting');
-      this.sprite.classList.add('is-working');
-      if (this.badge) {
-        this.badge.textContent = '🔧';
-        this.badge.classList.remove('hidden');
-      }
-    } else {
-      this.sprite.classList.remove('is-working');
-      this.sprite.classList.add('is-inspecting');
-      if (this.badge) {
-        this.badge.textContent = '⚡';
-        this.badge.classList.remove('hidden');
-      }
+  onPointerDown(e) {
+    if (e.button && e.button !== 0) return;
+    if (this.currentAction) return;
+    this.isDragging = true;
+    this.dragMoved = false;
+    this.dragStartX = e.clientX;
+    this.dragStartY = e.clientY;
+    this.dragStartPosX = this.posX;
+    this.dragStartPosY = this.posY;
+
+    this.container.classList.add('mascot-in-air');
+    this.sprite.classList.add('is-paused');
+    try { this.wrapper.setPointerCapture(e.pointerId); } catch (err) {}
+  }
+
+  onPointerMove(e) {
+    if (!this.isDragging) return;
+    const dx = e.clientX - this.dragStartX;
+    const dy = e.clientY - this.dragStartY;
+
+    if (Math.abs(dx) > 4 || Math.abs(dy) > 4) {
+      this.dragMoved = true;
     }
 
-    const quote = this.engineeringQuotes[Math.floor(Math.random() * this.engineeringQuotes.length)];
-    this.say(quote, 4600);
+    const isMobile = window.innerWidth < 768;
+    this.posX = Math.max(10, Math.min(window.innerWidth - (isMobile ? 32 : 40), this.dragStartPosX + dx));
+    this.posY = Math.min(0, this.dragStartPosY + dy);
+    this.updateTransform();
+  }
 
-    setTimeout(() => {
-      this.isInspecting = false;
-      this.sprite.classList.remove('is-inspecting', 'is-working');
-      if (this.badge) {
-        this.badge.textContent = '⚡';
-        this.badge.classList.add('hidden');
+  onPointerUp(e) {
+    if (!this.isDragging) return;
+    this.isDragging = false;
+    try { this.wrapper.releasePointerCapture(e.pointerId); } catch (err) {}
+
+    this.container.classList.remove('mascot-in-air');
+
+    if (this.posY < 0) {
+      this.animateDropToGround();
+    } else {
+      this.posY = 0;
+      this.updateTransform();
+      this.sprite.classList.remove('is-paused');
+    }
+  }
+
+  animateDropToGround() {
+    let velocity = 0;
+    const gravity = 1.2;
+    const bounceFactor = -0.35;
+    let currentY = this.posY;
+
+    const fallStep = () => {
+      velocity += gravity;
+      currentY += velocity;
+
+      if (currentY >= 0) {
+        currentY = 0;
+        if (Math.abs(velocity) > 4) {
+          velocity *= bounceFactor;
+          this.emitSparks(2, ['⚡', '✨']);
+        } else {
+          this.posY = 0;
+          this.updateTransform();
+          this.sprite.classList.remove('is-paused');
+          this.emitSparks(3, ['⚡', '🔋']);
+          return;
+        }
       }
-    }, 4800);
+
+      this.posY = currentY;
+      this.updateTransform();
+      requestAnimationFrame(fallStep);
+    };
+
+    requestAnimationFrame(fallStep);
+  }
+
+  /* -------------------------------------------------------------------------
+     SEQUENTIAL CLICK INTERACTIONS:
+     1. Walk of Life (Dire Straits) Music Jam (5.5s intro riff)
+     2. Football Kick (Chelsea FC / Soccer) with dynamic physics
+     3. Black Labrador Dog Companion & Napping in the Corner
+     Subsequent clicks restart and cycle appropriately.
+     ------------------------------------------------------------------------- */
+  handleClick(e) {
+    if (this.dragMoved) return;
+
+    // Clear any active action timer so next action starts immediately
+    if (this.actionTimer) {
+      clearTimeout(this.actionTimer);
+      this.actionTimer = null;
+    }
+
+    if (this.clickSequence === 0) {
+      this.triggerAudioAction();
+    } else if (this.clickSequence === 1) {
+      this.triggerFootballAction();
+    } else {
+      this.triggerDogAction();
+    }
+  }
+
+  cleanupCurrentActions() {
+    if (this.sprite) {
+      this.sprite.classList.remove('is-jamming', 'is-kicking', 'is-sprinting');
+    }
+    if (this.football) {
+      this.football.classList.remove('is-active');
+    }
+    if (this.dog) {
+      this.dog.classList.remove('is-active', 'is-bouncing');
+    }
+    this.dismissBubble();
+    this.isJamming = false;
+    this.isKicking = false;
+    this.isDogPlaying = false;
   }
 
   say(text, autoDismissMs = 4500) {
@@ -1824,197 +2082,264 @@ class FieldEngineerMascot {
     }
   }
 
-  jump() {
-    if (!this.wrapper) return;
-    this.wrapper.classList.remove('is-jumping');
-    void this.wrapper.offsetWidth; // Trigger reflow
-    this.wrapper.classList.add('is-jumping');
-    this.emitSparks(3);
-    setTimeout(() => {
-      if (this.wrapper) this.wrapper.classList.remove('is-jumping');
-    }, 600);
-  }
+  // 1. Dire Straits - Walk of Life Jam (5-6s upbeat intro)
+  triggerAudioAction() {
+    this.cleanupCurrentActions();
+    this.currentAction = 'audio';
+    this.isJamming = true;
+    this.clickSequence = 1;
+    this.clickState = 1;
 
-  emitSparks(count = 3) {
-    const emojis = ['⚡', '✨', '💡', '🔋'];
-    for (let i = 0; i < count; i++) {
-      const spark = document.createElement('span');
-      spark.className = 'mascot-spark';
-      spark.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-      spark.style.left = `${20 + Math.random() * 20}px`;
-      spark.style.top = `${10 + Math.random() * 20}px`;
-      spark.style.setProperty('--tx', `${(Math.random() - 0.5) * 45}px`);
-      this.wrapper.appendChild(spark);
-      setTimeout(() => spark.remove(), 800);
+    this.setFacingFront(true);
+    this.sprite.classList.add('is-jamming');
+    if (this.badge) {
+      this.badge.textContent = '🎵';
+      this.badge.classList.remove('hidden');
     }
-  }
+    this.emitSparks(6, ['🎵', '🎶', '🎸', '⚡']);
 
-  onPointerDown(e) {
-    // Only left click or primary touch
-    if (e.button && e.button !== 0) return;
-    this.isDragging = true;
-    this.dragMoved = false;
-    this.dragStartX = e.clientX;
-    this.dragStartY = e.clientY;
-    this.dragStartPosX = this.posX;
-    this.dragStartPosY = this.posY;
+    // Display Dire Straits "Walk of Life" lyrics toast
+    this.say("Here comes Johnny singing oldies, goldies... Walk of Life! 🎸🎶", 5500);
 
-    this.container.classList.add('mascot-in-air');
-    this.sprite.classList.add('is-paused');
-    try { this.wrapper.setPointerCapture(e.pointerId); } catch (err) {}
-  }
+    // Play soundtrack (audio asset + Web Audio API synthesizer fallback)
+    this.playAudioSoundtrack();
 
-  onPointerMove(e) {
-    if (!this.isDragging) return;
-    const dx = e.clientX - this.dragStartX;
-    const dy = e.clientY - this.dragStartY;
-
-    if (Math.abs(dx) > 4 || Math.abs(dy) > 4) {
-      this.dragMoved = true;
-    }
-
-    this.posX = Math.max(10, Math.min(window.innerWidth - 70, this.dragStartPosX + dx));
-    // Allow dragging upward (negative posY)
-    this.posY = Math.min(0, this.dragStartPosY + dy);
-    this.updateTransform();
-  }
-
-  onPointerUp(e) {
-    if (!this.isDragging) return;
-    this.isDragging = false;
-    try { this.wrapper.releasePointerCapture(e.pointerId); } catch (err) {}
-
-    this.container.classList.remove('mascot-in-air');
-
-    // If dragged upward, animate gravity fall back to ground
-    if (this.posY < 0) {
-      this.animateDropToGround();
-    } else {
-      this.posY = 0;
-      this.updateTransform();
-      this.sprite.classList.remove('is-paused');
-    }
-  }
-
-  animateDropToGround() {
-    let velocity = 0;
-    const gravity = 1.4;
-    const bounceFactor = -0.4;
-    let currentY = this.posY;
-
-    const fallStep = () => {
-      velocity += gravity;
-      currentY += velocity;
-
-      if (currentY >= 0) {
-        currentY = 0;
-        if (Math.abs(velocity) > 4) {
-          velocity *= bounceFactor; // bounce
-          this.emitSparks(2);
-        } else {
-          // Settled on ground
-          this.posY = 0;
-          this.updateTransform();
-          this.sprite.classList.remove('is-paused');
-          this.say("Touchdown on switchyard ground! ⚡", 2500);
-          return;
-        }
+    this.actionTimer = setTimeout(() => {
+      this.sprite.classList.remove('is-jamming');
+      this.setFacingFront(false);
+      if (this.badge) {
+        this.badge.textContent = '⚡';
+        this.badge.classList.add('hidden');
       }
-
-      this.posY = currentY;
-      this.updateTransform();
-      requestAnimationFrame(fallStep);
-    };
-
-    requestAnimationFrame(fallStep);
+      this.isJamming = false;
+      if (this.currentAction === 'audio') this.currentAction = null;
+    }, 5500);
   }
 
-  handleClick(e) {
-    if (this.dragMoved) return; // Prevent triggering click after drag
-    this.jump();
-
-    const greetings = [
-      "All systems operational! 132kV busbars balanced. ⚡",
-      "Ready to inspect high-voltage switchgear! What's next? 🔍",
-      "Substation grid frequency locked at 50.0 Hz! 🟢",
-      "Up the Blues! Chelsea FC all the way! 💙⚽",
-      "Playing some Mark Knopfler & Pink Floyd tunes! 🎸"
-    ];
-    const greeting = greetings[Math.floor(Math.random() * greetings.length)];
-    this.say(greeting, 5000);
-  }
-
-  performAction(action) {
-    this.jump();
-
-    switch (action) {
-      case 'inspect':
-        this.isInspecting = true;
-        this.sprite.classList.remove('is-working');
-        this.sprite.classList.add('is-inspecting');
-        if (this.badge) {
-          this.badge.textContent = '⚡';
-          this.badge.classList.remove('hidden');
+  playAudioSoundtrack() {
+    const audio = document.getElementById('walkOfLifeAudio') || this.audio;
+    if (audio) {
+      try {
+        audio.currentTime = 0;
+        const playPromise = audio.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(() => {
+            this.synthesizeWalkOfLife();
+          });
         }
-        this.say("Diagnostic Check: Satdobato GIS SF6 Pressure: 0.58 MPa | Interlocks: Clear! 📐", 5000);
-        setTimeout(() => {
-          this.isInspecting = false;
-          this.sprite.classList.remove('is-inspecting');
-          if (this.badge) this.badge.classList.add('hidden');
-        }, 5000);
-        break;
-
-      case 'work':
-        this.isInspecting = true;
-        this.sprite.classList.remove('is-inspecting');
-        this.sprite.classList.add('is-working');
-        if (this.badge) {
-          this.badge.textContent = '🔧';
-          this.badge.classList.remove('hidden');
-        }
-        this.say("Maintenance: Tightening 132kV terminal clamps & busbar torque inspection! 🔧⚡", 5000);
-        setTimeout(() => {
-          this.isInspecting = false;
-          this.sprite.classList.remove('is-working');
-          if (this.badge) {
-            this.badge.textContent = '⚡';
-            this.badge.classList.add('hidden');
-          }
-        }, 5000);
-        break;
-
-      case 'sprint':
-        this.currentSpeed = 3.8;
-        this.sprite.classList.add('is-sprinting');
-        this.say("Emergency switchgear call! Sprinting across the yard! 🏃‍♂️💨", 4000);
-        setTimeout(() => {
-          this.currentSpeed = this.baseSpeed;
-          this.sprite.classList.remove('is-sprinting');
-        }, 6000);
-        break;
-
-      case 'chelsea':
-        this.say("Blue is the colour, football is the game! Come on Chelsea! 💙⚽", 4500);
-        this.emitSparks(4);
-        break;
-
-      case 'jam':
-        this.say("🎸 Mark Knopfler guitar solo playing: Sultans of Swing & Pink Floyd! 🎶", 4500);
-        this.emitSparks(4);
-        break;
-
-      case 'rest':
-        this.isPaused = !this.isPaused;
-        if (this.isPaused) {
-          this.sprite.classList.add('is-paused');
-          this.say("Taking a tea break by the control room. Tap me whenever! ☕", 4000);
-        } else {
-          this.sprite.classList.remove('is-paused');
-          this.say("Break over! Resuming switchyard patrol! ⚡", 3000);
-        }
-        break;
+      } catch (err) {
+        this.synthesizeWalkOfLife();
+      }
+    } else {
+      this.synthesizeWalkOfLife();
     }
   }
+
+  // Authentic Web Audio synthesizer for Dire Straits "Walk of Life" organ hook & boogie groove
+  synthesizeWalkOfLife() {
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      if (ctx.state === 'suspended') ctx.resume();
+
+      const startTime = ctx.currentTime;
+      const master = ctx.createGain();
+      master.gain.setValueAtTime(0.28, startTime);
+      master.gain.exponentialRampToValueAtTime(0.001, startTime + 5.5);
+      master.connect(ctx.destination);
+
+      // Walk of Life chord stabs and Farfisa organ riff frequencies (Key of E major @ 172 BPM)
+      const organNotes = [
+        // Intro stabs
+        { t: 0.0, d: 0.18, f: [329.6, 415.3, 493.9] },
+        { t: 0.35, d: 0.18, f: [329.6, 415.3, 493.9] },
+        { t: 0.70, d: 0.18, f: [329.6, 415.3, 493.9] },
+        // Famous organ riff
+        { t: 1.05, d: 0.18, f: [493.9, 830.6] },
+        { t: 1.23, d: 0.18, f: [415.3, 659.3] },
+        { t: 1.41, d: 0.22, f: [739.9] },
+        { t: 1.63, d: 0.18, f: [659.3] },
+        { t: 1.81, d: 0.32, f: [830.6, 987.8] },
+        // Bar 2: A major boogie
+        { t: 2.12, d: 0.18, f: [277.2, 329.6, 440.0] },
+        { t: 2.47, d: 0.18, f: [277.2, 329.6, 440.0] },
+        { t: 2.82, d: 0.18, f: [440.0, 739.9] },
+        { t: 3.00, d: 0.18, f: [415.3, 659.3] },
+        { t: 3.18, d: 0.22, f: [622.3] },
+        { t: 3.38, d: 0.18, f: [554.4] },
+        { t: 3.56, d: 0.32, f: [659.3, 880.0] },
+        // Bar 3: Resolution
+        { t: 3.88, d: 0.18, f: [329.6, 415.3, 493.9] },
+        { t: 4.23, d: 0.18, f: [329.6, 415.3, 493.9] },
+        { t: 4.58, d: 0.18, f: [493.9, 830.6] },
+        { t: 4.76, d: 0.18, f: [415.3, 659.3] },
+        { t: 4.94, d: 0.22, f: [739.9] },
+        { t: 5.14, d: 0.22, f: [830.6] },
+        { t: 5.36, d: 0.40, f: [329.6, 415.3, 493.9, 659.3] }
+      ];
+
+      organNotes.forEach(note => {
+        note.f.forEach(freq => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(freq, startTime + note.t);
+
+          gain.gain.setValueAtTime(0.001, startTime + note.t);
+          gain.gain.linearRampToValueAtTime(0.08, startTime + note.t + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.001, startTime + note.t + note.d);
+
+          osc.connect(gain);
+          gain.connect(master);
+          osc.start(startTime + note.t);
+          osc.stop(startTime + note.t + note.d + 0.05);
+        });
+      });
+
+      // Boogie bassline
+      const bassNotes = [
+        { t: 0.0, f: 82.4 }, { t: 0.35, f: 82.4 }, { t: 0.70, f: 103.8 }, { t: 1.05, f: 123.5 },
+        { t: 1.41, f: 138.6 }, { t: 1.76, f: 123.5 }, { t: 2.12, f: 110.0 }, { t: 2.47, f: 138.6 },
+        { t: 2.82, f: 164.8 }, { t: 3.18, f: 138.6 }, { t: 3.53, f: 123.5 }, { t: 3.88, f: 82.4 },
+        { t: 4.23, f: 103.8 }, { t: 4.58, f: 123.5 }, { t: 4.94, f: 138.6 }, { t: 5.25, f: 82.4 }
+      ];
+
+      bassNotes.forEach(b => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(b.f, startTime + b.t);
+
+        gain.gain.setValueAtTime(0.18, startTime + b.t);
+        gain.gain.exponentialRampToValueAtTime(0.001, startTime + b.t + 0.3);
+
+        osc.connect(gain);
+        gain.connect(master);
+        osc.start(startTime + b.t);
+        osc.stop(startTime + b.t + 0.35);
+      });
+    } catch (e) {}
+  }
+
+  // 2. Football Kick Interaction with realistic trajectory and bounce
+  triggerFootballAction() {
+    this.cleanupCurrentActions();
+    this.currentAction = 'football';
+    this.isKicking = true;
+    this.clickSequence = 2;
+    this.clickState = 2;
+
+    if (this.badge) {
+      this.badge.textContent = '⚽';
+      this.badge.classList.remove('hidden');
+    }
+
+    if (this.football) {
+      const ballOffset = this.direction === 1 ? 28 : -28;
+      this.football.style.transform = `translate3d(${ballOffset}px, 0, 0) rotate(0deg)`;
+      this.football.classList.add('is-active');
+    }
+
+    this.sprite.classList.add('is-sprinting', 'is-kicking');
+    this.jump();
+    this.emitSparks(5, ['⚽', '💙', '⚡', '✨']);
+    this.say("Blue is the colour, football is the game! Come on Chelsea! ⚽💙", 3000);
+
+    if (this.football) {
+      let ballX = this.direction === 1 ? 28 : -28;
+      let ballY = 0;
+      let ballVelX = this.direction === 1 ? 8.5 : -8.5;
+      let ballVelY = -8.0;
+      const ballGravity = 0.65;
+      let ballRot = 0;
+
+      const animateBall = () => {
+        if (this.currentAction !== 'football') return;
+        ballVelY += ballGravity;
+        ballX += ballVelX;
+        ballY += ballVelY;
+        ballRot += this.direction * 16;
+
+        if (ballY >= 0) {
+          ballY = 0;
+          ballVelY = -ballVelY * 0.55;
+          ballVelX *= 0.88;
+        }
+
+        if (this.football) {
+          this.football.style.transform = `translate3d(${ballX}px, ${ballY}px, 0) rotate(${ballRot}deg)`;
+        }
+
+        if (Math.abs(ballVelX) > 0.3 || Math.abs(ballVelY) > 0.5) {
+          requestAnimationFrame(animateBall);
+        } else {
+          if (this.football) this.football.classList.remove('is-active');
+        }
+      };
+
+      requestAnimationFrame(animateBall);
+    }
+
+    this.actionTimer = setTimeout(() => {
+      if (this.football) this.football.classList.remove('is-active');
+      this.sprite.classList.remove('is-sprinting', 'is-kicking');
+      this.setFacingFront(false);
+      if (this.badge) {
+        this.badge.textContent = '⚡';
+        this.badge.classList.add('hidden');
+      }
+      this.isKicking = false;
+      if (this.currentAction === 'football') this.currentAction = null;
+    }, 2500);
+  }
+
+  // 3. Black Labrador Dog Companion Interaction & Napping in the Corner
+  triggerDogAction() {
+    this.cleanupCurrentActions();
+    this.currentAction = 'dog';
+    this.isDogPlaying = true;
+    this.clickSequence = 0;
+    this.clickState = 0;
+
+    if (this.badge) {
+      this.badge.textContent = '🐾';
+      this.badge.classList.remove('hidden');
+    }
+
+    if (this.dog) {
+      const dogOffset = this.direction === 1 ? 32 : -32;
+      this.dog.style.transform = `translate3d(${dogOffset}px, 0, 0) ${this.direction === 1 ? 'scaleX(-1)' : 'scaleX(1)'}`;
+      this.dog.classList.add('is-active', 'is-bouncing');
+    }
+
+    this.setFacingFront(true);
+    this.emitSparks(5, ['🐾', '🐶', '💖', '✨']);
+    this.say("Good boy! Playing with the black Labrador buddy! 🐶🐾", 3200);
+
+    this.actionTimer = setTimeout(() => {
+      if (this.dog) {
+        this.dog.classList.remove('is-bouncing', 'is-active');
+      }
+      if (this.dogCorner) {
+        this.dogCorner.classList.add('is-visible');
+        this.dogNapping = true;
+      }
+      this.say("Taking a peaceful nap in the corner... 🐾💤", 2800);
+      this.setFacingFront(false);
+      if (this.badge) {
+        this.badge.textContent = '⚡';
+        this.badge.classList.add('hidden');
+      }
+      this.isDogPlaying = false;
+      if (this.currentAction === 'dog') this.currentAction = null;
+    }, 3200);
+  }
+
+  // Compatibility aliases
+  playWalkOfLife() { this.triggerAudioAction(); }
+  playFootballKick() { this.triggerFootballAction(); }
+  playWithLabradorDog() { this.triggerDogAction(); }
 
   applyState(enabled) {
     this.enabled = enabled;
@@ -2035,8 +2360,11 @@ class FieldEngineerMascot {
       if (this.container) {
         this.container.style.display = 'none';
       }
-      if (label) label.textContent = 'Mascot: Off';
+      if (this.dogCorner) {
+        this.dogCorner.classList.remove('is-visible');
+      }
       this.dismissBubble();
+      if (label) label.textContent = 'Mascot: Off';
     }
   }
 
@@ -2083,9 +2411,16 @@ function dismissMascotSpeech(e) {
   }
 }
 
-function triggerMascotAction(action, e) {
+function handleDogClick(e) {
   if (e) e.stopPropagation();
   if (window.mascotEngine) {
-    window.mascotEngine.performAction(action);
+    window.mascotEngine.emitSparks(4, ['🐾', '💖', '🐶']);
+  }
+}
+
+function handleNappingDogClick(e) {
+  if (e) e.stopPropagation();
+  if (window.mascotEngine) {
+    window.mascotEngine.emitSparks(3, ['💤', '🐾', '✨']);
   }
 }

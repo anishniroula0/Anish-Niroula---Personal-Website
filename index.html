@@ -455,6 +455,14 @@
   </div>
 
   <!-- =========================================================================
+       FIXED FIELD RUNNER MASCOT (GPU-ACCELERATED PERIMETER RUNNER)
+       Position: fixed; z-index: 35; pointer-events: none (zero click interference)
+       ========================================================================= -->
+  <div id="perimeterMascotTrack" class="perimeter-mascot-track" aria-hidden="true">
+    <div id="perimeterMascotSprite" class="perimeter-mascot-sprite"></div>
+  </div>
+
+  <!-- =========================================================================
        FOREGROUND CONTENT LAYER (z-10)
        ========================================================================= -->
   <div class="relative z-10">
@@ -1931,6 +1939,12 @@
             class="text-cerulean hover:underline bg-transparent border-0 p-0 cursor-pointer font-semibold inline-flex items-center gap-1.5"
             aria-label="Toggle theme in footer">
             <span id="footerThemeLabel">Theme: Dark Mode ☾</span>
+          </button>
+          <span class="text-stone-400">&bull;</span>
+          <button type="button" onclick="toggleMascot()"
+            class="text-cerulean hover:underline bg-transparent border-0 p-0 cursor-pointer font-semibold inline-flex items-center gap-1.5"
+            aria-label="Toggle animated field mascot">
+            <span id="footerMascotLabel">Mascot: On ⚡</span>
           </button>
         </div>
       </div>

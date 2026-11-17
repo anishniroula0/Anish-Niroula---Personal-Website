@@ -1563,6 +1563,9 @@ async function initApp() {
   }
   startSiteSlider();
 
+  // Initialize perimeter mascot runner
+  initMascot();
+
   // Read URL Hash or default to overview
   const initialHash = window.location.hash.replace('#', '');
   switchView(VIEW_IDS.includes(initialHash) ? initialHash : 'overview', false);
@@ -1576,12 +1579,14 @@ if (document.readyState === 'loading') {
 
 /* -------------------------------------------------------------------------
    8. VISIBILITY CHANGE & BATTERY OPTIMIZATION (MOBILE & ACCESSIBILITY)
-   Freezes SMIL <animateMotion> and CSS SVG conductor animations when tab is hidden
-   or when prefers-reduced-motion is active.
+   Freezes SMIL <animateMotion>, mascot, and CSS SVG conductor animations when
+   tab is hidden or when prefers-reduced-motion is active.
    ------------------------------------------------------------------------- */
 function updateSvgAnimationState() {
   const bgSvg = document.querySelector('.global-backdrop-container svg');
   const bgContainer = document.querySelector('.global-backdrop-container');
+  const mascotTrack = document.getElementById('perimeterMascotTrack');
+  const mascotSprite = document.getElementById('perimeterMascotSprite');
   const reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const shouldPause = document.hidden || reducedMotion;
 
@@ -1592,6 +1597,8 @@ function updateSvgAnimationState() {
     if (bgContainer) {
       bgContainer.classList.add('backdrop-paused');
     }
+    if (mascotTrack) mascotTrack.style.animationPlayState = 'paused';
+    if (mascotSprite) mascotSprite.style.animationPlayState = 'paused';
   } else {
     if (bgSvg && typeof bgSvg.unpauseAnimations === 'function') {
       try { bgSvg.unpauseAnimations(); } catch (e) {}
@@ -1599,6 +1606,8 @@ function updateSvgAnimationState() {
     if (bgContainer) {
       bgContainer.classList.remove('backdrop-paused');
     }
+    if (mascotTrack) mascotTrack.style.animationPlayState = 'running';
+    if (mascotSprite) mascotSprite.style.animationPlayState = 'running';
   }
 }
 
@@ -1609,3 +1618,37 @@ if (window.matchMedia) {
   } catch (e) {}
 }
 updateSvgAnimationState();
+
+/* -------------------------------------------------------------------------
+   9. PERIMETER FIELD RUNNER MASCOT CONTROLLER
+   ------------------------------------------------------------------------- */
+function initMascot() {
+  let enabled = true;
+  try {
+    const saved = localStorage.getItem('mascot-enabled');
+    if (saved !== null) enabled = (saved === 'true');
+  } catch (e) {}
+  applyMascotState(enabled);
+}
+
+function applyMascotState(enabled) {
+  const root = document.documentElement;
+  const label = document.getElementById('footerMascotLabel');
+  if (enabled) {
+    root.classList.remove('mascot-disabled');
+    if (label) label.textContent = 'Mascot: On ⚡';
+  } else {
+    root.classList.add('mascot-disabled');
+    if (label) label.textContent = 'Mascot: Off';
+  }
+}
+
+function toggleMascot() {
+  const root = document.documentElement;
+  const isCurrentlyDisabled = root.classList.contains('mascot-disabled');
+  const nextState = isCurrentlyDisabled; // if disabled, turn on (true)
+  applyMascotState(nextState);
+  try {
+    localStorage.setItem('mascot-enabled', nextState ? 'true' : 'false');
+  } catch (e) {}
+}

@@ -1016,3 +1016,104 @@ html.dark .highlight-case-study {
     color: #0369A1 !important;
   }
 }
+
+/* -------------------------------------------------------------------------
+   10. FIELD RUNNER MASCOT PERIMETER ANIMATION (GPU ACCELERATED & RESPONSIVE)
+   ------------------------------------------------------------------------- */
+:root {
+  --mascot-bottom-offset: 0px;
+  --mascot-top-gap: 135px;
+}
+
+@media (max-width: 767px) {
+  :root {
+    --mascot-bottom-offset: 68px; /* Above the 5-tab mobile navigation bar */
+    --mascot-top-gap: 145px;
+  }
+}
+
+.perimeter-mascot-track {
+  position: fixed;
+  left: 0;
+  bottom: var(--mascot-bottom-offset);
+  width: 32px;
+  height: 54px;
+  pointer-events: none;
+  z-index: 35;
+  will-change: transform;
+  transform-origin: center center;
+  animation: perimeterRun 24s linear infinite;
+}
+
+.perimeter-mascot-sprite {
+  width: 32px;
+  height: 54px;
+  background-image: url('../assets/images/anish-runner-sprite.png?v=4.3');
+  background-size: 384px 54px;
+  background-repeat: no-repeat;
+  will-change: background-position;
+  animation: mascotStride 0.7s steps(12) infinite;
+}
+
+@keyframes mascotStride {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: -384px 0;
+  }
+}
+
+@keyframes perimeterRun {
+  /* 1. RUNNING LEFT-TO-RIGHT ALONG BOTTOM BORDER */
+  0% {
+    transform: translate3d(12px, 0, 0) rotate(0deg);
+  }
+  30% {
+    transform: translate3d(calc(100vw - 44px), 0, 0) rotate(0deg);
+  }
+  /* TURN CORNER: Plant boots against right border */
+  32.5% {
+    transform: translate3d(calc(100vw - 44px), 0, 0) rotate(-90deg);
+  }
+  /* 2. RUNNING BOTTOM-TO-TOP ALONG RIGHT BORDER */
+  47.5% {
+    transform: translate3d(calc(100vw - 44px), calc(-100vh + var(--mascot-top-gap)), 0) rotate(-90deg);
+  }
+  /* TURN CORNER: Turn along ceiling below sticky header */
+  50% {
+    transform: translate3d(calc(100vw - 44px), calc(-100vh + var(--mascot-top-gap)), 0) rotate(180deg);
+  }
+  /* 3. RUNNING RIGHT-TO-LEFT UNDERNEATH STICKY HEADER */
+  79% {
+    transform: translate3d(12px, calc(-100vh + var(--mascot-top-gap)), 0) rotate(180deg);
+  }
+  /* TURN CORNER: Plant boots against left border */
+  81.5% {
+    transform: translate3d(12px, calc(-100vh + var(--mascot-top-gap)), 0) rotate(90deg);
+  }
+  /* 4. RUNNING TOP-TO-BOTTOM ALONG LEFT BORDER */
+  97.5% {
+    transform: translate3d(12px, 0, 0) rotate(90deg);
+  }
+  100% {
+    transform: translate3d(12px, 0, 0) rotate(0deg);
+  }
+}
+
+/* Accessibility & Visitor Preference Toggle */
+html.mascot-disabled .perimeter-mascot-track {
+  display: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .perimeter-mascot-track {
+    display: none !important;
+  }
+}
+
+@media print {
+  .perimeter-mascot-track {
+    display: none !important;
+  }
+}

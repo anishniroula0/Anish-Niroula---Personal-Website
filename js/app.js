@@ -156,6 +156,19 @@ function switchView(viewId, updateHash = true) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
   triggerRevealCheck();
 
+  // Auto-scroll horizontal diagram wrapper on mobile (< 768px) to center active node
+  if (window.innerWidth < 768) {
+    if (viewId === 'career-sld') {
+      setTimeout(() => {
+        scrollSldToBay(typeof activeBayId !== 'undefined' && activeBayId ? activeBayId : 'bay04');
+      }, 250);
+    } else if (viewId === 'academics') {
+      setTimeout(() => {
+        scrollAcadToNode(typeof activeAcademicNodeId !== 'undefined' && activeAcademicNodeId ? activeAcademicNodeId : 'nec1977');
+      }, 250);
+    }
+  }
+
   if (viewId === 'projects') {
     requestAnimationFrame(() => {
       setTimeout(() => {
@@ -1166,15 +1179,34 @@ function initNepalMap() {
 
     if (typeof NEPAL_GRID_PROJECTS !== 'undefined') {
       substationMarkers = {};
+      const caseStudyMap = {
+        prasauni: 'case-prasauni',
+        chilime: 'case-chilime',
+        nagdhunga: 'case-nagdhunga',
+        samundratar: 'case-samundratar',
+        trishuli3b: 'case-chilime'
+      };
+
       NEPAL_GRID_PROJECTS.forEach(p => {
         const marker = L.marker(p.coords, { icon: customPin }).addTo(nepalMapInstance);
         substationMarkers[p.id] = marker;
+
+        const targetCaseId = caseStudyMap[p.id] || null;
+        const caseLinkHtml = targetCaseId ? `
+          <div style="margin-top: 8px; padding-top: 6px; border-top: 1px dashed rgba(100,116,139,0.3);">
+            <button type="button" onclick="scrollToCaseStudy('${targetCaseId}')" style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background-color: #0369A1; color: #FFFFFF; font-size: 11px; font-weight: 700; border-radius: 6px; border: none; cursor: pointer; text-decoration: none; transition: background-color 0.2s ease;">
+              <span>View Case Study</span> &darr;
+            </button>
+          </div>
+        ` : '';
+
         marker.bindPopup(`
           <div style="font-family: 'Plus Jakarta Sans', sans-serif; padding: 6px 4px; max-width: 260px;">
             <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; color: #B45309; text-transform: uppercase; margin-bottom: 2px;">${p.voltage}</div>
             <h4 style="margin: 0 0 3px 0; font-size: 14.5px; font-weight: 700; color: #182230; line-height: 1.3;">${p.title}</h4>
             <div style="font-size: 11px; font-weight: 600; color: #0369A1; margin-bottom: 6px;">${p.contractor} &bull; ${p.location}</div>
             <p style="margin: 0; font-size: 12px; color: #475569; line-height: 1.45;">${p.desc}</p>
+            ${caseLinkHtml}
           </div>
         `);
       });
@@ -1213,6 +1245,16 @@ function resetNepalMap() {
     nepalMapInstance.setView([27.75, 85.35], 7, { animate: true });
     nepalMapInstance.closePopup();
   }
+}
+
+function scrollToCaseStudy(caseId) {
+  const el = document.getElementById(caseId);
+  if (!el) return;
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  el.classList.add('highlight-case-study');
+  setTimeout(() => {
+    el.classList.remove('highlight-case-study');
+  }, 2200);
 }
 
 /* -------------------------------------------------------------------------
@@ -1533,13 +1575,17 @@ if (document.readyState === 'loading') {
 }
 
 /* -------------------------------------------------------------------------
-   8. VISIBILITY CHANGE LISTENER (BATTERY & CPU SAVER FOR MOBILE & LAPTOPS)
+   8. VISIBILITY CHANGE & BATTERY OPTIMIZATION (MOBILE & ACCESSIBILITY)
    Freezes SMIL <animateMotion> and CSS SVG conductor animations when tab is hidden
+   or when prefers-reduced-motion is active.
    ------------------------------------------------------------------------- */
-document.addEventListener('visibilitychange', () => {
+function updateSvgAnimationState() {
   const bgSvg = document.querySelector('.global-backdrop-container svg');
   const bgContainer = document.querySelector('.global-backdrop-container');
-  if (document.hidden) {
+  const reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const shouldPause = document.hidden || reducedMotion;
+
+  if (shouldPause) {
     if (bgSvg && typeof bgSvg.pauseAnimations === 'function') {
       try { bgSvg.pauseAnimations(); } catch (e) {}
     }
@@ -1554,4 +1600,12 @@ document.addEventListener('visibilitychange', () => {
       bgContainer.classList.remove('backdrop-paused');
     }
   }
-});
+}
+
+document.addEventListener('visibilitychange', updateSvgAnimationState);
+if (window.matchMedia) {
+  try {
+    window.matchMedia('(prefers-reduced-motion: reduce)').addEventListener('change', updateSvgAnimationState);
+  } catch (e) {}
+}
+updateSvgAnimationState();

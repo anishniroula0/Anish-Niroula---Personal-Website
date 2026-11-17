@@ -912,8 +912,9 @@ html.dark .leaflet-container {
   background-color: #0B0F17 !important;
 }
 
-html.dark .leaflet-tile-pane {
-  filter: brightness(0.72) invert(1) contrast(1.15) hue-rotate(205deg) saturate(0.28);
+html.dark .leaflet-tile-pane,
+.dark #nepalGisMap .leaflet-tile-pane {
+  filter: invert(100%) hue-rotate(180deg) brightness(92%) contrast(90%) !important;
 }
 
 html.dark .leaflet-popup-content-wrapper {
@@ -948,4 +949,70 @@ html.dark .text-slate-800 {
 
 html.dark .epigraph-quote {
   border-left-color: #38BDF8 !important;
+}
+
+/* Case Study Focus Highlight (Triggered from Leaflet Substation Pin Popup) */
+.highlight-case-study {
+  border-color: #0369A1 !important;
+  box-shadow: 0 0 0 4px rgba(3, 105, 161, 0.25) !important;
+  transition: all 0.3s ease;
+}
+
+html.dark .highlight-case-study {
+  border-color: #38BDF8 !important;
+  box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.3) !important;
+}
+
+/* Accessibility: Respect Reduced Motion Preference */
+@media (prefers-reduced-motion: reduce) {
+  .global-backdrop-container *,
+  .global-backdrop-container {
+    animation: none !important;
+  }
+}
+
+/* -------------------------------------------------------------------------
+   9. PRINT & SAVE-AS-PDF STYLESHEET (A4 EXECUTIVE ENGINEERING SUMMARY)
+   ------------------------------------------------------------------------- */
+@media print {
+  /* Hide non-printable interactive, navigation, and ambient background elements */
+  .global-backdrop-container,
+  header,
+  #mobileNavDock,
+  #themeToggleBtn,
+  #directMessageForm,
+  #siteLightbox,
+  .lightbox-backdrop,
+  .no-print {
+    display: none !important;
+  }
+
+  /* Force light, high-contrast background and crisp ink */
+  body, html {
+    background: #FFFFFF !important;
+    color: #182230 !important;
+    font-size: 11pt !important;
+    padding-bottom: 0 !important;
+  }
+
+  /* Ensure page views print cleanly */
+  .page-view.active {
+    display: block !important;
+  }
+
+  /* High-contrast cards without shadows or borders that cause toner waste */
+  .cad-frame,
+  .cad-frame-warm,
+  .bg-white,
+  article {
+    background: #FFFFFF !important;
+    border: 1px solid #C5BFB0 !important;
+    box-shadow: none !important;
+    break-inside: avoid;
+  }
+
+  a {
+    text-decoration: underline !important;
+    color: #0369A1 !important;
+  }
 }

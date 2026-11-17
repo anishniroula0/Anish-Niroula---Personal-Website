@@ -940,3 +940,12 @@ html.dark .text-slate-700 {
 html.dark .text-slate-800 {
   color: #E2E8F0 !important;
 }
+
+/* Mark Knopfler Epigraph Quote */
+.epigraph-quote {
+  border-left: 2px solid var(--hv-cerulean);
+}
+
+html.dark .epigraph-quote {
+  border-left-color: #38BDF8 !important;
+}

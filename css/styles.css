@@ -40,7 +40,6 @@ html.dark {
 }
 
 html {
-  scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
 }
@@ -132,13 +131,13 @@ html, body {
 }
 
 .mountain-layer-far {
-  animation: ridgeDriftSlow 34s ease-in-out infinite;
-  will-change: transform;
+  /* Static mountain baseline allows GPU to cache vector geometry with zero redraw overhead */
+  opacity: 0.95;
 }
 
 .mountain-layer-mid {
-  animation: ridgeDriftReverse 28s ease-in-out infinite;
-  will-change: transform;
+  /* Static mid-ridge landscape anchors the horizon smoothly without paint thrashing */
+  opacity: 0.95;
 }
 
 .bg-conductor-pulse {
@@ -200,9 +199,7 @@ html, body {
    ------------------------------------------------------------------------- */
 .cad-frame {
   position: relative;
-  background-color: rgba(255, 255, 255, 0.84);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  background-color: #FFFFFF;
   border: 1px solid var(--border-hairline);
   border-radius: 20px;
   padding: 14px;
@@ -210,18 +207,14 @@ html, body {
 }
 
 .cad-frame-warm {
-  background-color: rgba(236, 234, 226, 0.84) !important;
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  background-color: #ECEAE2 !important;
   border-color: #DCD8CD !important;
   box-shadow: 0 8px 24px rgba(24, 34, 48, 0.04) !important;
 }
 
-/* Translucent Frosted Glass Architecture for Information Cards */
+/* High-Performance Card Surfaces (Zero GPU Blur Thrashing) */
 .bg-white {
-  background-color: rgba(255, 255, 255, 0.82) !important;
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  background-color: rgba(255, 255, 255, 0.95) !important;
 }
 
 .cad-frame::before,
@@ -604,19 +597,15 @@ html.dark .theme-toggle-btn:hover {
   color: #38BDF8 !important;
 }
 
-/* Card Surfaces in Dark Mode: Frosted SCADA Midnight Slate */
+/* Card Surfaces in Dark Mode: SCADA Midnight Slate (High-Performance 60/120 FPS) */
 html.dark .bg-white {
-  background-color: rgba(19, 27, 38, 0.78) !important;
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  background-color: #131B26 !important;
 }
 
 html.dark .bg-alabaster,
 html.dark .bg-alabaster\/90,
 html.dark .bg-alabaster\/95 {
-  background-color: rgba(11, 15, 23, 0.82) !important;
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  background-color: #0B0F17 !important;
 }
 
 html.dark .bg-linen,
@@ -624,9 +613,7 @@ html.dark .bg-linen\/55,
 html.dark .bg-linen\/60,
 html.dark .bg-linen\/80,
 html.dark .bg-linen\/90 {
-  background-color: rgba(20, 29, 43, 0.76) !important;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background-color: #141D2B !important;
 }
 
 /* Typography in Dark Mode */
@@ -829,7 +816,6 @@ html.dark .global-backdrop-container g[stroke="#0369A1"] {
 
 html.dark .global-backdrop-container circle[fill="#0284C7"] {
   fill: #38BDF8 !important;
-  filter: drop-shadow(0 0 4px #38BDF8);
 }
 
 /* Career SLD SVG in Dark Mode */

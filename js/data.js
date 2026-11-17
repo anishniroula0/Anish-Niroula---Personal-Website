@@ -10,7 +10,7 @@ const LINKEDIN_URL = "https://www.linkedin.com/in/anish-niroula-bb448713a/";
    STATIC IMAGE PATH REGISTRY WITH LOCAL FALLBACK
    ------------------------------------------------------------------------- */
 const STATIC_IMAGE_REGISTRY = {
-  slot_portrait: 'assets/images/portrait.jpg?v=4.0',
+  slot_portrait: 'assets/images/portrait.jpg?v=4.1',
   slot_field_banner: 'assets/images/banner-corridor.jpg',
   slot_prasauni: 'assets/images/prasauni-132kv.jpg',
   slot_chilime: 'assets/images/chilime-220kv.jpg',

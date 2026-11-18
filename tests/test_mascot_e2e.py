@@ -216,14 +216,14 @@ class TestTier1FeatureCoverage(MascotE2ETestBase):
         # Verify audio trigger occurred
         audio_triggered = self.page.evaluate('''() => {
             const spyCalls = window.__audioPlayCalls || 0;
+            const ctxCalls = window.__audioContextCreated || 0;
             const audio = document.getElementById('walkOfLifeAudio');
             const audioPlayed = audio && (!audio.paused || audio.currentTime > 0);
-            const engineState = window.mascotEngine && (
-                window.mascotEngine.clickSequence === 1 ||
-                window.mascotEngine.isJamming === true ||
-                window.mascotEngine.currentAction === 'audio'
+            const engineAudioState = window.mascotEngine && (
+                window.mascotEngine.currentAction === 'audio' ||
+                window.mascotEngine.isJamming === true
             );
-            return spyCalls > 0 || audioPlayed || !!engineState;
+            return spyCalls > 0 || ctxCalls > 0 || audioPlayed || !!engineAudioState;
         }''')
         self.assertTrue(audio_triggered, "First click on mascot must trigger Walk of Life audio playback")
 
@@ -243,11 +243,9 @@ class TestTier1FeatureCoverage(MascotE2ETestBase):
             const fb = document.getElementById('mascotFootball');
             const fbActive = fb && (
                 fb.classList.contains('is-active') ||
-                window.getComputedStyle(fb).opacity === '1' ||
-                window.getComputedStyle(fb).display !== 'none'
+                window.getComputedStyle(fb).opacity === '1'
             );
             const engineKicking = window.mascotEngine && (
-                window.mascotEngine.clickSequence === 2 ||
                 window.mascotEngine.isKicking === true ||
                 window.mascotEngine.currentAction === 'football'
             );
@@ -259,6 +257,24 @@ class TestTier1FeatureCoverage(MascotE2ETestBase):
     def test_tier1_08_third_click_labrador_interaction_and_corner_nap(self):
         """R2 / Follow-up: Third click introduces black Labrador dog, interaction, and corner nap."""
         self.setup_audio_spy()
+
+        # Track CLS specifically during state transitions
+        self.page.evaluate('''() => {
+            window.__mascotShifts = [];
+            window.__clsObserver = new PerformanceObserver((list) => {
+                for (const entry of list.getEntries()) {
+                    for (const s of (entry.sources || [])) {
+                        if (s.node && (s.node.id === 'mascotDog' || (s.node.closest && s.node.closest('#engineerMascotContainer')))) {
+                            window.__mascotShifts.push({
+                                value: entry.value,
+                                id: s.node.id
+                            });
+                        }
+                    }
+                }
+            });
+            window.__clsObserver.observe({ type: 'layout-shift', buffered: false });
+        }''')
 
         # Clicks 1 & 2
         self.click_mascot(count=2, delay_ms=100)
@@ -279,7 +295,6 @@ class TestTier1FeatureCoverage(MascotE2ETestBase):
                 window.getComputedStyle(cornerDog).visibility !== 'hidden'
             );
             const engineDogState = window.mascotEngine && (
-                window.mascotEngine.clickSequence === 0 ||
                 window.mascotEngine.isDogPlaying === true ||
                 window.mascotEngine.dogNapping === true ||
                 window.mascotEngine.currentAction === 'dog'
@@ -287,6 +302,61 @@ class TestTier1FeatureCoverage(MascotE2ETestBase):
             return dogActive || cornerActive || engineDogState;
         }''')
         self.assertTrue(dog_active, "Third click on mascot must activate Labrador dog interaction / corner nap")
+
+        # Verify zero layout shift induced by mascot/dog transitions
+        shifts = self.page.evaluate('''() => {
+            if (window.__clsObserver) window.__clsObserver.disconnect();
+            return window.__mascotShifts || [];
+        }''')
+        self.assertEqual(len(shifts), 0, f"Mascot/dog triggered unexpected layout shifts: {shifts}")
+
+        # Verify boundary clamping safety: extreme right edge desktop (1280px)
+        boundary_desktop = self.page.evaluate('''() => {
+            const engine = window.mascotEngine;
+            engine.isPaused = true;
+            engine.posX = window.innerWidth - 35;
+            engine.direction = 1;
+            engine.updateTransform();
+            engine.triggerDogAction();
+            const dog = document.getElementById('mascotDog');
+            const rect = dog.getBoundingClientRect();
+            return {
+                right: rect.right,
+                left: rect.left,
+                windowWidth: window.innerWidth,
+                overflow: rect.right - window.innerWidth,
+                underflow: 0 - rect.left
+            };
+        }''')
+        self.assertLessEqual(boundary_desktop['right'], boundary_desktop['windowWidth'],
+                             f"Companion dog overflowed right screen boundary on desktop: {boundary_desktop}")
+        self.assertGreaterEqual(boundary_desktop['left'], 0,
+                                f"Companion dog underflowed left screen boundary on desktop: {boundary_desktop}")
+
+        # Verify boundary clamping safety: extreme right edge mobile (375px)
+        self.page.set_viewport_size({'width': 375, 'height': 667})
+        self.page.wait_for_timeout(100)
+        boundary_mobile = self.page.evaluate('''() => {
+            const engine = window.mascotEngine;
+            engine.isPaused = true;
+            engine.posX = window.innerWidth - 35;
+            engine.direction = 1;
+            engine.updateTransform();
+            engine.triggerDogAction();
+            const dog = document.getElementById('mascotDog');
+            const rect = dog.getBoundingClientRect();
+            return {
+                right: rect.right,
+                left: rect.left,
+                windowWidth: window.innerWidth,
+                overflow: rect.right - window.innerWidth,
+                underflow: 0 - rect.left
+            };
+        }''')
+        self.assertLessEqual(boundary_mobile['right'], boundary_mobile['windowWidth'],
+                             f"Companion dog overflowed right screen boundary on mobile: {boundary_mobile}")
+        self.assertGreaterEqual(boundary_mobile['left'], 0,
+                                f"Companion dog underflowed left screen boundary on mobile: {boundary_mobile}")
 
     def test_tier1_09_front_facing_pose(self):
         """R1: Mascot supports front-facing perspective with mascot-front.png asset."""
@@ -359,10 +429,23 @@ class TestTier1FeatureCoverage(MascotE2ETestBase):
         self.assertEqual(display, 'block', f"Expected display: block under reduced-motion, got {display}")
 
         # 2. Sprite animations must be frozen (animation: none or paused)
-        anim_name = self.page.evaluate('window.getComputedStyle(document.getElementById("mascotSprite")).animationName')
-        anim_state = self.page.evaluate('window.getComputedStyle(document.getElementById("mascotSprite")).animationPlayState')
-        is_anim_frozen = anim_name == 'none' or anim_state == 'paused'
-        self.assertTrue(is_anim_frozen, f"Sprite animation should be frozen under reduced motion. Name: {anim_name}, State: {anim_state}")
+        sprite_anim = self.page.evaluate('''() => {
+            const el = document.getElementById("mascotSprite");
+            const style = window.getComputedStyle(el);
+            return { name: style.animationName, state: style.animationPlayState };
+        }''')
+        is_sprite_frozen = sprite_anim['name'] == 'none' or sprite_anim['state'] == 'paused'
+        self.assertTrue(is_sprite_frozen, f"Sprite animation should be frozen under reduced motion: {sprite_anim}")
+
+        # 3. Dog animations must be frozen
+        dog_anim = self.page.evaluate('''() => {
+            const el = document.getElementById("mascotDog");
+            if (!el) return { name: 'none', state: 'paused' };
+            const style = window.getComputedStyle(el);
+            return { name: style.animationName, state: style.animationPlayState };
+        }''')
+        is_dog_frozen = dog_anim['name'] == 'none' or dog_anim['state'] == 'paused'
+        self.assertTrue(is_dog_frozen, f"Dog animation should be frozen under reduced motion: {dog_anim}")
 
 
 # =============================================================================
@@ -524,6 +607,13 @@ class TestTier4RealWorldUserJourney(MascotE2ETestBase):
         # 2. First click on mascot: Walk of Life audio
         self.click_mascot(count=1)
         self.page.wait_for_timeout(250)
+        audio_triggered = self.page.evaluate('''() => {
+            const spyCalls = window.__audioPlayCalls || 0;
+            const ctxCalls = window.__audioContextCreated || 0;
+            const engineAction = window.mascotEngine && (window.mascotEngine.currentAction === 'audio' || window.mascotEngine.isJamming);
+            return spyCalls > 0 || ctxCalls > 0 || !!engineAction;
+        }''')
+        self.assertTrue(audio_triggered, "Click 1 in user journey must trigger Walk of Life audio")
 
         # 3. Visitor scrolls down to Experience section
         self.page.evaluate('''() => {
@@ -536,6 +626,12 @@ class TestTier4RealWorldUserJourney(MascotE2ETestBase):
         # 4. Second click on mascot: Football kick
         self.click_mascot(count=1)
         self.page.wait_for_timeout(250)
+        football_triggered = self.page.evaluate('''() => {
+            const fb = document.getElementById('mascotFootball');
+            const engineAction = window.mascotEngine && (window.mascotEngine.currentAction === 'football' || window.mascotEngine.isKicking);
+            return (fb && fb.classList.contains('is-active')) || !!engineAction;
+        }''')
+        self.assertTrue(football_triggered, "Click 2 in user journey must trigger football kick")
 
         # 5. Visitor scrolls further down to Projects & GIS section
         self.page.evaluate('''() => {
@@ -548,6 +644,13 @@ class TestTier4RealWorldUserJourney(MascotE2ETestBase):
         # 6. Third click on mascot: Labrador dog interaction & corner nap
         self.click_mascot(count=1)
         self.page.wait_for_timeout(300)
+        dog_triggered = self.page.evaluate('''() => {
+            const dog = document.getElementById('mascotDog');
+            const corner = document.getElementById('mascotDogCorner');
+            const engineAction = window.mascotEngine && (window.mascotEngine.currentAction === 'dog' || window.mascotEngine.isDogPlaying || window.mascotEngine.dogNapping);
+            return (dog && dog.classList.contains('is-active')) || (corner && corner.classList.contains('is-visible')) || !!engineAction;
+        }''')
+        self.assertTrue(dog_triggered, "Click 3 in user journey must trigger Labrador dog interaction")
 
         # 7. Visitor scrolls to Footer section
         self.page.evaluate('window.scrollTo(0, document.body.scrollHeight)')

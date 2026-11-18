@@ -1086,7 +1086,7 @@ html.dark .highlight-case-study {
 .engineer-mascot-container.is-falling .mascot-character-wrapper {
   animation: mascotFallingWobble 0.3s ease-in-out infinite alternate;
 }
-.engineer-mascot-container.is-falling .mascot-dog {
+.engineer-mascot-container.is-falling .mascot-dog .dog-svg {
   animation: dogFallingWobble 0.3s ease-in-out infinite alternate;
 }
 .mascot-character-wrapper.is-landing-squash {
@@ -1261,13 +1261,13 @@ html.dark .highlight-case-study {
   opacity: 0;
   visibility: hidden;
   transform-origin: bottom center;
-  transition: transform 0.25s ease, opacity 0.3s ease, visibility 0.3s ease;
+  transition: opacity 0.3s ease;
 }
 
 .mascot-dog.is-active {
-  pointer-events: auto;
-  opacity: 1;
-  visibility: visible;
+  pointer-events: auto !important;
+  opacity: 1 !important;
+  visibility: visible !important;
 }
 
 .dog-svg {
@@ -1315,9 +1315,10 @@ html.dark .highlight-case-study {
 }
 
 /* Playing / Ball Fetching State */
-.mascot-dog.is-playing,
-.mascot-dog.is-bouncing {
+.mascot-dog.is-playing .dog-svg,
+.mascot-dog.is-bouncing .dog-svg {
   animation: dogPlayPounce 0.42s ease-in-out infinite alternate !important;
+  transform-origin: bottom center;
 }
 .mascot-dog.is-playing .dog-tail,
 .mascot-dog.is-bouncing .dog-tail {
@@ -1432,6 +1433,7 @@ html.mascot-disabled .mascot-dog-napping {
 @media (prefers-reduced-motion: reduce) {
   /* Keep mascot, companion dog, and corner napping dog visible per GEMINI.md Rule 1 */
   .engineer-mascot-container,
+  #engineerMascotContainer,
   .mascot-dog-napping,
   #mascotDogCorner {
     display: block !important;
@@ -1440,6 +1442,9 @@ html.mascot-disabled .mascot-dog-napping {
 
   /* Freeze rapid translation, rotation, and infinite animation loops */
   .engineer-mascot-container,
+  .engineer-mascot-container *,
+  #engineerMascotContainer,
+  #engineerMascotContainer *,
   #mascotSprite,
   .mascot-sprite,
   .mascot-sprite.is-facing-front,
@@ -1450,13 +1455,40 @@ html.mascot-disabled .mascot-dog-napping {
   .mascot-sprite.is-paused,
   .mascot-sprite.is-red-variant,
   .mascot-character-wrapper,
+  .mascot-character-wrapper *,
   .mascot-status-badge,
   .mascot-spark,
   .mascot-dog,
+  .mascot-dog *,
   .mascot-dog.is-active,
+  .mascot-dog.is-active *,
   .mascot-dog.is-bouncing,
+  .mascot-dog.is-bouncing *,
+  .mascot-dog.is-playing,
+  .mascot-dog.is-playing *,
+  .mascot-dog.is-walking,
+  .mascot-dog.is-walking *,
+  .mascot-dog.is-idle,
+  .mascot-dog.is-idle *,
+  .mascot-dog .dog-svg,
+  .mascot-dog.is-playing .dog-svg,
+  .mascot-dog.is-bouncing .dog-svg,
+  .mascot-dog.is-walking .dog-svg,
+  .mascot-dog.is-idle .dog-svg,
+  .mascot-dog .dog-tail,
+  .mascot-dog.is-playing .dog-tail,
+  .mascot-dog.is-bouncing .dog-tail,
+  .mascot-dog.is-walking .dog-tail,
+  .mascot-dog.is-idle .dog-tail,
+  #mascotDog,
+  #mascotDog *,
+  .dog-svg,
+  .dog-tail,
   .mascot-dog-napping,
+  .mascot-dog-napping *,
   #mascotDogCorner,
+  #mascotDogCorner *,
+  #mascotDogZzz,
   .mascot-dog-zzz {
     animation: none !important;
     animation-play-state: paused !important;

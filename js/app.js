@@ -1705,7 +1705,7 @@ class FieldEngineerMascot {
     this.setupGroundPosition();
     if (this.dog) {
       this.dog.style.left = '0';
-      const dogOffset = this.direction === 1 ? -28 : 24;
+      const dogOffset = this.direction === 1 ? -32 : 24;
       const dogScale = this.direction === 1 ? 1 : -1;
       this.dog.style.transform = `translate3d(${dogOffset}px, 0, 0) scaleX(${dogScale})`;
       this.dog.classList.remove('is-idle');
@@ -2159,7 +2159,7 @@ class FieldEngineerMascot {
       }
     }
     if (this.dog && !this.isDogPlaying && this.currentAction !== 'dog') {
-      const dogOffset = this.direction === 1 ? -26 : 22;
+      const dogOffset = this.direction === 1 ? -32 : 24;
       const dogScale = this.direction === 1 ? 1 : -1;
       this.dog.style.left = '0';
       this.dog.style.transform = `translate3d(${dogOffset}px, 0, 0) scaleX(${dogScale})`;

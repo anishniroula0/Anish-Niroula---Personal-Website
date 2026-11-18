@@ -1236,8 +1236,8 @@ html.dark .highlight-case-study {
 /* Articulated Black Labrador Dog Companion - Fully animated walking, trotting, playing */
 .mascot-dog {
   position: absolute;
-  width: 36px;
-  height: 27px;
+  width: 44px;
+  height: 30px;
   bottom: 0;
   left: 0;
   z-index: 9998;
@@ -1247,6 +1247,13 @@ html.dark .highlight-case-study {
   visibility: visible;
   transform-origin: bottom center;
   transition: opacity 0.3s ease;
+}
+
+@media (max-width: 767px) {
+  .mascot-dog {
+    width: 36px;
+    height: 25px;
+  }
 }
 
 .mascot-dog.is-active {
@@ -1264,36 +1271,36 @@ html.dark .highlight-case-study {
 /* Walking / Trotting State - Active Leg Scissors & Tail Wag */
 .mascot-dog.is-walking .dog-leg-front-near {
   animation: dogLegSwing 0.55s ease-in-out infinite alternate;
-  transform-origin: 30px 20px;
+  transform-origin: 38px 18px;
 }
 .mascot-dog.is-walking .dog-leg-front-far {
   animation: dogLegSwing 0.55s ease-in-out infinite alternate-reverse;
-  transform-origin: 33px 20px;
+  transform-origin: 39px 18px;
 }
 .mascot-dog.is-walking .dog-leg-back-near {
   animation: dogLegSwing 0.55s ease-in-out infinite alternate-reverse;
-  transform-origin: 16px 19px;
+  transform-origin: 15px 17px;
 }
 .mascot-dog.is-walking .dog-leg-back-far {
   animation: dogLegSwing 0.55s ease-in-out infinite alternate;
-  transform-origin: 19px 19px;
+  transform-origin: 16px 17px;
 }
 .mascot-dog.is-walking .dog-torso-group {
   animation: dogTrotBob 0.28s ease-in-out infinite alternate;
 }
 .mascot-dog.is-walking .dog-tail {
   animation: dogTailWagFast 0.24s ease-in-out infinite alternate;
-  transform-origin: 14px 17px;
+  transform-origin: 12px 16px;
 }
 .mascot-dog.is-walking .dog-ear {
   animation: dogEarFlap 0.28s ease-in-out infinite alternate;
-  transform-origin: 34px 8px;
+  transform-origin: 42px 6px;
 }
 
 /* Idle / Relaxing State - Paws grounded, gentle tail wag & calm breathing */
 .mascot-dog.is-idle .dog-tail {
   animation: dogTailWagGentle 0.85s ease-in-out infinite alternate;
-  transform-origin: 14px 17px;
+  transform-origin: 12px 16px;
 }
 .mascot-dog.is-idle .dog-torso-group {
   animation: dogBreathe 2.6s ease-in-out infinite;
@@ -1308,7 +1315,7 @@ html.dark .highlight-case-study {
 .mascot-dog.is-playing .dog-tail,
 .mascot-dog.is-bouncing .dog-tail {
   animation: dogTailWagFast 0.16s ease-in-out infinite alternate !important;
-  transform-origin: 14px 17px;
+  transform-origin: 12px 16px;
 }
 .mascot-dog.is-playing .dog-leg-front-near,
 .mascot-dog.is-playing .dog-leg-front-far {

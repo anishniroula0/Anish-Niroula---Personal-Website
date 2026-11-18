@@ -205,37 +205,30 @@ class TestTier1FeatureCoverage(MascotE2ETestBase):
         actions_row_count = self.page.locator('.mascot-actions-row').count()
         self.assertEqual(actions_row_count, 0, 'No .mascot-actions-row container should exist in DOM')
 
-    def test_tier1_06_first_click_audio_triggering(self):
-        """R2 / Follow-up: First click triggers Dire Straits 'Walk of Life' audio playback."""
+    def test_tier1_06_no_audio_elements_or_playback(self):
+        """Zero Music: Mascot must be 100% silent. No audio elements or Web Audio synthesizers."""
         self.setup_audio_spy()
 
-        # Click mascot character wrapper
+        # Audio element must not exist in DOM
+        audio_count = self.page.locator('#walkOfLifeAudio').count()
+        self.assertEqual(audio_count, 0, '#walkOfLifeAudio element must be completely removed from DOM')
+
+        # Click mascot and verify no audio context or playback occurred
         self.click_mascot(count=1)
         self.page.wait_for_timeout(200)
 
-        # Verify audio trigger occurred
-        audio_triggered = self.page.evaluate('''() => {
+        audio_played = self.page.evaluate('''() => {
             const spyCalls = window.__audioPlayCalls || 0;
             const ctxCalls = window.__audioContextCreated || 0;
-            const audio = document.getElementById('walkOfLifeAudio');
-            const audioPlayed = audio && (!audio.paused || audio.currentTime > 0);
-            const engineAudioState = window.mascotEngine && (
-                window.mascotEngine.currentAction === 'audio' ||
-                window.mascotEngine.isJamming === true
-            );
-            return spyCalls > 0 || ctxCalls > 0 || audioPlayed || !!engineAudioState;
+            return spyCalls > 0 || ctxCalls > 0;
         }''')
-        self.assertTrue(audio_triggered, "First click on mascot must trigger Walk of Life audio playback")
+        self.assertFalse(audio_played, "Clicking mascot must not trigger any audio playback or AudioContext synthesis")
 
-    def test_tier1_07_second_click_football_kick(self):
-        """R2: Second click triggers football kicking action and animation."""
+    def test_tier1_07_first_click_football_kick(self):
+        """Physical Interaction: First click triggers football kicking action and animation."""
         self.setup_audio_spy()
 
-        # Click 1: Audio
-        self.click_mascot(count=1)
-        self.page.wait_for_timeout(100)
-
-        # Click 2: Football kick
+        # Click 1: Football kick
         self.click_mascot(count=1)
         self.page.wait_for_timeout(200)
 
@@ -252,10 +245,10 @@ class TestTier1FeatureCoverage(MascotE2ETestBase):
             const spriteKicking = document.querySelector('.mascot-sprite.is-kicking') !== null;
             return fbActive || engineKicking || spriteKicking;
         }''')
-        self.assertTrue(football_active, "Second click on mascot must activate football kicking interaction")
+        self.assertTrue(football_active, "First click on mascot must activate football kicking interaction")
 
-    def test_tier1_08_third_click_labrador_interaction_and_corner_nap(self):
-        """R2 / Follow-up: Third click introduces black Labrador dog, interaction, and corner nap."""
+    def test_tier1_08_second_click_labrador_interaction_and_corner_nap(self):
+        """Physical Interaction: Second click introduces black Labrador dog, interaction, and corner nap."""
         self.setup_audio_spy()
 
         # Track CLS specifically during state transitions
@@ -276,10 +269,10 @@ class TestTier1FeatureCoverage(MascotE2ETestBase):
             window.__clsObserver.observe({ type: 'layout-shift', buffered: false });
         }''')
 
-        # Clicks 1 & 2
-        self.click_mascot(count=2, delay_ms=100)
+        # Click 1: Football kick
+        self.click_mascot(count=1, delay_ms=100)
 
-        # Click 3: Dog interaction
+        # Click 2: Dog interaction
         self.click_mascot(count=1)
         self.page.wait_for_timeout(250)
 
@@ -301,7 +294,7 @@ class TestTier1FeatureCoverage(MascotE2ETestBase):
             );
             return dogActive || cornerActive || engineDogState;
         }''')
-        self.assertTrue(dog_active, "Third click on mascot must activate Labrador dog interaction / corner nap")
+        self.assertTrue(dog_active, "Second click on mascot must activate Labrador dog interaction / corner nap")
 
         # Verify zero layout shift induced by mascot/dog transitions
         shifts = self.page.evaluate('''() => {
@@ -604,16 +597,15 @@ class TestTier4RealWorldUserJourney(MascotE2ETestBase):
         is_mounted = self.page.evaluate('document.getElementById("engineerMascotContainer") !== null')
         self.assertTrue(is_mounted, "Mascot container must mount on page load")
 
-        # 2. First click on mascot: Walk of Life audio
+        # 2. First click on mascot: Football kick (100% silent)
         self.click_mascot(count=1)
         self.page.wait_for_timeout(250)
-        audio_triggered = self.page.evaluate('''() => {
-            const spyCalls = window.__audioPlayCalls || 0;
-            const ctxCalls = window.__audioContextCreated || 0;
-            const engineAction = window.mascotEngine && (window.mascotEngine.currentAction === 'audio' || window.mascotEngine.isJamming);
-            return spyCalls > 0 || ctxCalls > 0 || !!engineAction;
+        football_triggered = self.page.evaluate('''() => {
+            const fb = document.getElementById('mascotFootball');
+            const engineAction = window.mascotEngine && (window.mascotEngine.currentAction === 'football' || window.mascotEngine.isKicking);
+            return (fb && fb.classList.contains('is-active')) || !!engineAction;
         }''')
-        self.assertTrue(audio_triggered, "Click 1 in user journey must trigger Walk of Life audio")
+        self.assertTrue(football_triggered, "Click 1 in user journey must trigger football kick")
 
         # 3. Visitor scrolls down to Experience section
         self.page.evaluate('''() => {
@@ -623,15 +615,16 @@ class TestTier4RealWorldUserJourney(MascotE2ETestBase):
         }''')
         self.page.wait_for_timeout(300)
 
-        # 4. Second click on mascot: Football kick
+        # 4. Second click on mascot: Labrador dog interaction & corner nap
         self.click_mascot(count=1)
-        self.page.wait_for_timeout(250)
-        football_triggered = self.page.evaluate('''() => {
-            const fb = document.getElementById('mascotFootball');
-            const engineAction = window.mascotEngine && (window.mascotEngine.currentAction === 'football' || window.mascotEngine.isKicking);
-            return (fb && fb.classList.contains('is-active')) || !!engineAction;
+        self.page.wait_for_timeout(300)
+        dog_triggered = self.page.evaluate('''() => {
+            const dog = document.getElementById('mascotDog');
+            const corner = document.getElementById('mascotDogCorner');
+            const engineAction = window.mascotEngine && (window.mascotEngine.currentAction === 'dog' || window.mascotEngine.isDogPlaying || window.mascotEngine.dogNapping);
+            return (dog && dog.classList.contains('is-active')) || (corner && corner.classList.contains('is-visible')) || !!engineAction;
         }''')
-        self.assertTrue(football_triggered, "Click 2 in user journey must trigger football kick")
+        self.assertTrue(dog_triggered, "Click 2 in user journey must trigger Labrador dog interaction")
 
         # 5. Visitor scrolls further down to Projects & GIS section
         self.page.evaluate('''() => {
@@ -641,15 +634,15 @@ class TestTier4RealWorldUserJourney(MascotE2ETestBase):
         }''')
         self.page.wait_for_timeout(300)
 
-        # 6. Third click on mascot: Labrador dog interaction & corner nap
+        # 6. Third click cycles back: Football kick
         self.click_mascot(count=1)
         self.page.wait_for_timeout(300)
-        dog_triggered = self.page.evaluate('''() => {
-            const dog = document.getElementById('mascotDog');
-            const corner = document.getElementById('mascotDogCorner');
-            const engineAction = window.mascotEngine && (window.mascotEngine.currentAction === 'dog' || window.mascotEngine.isDogPlaying || window.mascotEngine.dogNapping);
-            return (dog && dog.classList.contains('is-active')) || (corner && corner.classList.contains('is-visible')) || !!engineAction;
+        cycled_football = self.page.evaluate('''() => {
+            const fb = document.getElementById('mascotFootball');
+            const engineAction = window.mascotEngine && (window.mascotEngine.currentAction === 'football' || window.mascotEngine.isKicking);
+            return (fb && fb.classList.contains('is-active')) || !!engineAction;
         }''')
+        self.assertTrue(cycled_football, "Click 3 cycles back to football kick")
         self.assertTrue(dog_triggered, "Click 3 in user journey must trigger Labrador dog interaction")
 
         # 7. Visitor scrolls to Footer section

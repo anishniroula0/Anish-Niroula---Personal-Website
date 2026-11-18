@@ -1148,23 +1148,6 @@ html.dark .highlight-case-study {
   }
 }
 
-/* Dire Straits Walk of Life jamming groove */
-.mascot-sprite.is-jamming {
-  background-image: url('../assets/images/mascot-front.png?v=4.6') !important;
-  background-size: contain !important;
-  background-position: center bottom !important;
-  animation: mascotJamAnim 0.35s ease-in-out infinite alternate !important;
-}
-
-@keyframes mascotJamAnim {
-  0% {
-    transform: translateY(0) rotate(-3deg) scale(0.98, 1.02);
-  }
-  100% {
-    transform: translateY(-4px) rotate(3deg) scale(1.02, 0.98);
-  }
-}
-
 @keyframes mascotStrideCycle {
   from {
     background-position: 0 0;
@@ -1449,7 +1432,6 @@ html.mascot-disabled .mascot-dog-napping {
   .mascot-sprite,
   .mascot-sprite.is-facing-front,
   .mascot-sprite.is-front-facing,
-  .mascot-sprite.is-jamming,
   .mascot-sprite.is-kicking,
   .mascot-sprite.is-sprinting,
   .mascot-sprite.is-paused,

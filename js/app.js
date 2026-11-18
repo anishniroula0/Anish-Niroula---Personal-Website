@@ -1630,7 +1630,6 @@ class FieldEngineerMascot {
     this.football = document.getElementById('mascotFootball');
     this.dog = document.getElementById('mascotDog');
     this.dogCorner = document.getElementById('mascotDogCorner');
-    this.audio = document.getElementById('walkOfLifeAudio');
 
     this.enabled = true;
     this.posX = 60;
@@ -1655,17 +1654,15 @@ class FieldEngineerMascot {
 
     // Interaction states
     this.currentAction = null;
-    this.isJamming = false;
     this.isKicking = false;
     this.isDogPlaying = false;
     this.dogNapping = false;
     this.actionTimer = null;
     this.lifeRoutineTimer = null;
 
-    // Sequential click state machine:
-    // 0 = Ready for Walk of Life intro riff (Dire Straits)
-    // 1 = Ready for Football kick
-    // 2 = Ready for Black Labrador dog interaction & nap in corner
+    // Sequential click state machine (completely silent / zero music):
+    // 0 = Ready for Football kick
+    // 1 = Ready for Black Labrador dog interaction & nap in corner
     this.clickSequence = 0;
     this.clickState = 0;
 
@@ -2278,11 +2275,10 @@ class FieldEngineerMascot {
   }
 
   /* -------------------------------------------------------------------------
-     SEQUENTIAL CLICK INTERACTIONS:
-     1. Walk of Life Jam (Dire Straits) upbeat audio intro
-     2. Football Kick (Chelsea FC / Soccer) with dynamic physics & sparks
-     3. Black Labrador Dog Companion & Napping in the Corner
-     Subsequent clicks cycle smoothly: 0 -> 1 -> 2 -> 0.
+     SEQUENTIAL CLICK INTERACTIONS (Completely Silent / Zero Audio):
+     1. Football Kick (Chelsea FC / Soccer) with dynamic physics & sparks
+     2. Black Labrador Dog Companion & Napping in the Corner
+     Subsequent clicks cycle smoothly: 0 -> 1 -> 0.
      ------------------------------------------------------------------------- */
   handleMascotClick(e) {
     this.handleClick(e);
@@ -2296,10 +2292,8 @@ class FieldEngineerMascot {
       this.actionTimer = null;
     }
 
-    const nextStep = this.clickSequence % 3;
+    const nextStep = this.clickSequence % 2;
     if (nextStep === 0) {
-      this.triggerAudioAction();
-    } else if (nextStep === 1) {
       this.triggerFootballAction();
     } else {
       this.triggerDogAction();
@@ -2312,7 +2306,7 @@ class FieldEngineerMascot {
       this.actionTimer = null;
     }
     if (this.sprite) {
-      this.sprite.classList.remove('is-jamming', 'is-kicking', 'is-sprinting');
+      this.sprite.classList.remove('is-kicking', 'is-sprinting');
     }
     if (this.football) {
       this.football.classList.remove('is-active');
@@ -2321,184 +2315,17 @@ class FieldEngineerMascot {
       this.dog.classList.remove('is-active', 'is-bouncing', 'is-walking', 'is-playing');
     }
     this.currentAction = null;
-    this.isJamming = false;
     this.isKicking = false;
     this.isDogPlaying = false;
   }
 
-  // 1. Dire Straits - Walk of Life Jam (5-6s upbeat intro)
-  triggerAudioAction() {
-    this.cleanupCurrentActions();
-    this.currentAction = 'audio';
-    this.isJamming = true;
-    this.clickSequence = 1;
-    this.clickState = 1;
-
-    this.setFacingFront(true);
-    if (this.sprite) {
-      this.sprite.classList.add('is-jamming');
-    }
-    if (this.badge) {
-      this.badge.textContent = '🎵';
-      this.badge.classList.remove('hidden');
-    }
-    this.emitSparks(6, ['🎵', '🎶', '🎸', '⚡']);
-
-    // Play soundtrack (audio asset + Web Audio API synthesizer fallback)
-    this.playAudioSoundtrack();
-
-    this.actionTimer = setTimeout(() => {
-      if (this.sprite) {
-        this.sprite.classList.remove('is-jamming');
-      }
-      this.setFacingFront(false);
-      if (this.badge) {
-        this.badge.textContent = '⚡';
-        this.badge.classList.add('hidden');
-      }
-      this.isJamming = false;
-      if (this.currentAction === 'audio') this.currentAction = null;
-    }, 5500);
-  }
-
-  playAudioSoundtrack() {
-    const audio = document.getElementById('walkOfLifeAudio') || this.audio;
-    if (audio) {
-      try {
-        audio.currentTime = 0;
-        const playPromise = audio.play();
-        if (playPromise !== undefined) {
-          playPromise.catch(() => {
-            this.synthesizeWalkOfLife();
-          });
-        }
-      } catch (err) {
-        this.synthesizeWalkOfLife();
-      }
-    } else {
-      this.synthesizeWalkOfLife();
-    }
-  }
-
-  // Authentic Web Audio synthesizer for Dire Straits "Walk of Life" organ hook & boogie groove
-  synthesizeWalkOfLife() {
-    try {
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      if (!AudioCtx) return;
-      const ctx = new AudioCtx();
-      if (ctx.state === 'suspended') ctx.resume();
-
-      const startTime = ctx.currentTime;
-      const master = ctx.createGain();
-      master.gain.setValueAtTime(0.28, startTime);
-      master.gain.exponentialRampToValueAtTime(0.001, startTime + 5.5);
-      master.connect(ctx.destination);
-
-      // 5.8 Hz Vibrato LFO for authentic Farfisa organ chorus shimmer
-      const lfo = ctx.createOscillator();
-      const lfoGain = ctx.createGain();
-      lfo.type = 'sine';
-      lfo.frequency.setValueAtTime(5.8, startTime);
-      lfoGain.gain.setValueAtTime(4.2, startTime);
-      lfo.connect(lfoGain);
-      lfo.start(startTime);
-      lfo.stop(startTime + 5.6);
-
-      // Walk of Life chord stabs and Farfisa organ riff frequencies (Key of E major @ 172 BPM)
-      const organNotes = [
-        // Intro stabs
-        { t: 0.0, d: 0.18, f: [329.6, 415.3, 493.9] },
-        { t: 0.35, d: 0.18, f: [329.6, 415.3, 493.9] },
-        { t: 0.70, d: 0.18, f: [329.6, 415.3, 493.9] },
-        // Famous organ riff
-        { t: 1.05, d: 0.18, f: [493.9, 830.6] },
-        { t: 1.23, d: 0.18, f: [415.3, 659.3] },
-        { t: 1.41, d: 0.22, f: [739.9] },
-        { t: 1.63, d: 0.18, f: [659.3] },
-        { t: 1.81, d: 0.32, f: [830.6, 987.8] },
-        // Bar 2: A major boogie
-        { t: 2.12, d: 0.18, f: [277.2, 329.6, 440.0] },
-        { t: 2.47, d: 0.18, f: [277.2, 329.6, 440.0] },
-        { t: 2.82, d: 0.18, f: [440.0, 739.9] },
-        { t: 3.00, d: 0.18, f: [415.3, 659.3] },
-        { t: 3.18, d: 0.22, f: [622.3] },
-        { t: 3.38, d: 0.18, f: [554.4] },
-        { t: 3.56, d: 0.32, f: [659.3, 880.0] },
-        // Bar 3: Resolution
-        { t: 3.88, d: 0.18, f: [329.6, 415.3, 493.9] },
-        { t: 4.23, d: 0.18, f: [329.6, 415.3, 493.9] },
-        { t: 4.58, d: 0.18, f: [493.9, 830.6] },
-        { t: 4.76, d: 0.18, f: [415.3, 659.3] },
-        { t: 4.94, d: 0.22, f: [739.9] },
-        { t: 5.14, d: 0.22, f: [830.6] },
-        { t: 5.36, d: 0.40, f: [329.6, 415.3, 493.9, 659.3] }
-      ];
-
-      organNotes.forEach(note => {
-        const noteStart = startTime + note.t;
-        // Percussive key-click attack envelope
-        const clickOsc = ctx.createOscillator();
-        const clickGain = ctx.createGain();
-        clickOsc.type = 'square';
-        clickOsc.frequency.setValueAtTime(1400, noteStart);
-        clickGain.gain.setValueAtTime(0.04, noteStart);
-        clickGain.gain.exponentialRampToValueAtTime(0.0001, noteStart + 0.015);
-        clickOsc.connect(clickGain);
-        clickGain.connect(master);
-        clickOsc.start(noteStart);
-        clickOsc.stop(noteStart + 0.02);
-
-        note.f.forEach(freq => {
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.type = 'sawtooth';
-          osc.frequency.setValueAtTime(freq, noteStart);
-          // Connect LFO vibrato to organ oscillator frequency
-          lfoGain.connect(osc.frequency);
-
-          gain.gain.setValueAtTime(0.001, noteStart);
-          gain.gain.linearRampToValueAtTime(0.08, noteStart + 0.02);
-          gain.gain.exponentialRampToValueAtTime(0.001, noteStart + note.d);
-
-          osc.connect(gain);
-          gain.connect(master);
-          osc.start(noteStart);
-          osc.stop(noteStart + note.d + 0.05);
-        });
-      });
-
-      // Boogie bassline
-      const bassNotes = [
-        { t: 0.0, f: 82.4 }, { t: 0.35, f: 82.4 }, { t: 0.70, f: 103.8 }, { t: 1.05, f: 123.5 },
-        { t: 1.41, f: 138.6 }, { t: 1.76, f: 123.5 }, { t: 2.12, f: 110.0 }, { t: 2.47, f: 138.6 },
-        { t: 2.82, f: 164.8 }, { t: 3.18, f: 138.6 }, { t: 3.53, f: 123.5 }, { t: 3.88, f: 82.4 },
-        { t: 4.23, f: 103.8 }, { t: 4.58, f: 123.5 }, { t: 4.94, f: 138.6 }, { t: 5.25, f: 82.4 }
-      ];
-
-      bassNotes.forEach(b => {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(b.f, startTime + b.t);
-
-        gain.gain.setValueAtTime(0.18, startTime + b.t);
-        gain.gain.exponentialRampToValueAtTime(0.001, startTime + b.t + 0.3);
-
-        osc.connect(gain);
-        gain.connect(master);
-        osc.start(startTime + b.t);
-        osc.stop(startTime + b.t + 0.35);
-      });
-    } catch (e) {}
-  }
-
-  // 2. Football Kick Interaction with realistic trajectory and bounce
+  // 1. Football Kick Interaction with realistic trajectory and bounce
   triggerFootballAction() {
     this.cleanupCurrentActions();
     this.currentAction = 'football';
     this.isKicking = true;
-    this.clickSequence = 2;
-    this.clickState = 2;
+    this.clickSequence = 1;
+    this.clickState = 1;
 
     if (this.badge) {
       this.badge.textContent = '⚽';
@@ -2630,8 +2457,7 @@ class FieldEngineerMascot {
     }, 3200);
   }
 
-  // Compatibility aliases
-  playWalkOfLife() { this.triggerAudioAction(); }
+  // Action aliases
   playFootballKick() { this.triggerFootballAction(); }
   playWithLabradorDog() { this.triggerDogAction(); }
 

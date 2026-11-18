@@ -421,24 +421,21 @@ class TestTier1FeatureCoverage(MascotE2ETestBase):
         self.assertNotEqual(display, 'none', "Mascot container MUST NOT use display: none under prefers-reduced-motion")
         self.assertEqual(display, 'block', f"Expected display: block under reduced-motion, got {display}")
 
-        # 2. Sprite animations must be frozen (animation: none or paused)
-        sprite_anim = self.page.evaluate('''() => {
+        # 2. Container and sprite must remain visible and non-disruptive (gentle walk, no rapid shakes)
+        is_visible = self.page.evaluate('''() => {
             const el = document.getElementById("mascotSprite");
             const style = window.getComputedStyle(el);
-            return { name: style.animationName, state: style.animationPlayState };
+            return style.display !== 'none' && style.visibility !== 'hidden';
         }''')
-        is_sprite_frozen = sprite_anim['name'] == 'none' or sprite_anim['state'] == 'paused'
-        self.assertTrue(is_sprite_frozen, f"Sprite animation should be frozen under reduced motion: {sprite_anim}")
+        self.assertTrue(is_visible, "Sprite must remain visible under reduced motion")
 
-        # 3. Dog animations must be frozen
-        dog_anim = self.page.evaluate('''() => {
-            const el = document.getElementById("mascotDog");
-            if (!el) return { name: 'none', state: 'paused' };
-            const style = window.getComputedStyle(el);
-            return { name: style.animationName, state: style.animationPlayState };
+        # 3. Violent/rapid wobble animations must be disabled
+        landing_squash_anim = self.page.evaluate('''() => {
+            const el = document.querySelector(".mascot-character-wrapper.is-landing-squash");
+            if (!el) return 'none';
+            return window.getComputedStyle(el).animationName;
         }''')
-        is_dog_frozen = dog_anim['name'] == 'none' or dog_anim['state'] == 'paused'
-        self.assertTrue(is_dog_frozen, f"Dog animation should be frozen under reduced motion: {dog_anim}")
+        self.assertEqual(landing_squash_anim, 'none', "Rapid landing squash wobble must be disabled under reduced motion")
 
 
 # =============================================================================

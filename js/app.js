@@ -1637,8 +1637,8 @@ class FieldEngineerMascot {
     this.scrollOffset = 0;
     this.targetScrollOffset = 0;
     this.direction = 1; // 1 = right, -1 = left
-    this.baseSpeed = 0.40; // Leisurely stroll: ~24px per second
-    this.currentSpeed = 0.40;
+    this.baseSpeed = 1.15; // Natural leisurely walking pace: ~68px per second
+    this.currentSpeed = 1.15;
 
     // State flags
     this.isPaused = false;
@@ -1659,6 +1659,7 @@ class FieldEngineerMascot {
     this.dogNapping = false;
     this.actionTimer = null;
     this.lifeRoutineTimer = null;
+    this.hoverResumeTimer = null;
 
     // Sequential click state machine (completely silent / zero music):
     // 0 = Ready for Football kick
@@ -1691,17 +1692,9 @@ class FieldEngineerMascot {
     try {
       const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
       this.prefersReducedMotion = motionQuery.matches;
-      if (this.prefersReducedMotion) {
-        this.setFacingFront(true);
-      }
       if (motionQuery.addEventListener) {
         motionQuery.addEventListener('change', (e) => {
           this.prefersReducedMotion = e.matches;
-          if (this.prefersReducedMotion) {
-            this.setFacingFront(true);
-          } else {
-            this.setFacingFront(false);
-          }
         });
       }
     } catch (e) {}
@@ -1712,12 +1705,15 @@ class FieldEngineerMascot {
     this.setupGroundPosition();
     if (this.dog) {
       this.dog.style.left = '0';
-      const dogOffset = this.direction === 1 ? -26 : 22;
+      const dogOffset = this.direction === 1 ? -28 : 24;
       const dogScale = this.direction === 1 ? 1 : -1;
       this.dog.style.transform = `translate3d(${dogOffset}px, 0, 0) scaleX(${dogScale})`;
+      this.dog.classList.remove('is-idle');
+      this.dog.classList.add('is-walking');
     }
     this.setupEvents();
     this.startLoop();
+    this.startLivingRoutine();
     this.scheduleRedTransformation();
   }
 
@@ -1751,17 +1747,22 @@ class FieldEngineerMascot {
       this.targetScrollOffset = Math.max(-6, Math.min(6, this.targetScrollOffset + scrollCushion));
     }, { passive: true });
 
-    // Desktop hover: pause and turn to FRONT so user sees friendly engineer face
+    // Desktop hover: brief friendly front-facing greeting without locking walking loop
     this.container.addEventListener('mouseenter', () => {
-      if (!this.isDragging && !this.currentAction && !this.isFallingEntrance && !this.prefersReducedMotion) {
-        this.isPaused = true;
+      if (!this.isDragging && !this.currentAction && !this.isFallingEntrance) {
         this.setFacingFront(true);
-        this.updateWalkingState(false);
+        if (this.hoverResumeTimer) clearTimeout(this.hoverResumeTimer);
+        this.hoverResumeTimer = setTimeout(() => {
+          if (!this.isDragging && !this.currentAction && !this.isFallingEntrance) {
+            this.setFacingFront(false);
+            this.updateWalkingState(true);
+          }
+        }, 1600);
       }
     });
     this.container.addEventListener('mouseleave', () => {
-      if (!this.isDragging && !this.currentAction && !this.isFallingEntrance && !this.prefersReducedMotion) {
-        this.isPaused = false;
+      if (this.hoverResumeTimer) clearTimeout(this.hoverResumeTimer);
+      if (!this.isDragging && !this.currentAction && !this.isFallingEntrance) {
         this.setFacingFront(false);
         this.updateWalkingState(true);
       }
@@ -2068,8 +2069,8 @@ class FieldEngineerMascot {
           this.updateTransform();
         }
 
-        // Horizontal peaceful stroll across screen (disabled under reduced motion)
-        if (!this.prefersReducedMotion && !this.isPaused && !this.currentAction && !this.isDragging && !this.isTurning && !this.isFacingFront && !this.isFallingEntrance) {
+        // Horizontal peaceful stroll across bottom margin
+        if (!this.isPaused && !this.currentAction && !this.isDragging && !this.isTurning && !this.isFacingFront && !this.isFallingEntrance) {
           const isMobile = window.innerWidth < 768;
           const minX = 35;
           const maxX = window.innerWidth - (isMobile ? 55 : 75);
@@ -2527,15 +2528,7 @@ function handleMascotClick(e) {
 function handleDogClick(e) {
   if (e) e.stopPropagation();
   if (window.mascotEngine) {
-    window.mascotEngine.emitSparks(4, ['🐾', '💖', '🐶']);
-    if (window.mascotEngine.dog) {
-      window.mascotEngine.dog.classList.add('is-bouncing');
-      setTimeout(() => {
-        if (window.mascotEngine && window.mascotEngine.dog) {
-          window.mascotEngine.dog.classList.remove('is-bouncing');
-        }
-      }, 1200);
-    }
+    window.mascotEngine.performDogPlaySession();
   }
 }
 

@@ -1,5 +1,5 @@
 /* =========================================================================
-   ANISH NIROULA — ELECTRICAL ENGINEERING PORTFOLIO (aniroula.com.np)
+   ANISH NIROULA — ELECTRICAL ENGINEERING PORTFOLIO (anish-niroula.com.np)
    APPLICATION LOGIC: ROUTING, IEC SLD INTERLOCK, ACADEMIC ROUTE & LIGHTBOX
    ========================================================================= */
 
@@ -115,10 +115,10 @@ const VIEW_IDS = ['overview', 'career-sld', 'academics', 'research', 'projects']
 
 const VIEW_TITLES = {
   'overview': 'Anish Niroula — High Voltage Electrical Engineer & EPC Project Manager',
-  'career-sld': 'Career Single-Line Diagram — Anish Niroula | aniroula.com.np',
-  'academics': 'Academics & Licensure Route — Anish Niroula | aniroula.com.np',
-  'research': 'Research & Publications — Anish Niroula | aniroula.com.np',
-  'projects': 'Projects & Site Archive — Anish Niroula | aniroula.com.np'
+  'career-sld': 'Career Single-Line Diagram — Anish Niroula | anish-niroula.com.np',
+  'academics': 'Academics & Licensure Route — Anish Niroula | anish-niroula.com.np',
+  'research': 'Research & Publications — Anish Niroula | anish-niroula.com.np',
+  'projects': 'Projects & Site Archive — Anish Niroula | anish-niroula.com.np'
 };
 
 function switchView(viewId, updateHash = true) {
@@ -1486,8 +1486,8 @@ function handleDirectMessage(event) {
     <div class="mt-1 text-slate-700 dark:text-[#94A3B8]">Thank you, ${name}. If your email client does not open automatically, you can also write directly to <a href="mailto:diaryofanish@gmail.com" class="text-cerulean dark:text-[#38BDF8] underline font-bold">diaryofanish@gmail.com</a>.</div>
   `;
 
-  const subject = encodeURIComponent(`[Portfolio Contact] ${topic} — ${name} (${org})`);
-  const body = encodeURIComponent(`Hello Anish,\n\nName: ${name}\nOrganization: ${org}\nSubject: ${topic}\n\nMessage:\n${msg}\n\n---\nSent via Anish Niroula Engineering Portfolio`);
+  const subject = encodeURIComponent(`[anish-niroula.com.np] ${topic} — ${name} (${org})`);
+  const body = encodeURIComponent(`Hello Anish,\n\nName: ${name}\nOrganization: ${org}\nSubject: ${topic}\n\nMessage:\n${msg}\n\n---\nSent via Anish Niroula Engineering Portfolio (anish-niroula.com.np)`);
   window.location.href = `mailto:diaryofanish@gmail.com?subject=${subject}&body=${body}`;
 }
 

@@ -1,5 +1,5 @@
 /* =========================================================================
-   ANISH NIROULA — ELECTRICAL ENGINEERING PORTFOLIO (aniroula.com.np)
+   ANISH NIROULA — ELECTRICAL ENGINEERING PORTFOLIO (anish-niroula.com.np)
    DATA LAYER: CAREER BAYS, ACADEMIC NODES, CASE STUDIES & PHOTO SLOTS
    ========================================================================= */
 

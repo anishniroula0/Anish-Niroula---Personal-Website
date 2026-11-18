@@ -1637,8 +1637,8 @@ class FieldEngineerMascot {
     this.scrollOffset = 0;
     this.targetScrollOffset = 0;
     this.direction = 1; // 1 = right, -1 = left
-    this.baseSpeed = 1.15; // Natural leisurely walking pace: ~68px per second
-    this.currentSpeed = 1.15;
+    this.baseSpeed = 1.30; // Natural comfortable walking pace: ~78px per second
+    this.currentSpeed = 1.30;
 
     // State flags
     this.isPaused = false;
@@ -1859,8 +1859,8 @@ class FieldEngineerMascot {
     this.setFacingFront(false);
     this.updateWalkingState(true);
 
-    // Stroll leisurely for 5 to 8 seconds
-    const strollDuration = Math.floor(Math.random() * 3000) + 5000;
+    // Stroll across the webpage for 9 to 14 seconds before a brief mini-activity
+    const strollDuration = Math.floor(Math.random() * 5000) + 9000;
 
     this.lifeRoutineTimer = setTimeout(() => {
       if (!this.enabled || this.isDragging || this.currentAction || this.isFallingEntrance) {
@@ -1965,16 +1965,14 @@ class FieldEngineerMascot {
         }
       }, 2600);
 
-      // Wrap up and resume peaceful stroll
+      // Wrap up and resume peaceful stroll across the screen in current direction
       setTimeout(() => {
         if (this.badge) this.badge.classList.add('hidden');
         this.setFacingFront(false);
         this.currentAction = null;
         this.isPaused = false;
-        // Occasionally turn around after play session
-        if (Math.random() < 0.45) {
-          this.turnAround(-this.direction);
-        }
+        this.updateFacing();
+        this.updateWalkingState(true);
         this.startLivingRoutine();
       }, 3800);
     }
@@ -2047,8 +2045,8 @@ class FieldEngineerMascot {
 
   keepInBounds() {
     const isMobile = window.innerWidth < 768;
-    const minX = 35;
-    const maxX = window.innerWidth - (isMobile ? 55 : 75);
+    const minX = 28;
+    const maxX = window.innerWidth - (isMobile ? 50 : 65);
     if (this.posX > maxX) this.posX = maxX;
     if (this.posX < minX) this.posX = minX;
   }
@@ -2069,15 +2067,15 @@ class FieldEngineerMascot {
           this.updateTransform();
         }
 
-        // Horizontal peaceful stroll across bottom margin
+        // Horizontal peaceful stroll across the entire screen from edge to edge
         if (!this.isPaused && !this.currentAction && !this.isDragging && !this.isTurning && !this.isFacingFront && !this.isFallingEntrance) {
           const isMobile = window.innerWidth < 768;
-          const minX = 35;
-          const maxX = window.innerWidth - (isMobile ? 55 : 75);
+          const minX = 28;
+          const maxX = window.innerWidth - (isMobile ? 50 : 65);
 
           this.posX += this.direction * this.baseSpeed;
 
-          // Graceful edge detection: stop and turn without hitting walls or teleporting
+          // Graceful edge detection: reach full screen edge before turning around
           if (this.direction === 1 && this.posX >= maxX) {
             this.posX = maxX;
             this.turnAround(-1);

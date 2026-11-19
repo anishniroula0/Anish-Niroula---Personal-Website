@@ -445,7 +445,7 @@ class TestTier2BoundaryCornerCases(MascotE2ETestBase):
     """Validates boundary conditions, layout clearance, and input stress."""
 
     def test_tier2_01_mobile_tab_bar_clearance(self):
-        """Mobile viewport: mascot bottom clearance must be >= 70px to avoid obscuring bottom nav."""
+        """Mobile viewport: with bottom nav removed in favor of left drawer, mascot grounds cleanly >= 20px."""
         self.page.set_viewport_size({'width': 375, 'height': 667})
         self.page.wait_for_timeout(200)
 
@@ -454,8 +454,8 @@ class TestTier2BoundaryCornerCases(MascotE2ETestBase):
             const style = window.getComputedStyle(el);
             return parseFloat(style.bottom) || 0;
         }''')
-        self.assertGreaterEqual(bottom_clearance, 70,
-                                f"Mobile bottom clearance must be >= 70px (found {bottom_clearance}px) to clear bottom nav")
+        self.assertGreaterEqual(bottom_clearance, 20,
+                                f"Mobile bottom clearance must be >= 20px (found {bottom_clearance}px)")
 
     def test_tier2_02_rapid_clicks_state_robustness(self):
         """Adversarial stress: rapid burst of clicks must not crash mascot engine or corrupt state."""

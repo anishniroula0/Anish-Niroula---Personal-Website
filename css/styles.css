@@ -277,7 +277,7 @@ html, body {
 }
 
 /* -------------------------------------------------------------------------
-   6. NAVIGATION PILLS & MOBILE BOTTOM NAVIGATION (6-COLUMN HORIZONTAL GRID)
+   6. NAVIGATION PILLS & MOBILE LEFT SLIDE-OUT DRAWER
    ------------------------------------------------------------------------- */
 .nav-pill {
   transition: all 0.2s ease;
@@ -289,60 +289,101 @@ html, body {
   box-shadow: 0 2px 8px rgba(24, 34, 48, 0.08);
 }
 
-/* Explicit, bulletproof 6-column mobile bottom navigation */
-nav[aria-label="Mobile Navigation"] {
-  display: grid !important;
-  grid-template-columns: repeat(6, 1fr) !important;
-  align-items: center !important;
-  width: 100% !important;
-  box-sizing: border-box !important;
-  height: 56px !important;
-  max-height: 56px !important;
+/* Mobile Left Navigation Drawer & Backdrop */
+.mobile-drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(11, 15, 23, 0.65);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 10000;
+  transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.grid-cols-6 {
-  grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+.mobile-drawer-backdrop.is-open {
+  opacity: 1 !important;
+  pointer-events: auto !important;
 }
 
-.mobile-pill {
-  min-height: 48px !important;
-  max-height: 52px !important;
-  height: 100% !important;
+.mobile-nav-drawer {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 82vw;
+  max-width: 320px;
+  background-color: #FAF9F5;
+  border-right: 1px solid rgba(24, 34, 48, 0.12);
+  z-index: 10001;
+  transform: translateX(-100%);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  box-shadow: 8px 0 32px rgba(0, 0, 0, 0.2);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.mobile-nav-drawer.is-open {
+  transform: translateX(0) !important;
+}
+
+html.dark .mobile-nav-drawer {
+  background-color: #0F172A !important;
+  border-right-color: #233247 !important;
+  box-shadow: 8px 0 32px rgba(0, 0, 0, 0.6) !important;
+}
+
+.drawer-nav-item {
   display: flex !important;
-  flex-direction: column !important;
   align-items: center !important;
-  justify-content: center !important;
-  padding: 4px 1px !important;
-  gap: 2px !important;
-  box-sizing: border-box !important;
-  touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
-  user-select: none;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  overflow: hidden;
+  gap: 12px !important;
+  padding: 12px 14px !important;
+  border-radius: 12px !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  color: #334155 !important;
+  transition: all 0.2s ease !important;
+  text-decoration: none !important;
 }
 
-.mobile-pill span {
-  font-size: 9.5px !important;
-  line-height: 1 !important;
-  white-space: nowrap !important;
+.drawer-nav-item:hover,
+.drawer-nav-item:focus {
+  background-color: #FFFFFF !important;
+  color: var(--hv-cerulean) !important;
 }
 
-.mobile-pill svg {
-  width: 17px !important;
-  height: 17px !important;
-  flex-shrink: 0 !important;
+.drawer-nav-item.active {
+  background-color: #FFFFFF !important;
+  color: var(--hv-cerulean) !important;
+  box-shadow: 0 2px 8px rgba(3, 105, 161, 0.12) !important;
+  font-weight: 700 !important;
 }
 
-.mobile-pill.active {
-  background-color: #FFFFFF;
-  color: var(--hv-cerulean);
-  box-shadow: 0 2px 8px rgba(3, 105, 161, 0.12);
+.drawer-nav-item.active .drawer-icon-box {
+  background-color: var(--hv-cerulean) !important;
+  color: #FFFFFF !important;
 }
 
-.mobile-pill.active svg {
-  stroke: var(--hv-cerulean);
-  transform: translateY(-1px);
+html.dark .drawer-nav-item {
+  color: #94A3B8 !important;
+}
+
+html.dark .drawer-nav-item:hover,
+html.dark .drawer-nav-item:focus {
+  background-color: #1E293B !important;
+  color: #38BDF8 !important;
+}
+
+html.dark .drawer-nav-item.active {
+  background-color: #1E293B !important;
+  color: #38BDF8 !important;
+  box-shadow: 0 2px 10px rgba(56, 189, 248, 0.15) !important;
+}
+
+html.dark .drawer-nav-item.active .drawer-icon-box {
+  background-color: #0284C7 !important;
+  color: #FFFFFF !important;
 }
 
 /* Prevent iOS Safari 15+ auto-zoom on input focus */
@@ -567,30 +608,10 @@ html.dark .drafting-grid-bg {
   color: #F8FAFC !important;
 }
 
-/* Header & Mobile Sticky Bar in Dark Mode */
+/* Header & Drawer in Dark Mode */
 html.dark header {
   background-color: rgba(11, 15, 23, 0.94) !important;
   border-bottom-color: #223247 !important;
-}
-
-html.dark nav[aria-label="Mobile Navigation"] {
-  background-color: rgba(11, 15, 23, 0.95) !important;
-  border-top-color: #223247 !important;
-  box-shadow: 0 -4px 25px rgba(0, 0, 0, 0.6) !important;
-}
-
-html.dark .mobile-pill {
-  color: #94A3B8 !important;
-}
-
-html.dark .mobile-pill.active {
-  background-color: #1A2536 !important;
-  color: #38BDF8 !important;
-  box-shadow: 0 2px 10px rgba(56, 189, 248, 0.2) !important;
-}
-
-html.dark .mobile-pill.active svg {
-  stroke: #38BDF8 !important;
 }
 
 /* Desktop Nav in Dark Mode */
@@ -1058,7 +1079,7 @@ html.dark .highlight-case-study {
 
 @media (max-width: 767px) {
   :root {
-    --mascot-ground-bottom: 64px; /* Positioned cleanly above 56px mobile tab bar */
+    --mascot-ground-bottom: 24px; /* Clean bottom ground clearance with bottom nav removed */
     --mascot-width: 25px;
     --mascot-height: 42px;
     --mascot-sprite-total-width: 300px;

@@ -131,21 +131,21 @@ class TestCalculatorsSuite(unittest.TestCase):
         self.page.locator("button.calc-filter-pill[data-cat='building']").click()
         self.page.wait_for_timeout(200)
 
-        self.page.fill("#m12_u0", "230")
         self.page.fill("#m12_ze", "0.35")
-        self.page.fill("#m12_length", "30")
-        self.page.select_option("#m12_phase", "2.5")
-        self.page.select_option("#m12_cpc", "1.5")
+        self.page.select_option("#m12_csize", "2.5")
+        self.page.fill("#m12_len", "30")
         self.page.select_option("#m12_mcb", "16_B")
         self.page.wait_for_timeout(200)
 
         zs = self.page.locator("#m12_res_zs").inner_text()
-        ia = self.page.locator("#m12_res_ia").inner_text()
-        banner = self.page.locator("#m12_statusBanner").inner_text()
+        maxZs = self.page.locator("#m12_res_maxZs").inner_text()
+        fault_cur = self.page.locator("#m12_res_if").inner_text()
+        badge = self.page.locator("#m12_statusBadge").inner_text()
 
         self.assertIn("Ω", zs)
-        self.assertIn("A", ia)
-        self.assertIn("COMPLIANT", banner)
+        self.assertIn("Ω", maxZs)
+        self.assertIn("A", fault_cur)
+        self.assertIn("Touch Voltage Safe", badge)
 
     def test_06_module4_transformer_sizing(self):
         """Test Module 4 calculates 63 MVA transformer for 50 MVA load with Primary/Secondary labels."""
@@ -163,7 +163,7 @@ class TestCalculatorsSuite(unittest.TestCase):
         self.page.fill("#m4_v1", "132")
         self.page.fill("#m4_v2", "33")
         self.page.fill("#m4_loadMva", "50")
-        self.page.fill("#m4_margin", "20")
+        self.page.fill("#m4_pf", "0.85")
         self.page.wait_for_timeout(200)
 
         rating = self.page.locator("#m4_res_rating").inner_text()
@@ -200,17 +200,17 @@ class TestCalculatorsSuite(unittest.TestCase):
         self.page.locator("button.calc-filter-pill[data-cat='transformer']").click()
         self.page.wait_for_timeout(200)
 
-        self.page.fill("#m13_vkv", "11")
-        self.page.fill("#m13_ifault", "25")
+        self.page.select_option("#m13_vkv", "11")
+        self.page.fill("#m13_isc", "25")
         self.page.fill("#m13_time", "0.15")
         self.page.fill("#m13_dist", "610")
         self.page.wait_for_timeout(200)
 
         energy = self.page.locator("#m13_res_energy").inner_text()
-        cat = self.page.locator("#m13_res_category").inner_text()
+        ppe = self.page.locator("#m13_res_ppe").inner_text()
 
         self.assertIn("cal/cm²", energy)
-        self.assertTrue(len(cat) > 0)
+        self.assertTrue(len(ppe) > 0)
 
     def test_09_module14_cable_pulling_tension_swbp(self):
         """Test Module 14 calculates cable pulling straight tension, bend tension, and SWBP."""
@@ -220,9 +220,9 @@ class TestCalculatorsSuite(unittest.TestCase):
         self.page.wait_for_timeout(200)
 
         self.page.fill("#m14_weight", "12")
-        self.page.fill("#m14_lstraight", "150")
+        self.page.fill("#m14_len", "150")
+        self.page.select_option("#m14_bendAngle", "90")
         self.page.fill("#m14_radius", "1.5")
-        self.page.fill("#m14_angle", "90")
         self.page.wait_for_timeout(200)
 
         tension = self.page.locator("#m14_res_tension").inner_text()
@@ -282,25 +282,39 @@ class TestCalculatorsSuite(unittest.TestCase):
         self.assertTrue(transformer_cards.first.is_visible())
         self.assertTrue(building_cards.first.is_visible())
 
-    def test_13_mobile_viewport_and_bottom_nav(self):
-        """Test mobile navigation bar displays 6 columns cleanly on iPhone viewport (390x844)."""
+    def test_13_mobile_viewport_and_left_drawer_nav(self):
+        """Test mobile navigation uses left hamburger button and slide-out drawer, with bottom nav removed."""
         mobile_context = self.browser.new_context(viewport={"width": 390, "height": 844})
         mobile_page = mobile_context.new_page()
         mobile_page.goto(f"http://127.0.0.1:{self.port}/")
         mobile_page.wait_for_load_state("domcontentloaded")
 
-        pills = mobile_page.locator("nav[aria-label='Mobile Navigation'] a.mobile-pill")
-        self.assertEqual(pills.count(), 6)
+        # Bottom navigation bar must NOT exist
+        self.assertEqual(mobile_page.locator("nav[aria-label='Mobile Navigation']").count(), 0)
 
-        nav_box = mobile_page.locator("nav[aria-label='Mobile Navigation']").bounding_box()
-        self.assertIsNotNone(nav_box)
-        self.assertLessEqual(nav_box['height'], 68, f"Mobile nav height was {nav_box['height']}, must be <= 68px (horizontal bar, not vertical stack)")
+        # Hamburger toggle button must be visible on mobile
+        menu_btn = mobile_page.locator("#mobileMenuToggleBtn")
+        self.assertTrue(menu_btn.is_visible())
 
-        calc_pill = mobile_page.locator("nav[aria-label='Mobile Navigation'] a[data-target='calculators']")
-        self.assertTrue(calc_pill.is_visible())
-        calc_pill.click()
+        # Click hamburger menu to open drawer
+        menu_btn.click()
         mobile_page.wait_for_timeout(300)
 
+        drawer = mobile_page.locator("#mobileNavDrawer")
+        self.assertTrue(drawer.evaluate("el => el.classList.contains('is-open')"))
+
+        # Verify all 6 navigation links are inside the drawer
+        drawer_items = mobile_page.locator("#mobileNavDrawer .drawer-nav-item")
+        self.assertEqual(drawer_items.count(), 6)
+
+        # Click calculators link from inside drawer
+        calc_link = mobile_page.locator("#mobileNavDrawer a[data-target='calculators']")
+        self.assertTrue(calc_link.is_visible())
+        calc_link.click()
+        mobile_page.wait_for_timeout(350)
+
+        # Drawer must close and Calculators view must be active
+        self.assertFalse(drawer.evaluate("el => el.classList.contains('is-open')"))
         self.assertIn("#calculators", mobile_page.url)
         self.assertTrue(mobile_page.locator("#view-calculators").is_visible())
 

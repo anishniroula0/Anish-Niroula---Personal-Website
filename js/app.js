@@ -61,6 +61,10 @@ function applyTheme(isDark) {
   if (footerLabel) {
     footerLabel.textContent = `Theme: ${isDark ? 'Light Mode ☀' : 'Dark Mode ☾'}`;
   }
+  const drawerThemeLabel = document.getElementById('drawerThemeLabel');
+  if (drawerThemeLabel) {
+    drawerThemeLabel.textContent = isDark ? 'Dark Mode ☾' : 'Light Mode ☀';
+  }
 
   // Invalidate Leaflet map size if already open
   if (typeof nepalMapInstance !== 'undefined' && nepalMapInstance) {
@@ -193,7 +197,67 @@ function switchView(viewId, updateHash = true) {
       }, 600);
     });
   }
+
+  // Ensure mobile drawer is closed if active
+  closeMobileDrawer();
 }
+
+/* -------------------------------------------------------------------------
+   1B. MOBILE LEFT SLIDE-OUT NAVIGATION DRAWER
+   ------------------------------------------------------------------------- */
+function toggleMobileDrawer() {
+  const drawer = document.getElementById('mobileNavDrawer');
+  if (!drawer) return;
+  if (drawer.classList.contains('is-open')) {
+    closeMobileDrawer();
+  } else {
+    openMobileDrawer();
+  }
+}
+
+function openMobileDrawer() {
+  const drawer = document.getElementById('mobileNavDrawer');
+  const backdrop = document.getElementById('mobileDrawerBackdrop');
+  const toggleBtn = document.getElementById('mobileMenuToggleBtn');
+  if (!drawer) return;
+
+  drawer.classList.add('is-open');
+  drawer.setAttribute('aria-hidden', 'false');
+  if (backdrop) backdrop.classList.add('is-open');
+  if (toggleBtn) {
+    toggleBtn.setAttribute('aria-expanded', 'true');
+    toggleBtn.setAttribute('aria-label', 'Close navigation menu');
+  }
+  document.body.style.overflow = 'hidden';
+}
+
+function closeMobileDrawer() {
+  const drawer = document.getElementById('mobileNavDrawer');
+  const backdrop = document.getElementById('mobileDrawerBackdrop');
+  const toggleBtn = document.getElementById('mobileMenuToggleBtn');
+  if (!drawer) return;
+
+  drawer.classList.remove('is-open');
+  drawer.setAttribute('aria-hidden', 'true');
+  if (backdrop) backdrop.classList.remove('is-open');
+  if (toggleBtn) {
+    toggleBtn.setAttribute('aria-expanded', 'false');
+    toggleBtn.setAttribute('aria-label', 'Open navigation menu');
+  }
+  document.body.style.overflow = '';
+}
+
+function navigateFromDrawer(viewId) {
+  closeMobileDrawer();
+  switchView(viewId);
+}
+
+// Close mobile drawer on Escape key
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    closeMobileDrawer();
+  }
+});
 
 function jumpToContact() {
   switchView('overview');
@@ -2477,6 +2541,8 @@ class FieldEngineerMascot {
         this.container.style.visibility = 'visible';
       }
       if (label) label.textContent = 'Mascot: On ⚡';
+      const drawerMascotLabel = document.getElementById('drawerMascotLabel');
+      if (drawerMascotLabel) drawerMascotLabel.textContent = 'On ⚡';
       if (!this.animFrameId) this.startLoop();
     } else {
       root.classList.add('mascot-disabled');
@@ -2487,6 +2553,8 @@ class FieldEngineerMascot {
         this.dogCorner.classList.remove('is-visible');
       }
       if (label) label.textContent = 'Mascot: Off';
+      const drawerMascotLabel = document.getElementById('drawerMascotLabel');
+      if (drawerMascotLabel) drawerMascotLabel.textContent = 'Off ⚪';
     }
   }
 

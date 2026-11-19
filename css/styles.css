@@ -277,7 +277,7 @@ html, body {
 }
 
 /* -------------------------------------------------------------------------
-   6. NAVIGATION PILLS
+   6. NAVIGATION PILLS & MOBILE BOTTOM NAVIGATION (6-COLUMN HORIZONTAL GRID)
    ------------------------------------------------------------------------- */
 .nav-pill {
   transition: all 0.2s ease;
@@ -289,21 +289,49 @@ html, body {
   box-shadow: 0 2px 8px rgba(24, 34, 48, 0.08);
 }
 
+/* Explicit, bulletproof 6-column mobile bottom navigation */
+nav[aria-label="Mobile Navigation"] {
+  display: grid !important;
+  grid-template-columns: repeat(6, 1fr) !important;
+  align-items: center !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  height: 56px !important;
+  max-height: 56px !important;
+}
+
+.grid-cols-6 {
+  grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+}
+
 .mobile-pill {
-  min-height: 46px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
+  min-height: 48px !important;
+  max-height: 52px !important;
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 4px 1px !important;
+  gap: 2px !important;
+  box-sizing: border-box !important;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
   user-select: none;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+
+.mobile-pill span {
+  font-size: 9.5px !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
 }
 
 .mobile-pill svg {
-  transition: transform 0.2s ease, stroke 0.2s ease;
+  width: 17px !important;
+  height: 17px !important;
+  flex-shrink: 0 !important;
 }
 
 .mobile-pill.active {
@@ -1030,7 +1058,7 @@ html.dark .highlight-case-study {
 
 @media (max-width: 767px) {
   :root {
-    --mascot-ground-bottom: 74px; /* Positioned cleanly above mobile tab bar */
+    --mascot-ground-bottom: 64px; /* Positioned cleanly above 56px mobile tab bar */
     --mascot-width: 25px;
     --mascot-height: 42px;
     --mascot-sprite-total-width: 300px;

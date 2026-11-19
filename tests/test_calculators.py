@@ -20,15 +20,13 @@ class SilentHTTPHandler(http.server.SimpleHTTPRequestHandler):
     def log_message(self, format, *args):
         pass
 
-class ReusableTCPServer(socketserver.TCPServer):
-    allow_reuse_address = True
-
 class TestCalculatorsSuite(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.port = 8798
+        socketserver.TCPServer.allow_reuse_address = True
+        cls.port = 8796
         handler = lambda *args, **kwargs: SilentHTTPHandler(*args, directory=WORKSPACE_DIR, **kwargs)
-        cls.server = ReusableTCPServer(("127.0.0.1", cls.port), handler)
+        cls.server = socketserver.TCPServer(("127.0.0.1", cls.port), handler)
         cls.server_thread = threading.Thread(target=cls.server.serve_forever, daemon=True)
         cls.server_thread.start()
         time.sleep(0.5)
@@ -127,23 +125,27 @@ class TestCalculatorsSuite(unittest.TestCase):
         self.assertIn("16A", mcb)
 
     def test_05_module12_earth_fault_loop_impedance(self):
-        """Test Module 12 calculates Zs, touch voltage disconnection check, and compliance badge."""
+        """Test Module 12 calculates Zs, touch voltage disconnection check, and compliance banner."""
         self.page.goto(f"http://127.0.0.1:{self.port}/#calculators")
         self.page.wait_for_load_state("domcontentloaded")
         self.page.locator("button.calc-filter-pill[data-cat='building']").click()
         self.page.wait_for_timeout(200)
 
+        self.page.fill("#m12_u0", "230")
         self.page.fill("#m12_ze", "0.35")
-        self.page.select_option("#m12_csize", "2.5")
-        self.page.fill("#m12_len", "30")
+        self.page.fill("#m12_length", "30")
+        self.page.select_option("#m12_phase", "2.5")
+        self.page.select_option("#m12_cpc", "1.5")
         self.page.select_option("#m12_mcb", "16_B")
         self.page.wait_for_timeout(200)
 
         zs = self.page.locator("#m12_res_zs").inner_text()
-        badge = self.page.locator("#m12_statusBadge").inner_text()
+        ia = self.page.locator("#m12_res_ia").inner_text()
+        banner = self.page.locator("#m12_statusBanner").inner_text()
 
         self.assertIn("Ω", zs)
-        self.assertIn("Touch Voltage Safe", badge)
+        self.assertIn("A", ia)
+        self.assertIn("COMPLIANT", banner)
 
     def test_06_module4_transformer_sizing(self):
         """Test Module 4 calculates 63 MVA transformer for 50 MVA load with Primary/Secondary labels."""
@@ -161,6 +163,7 @@ class TestCalculatorsSuite(unittest.TestCase):
         self.page.fill("#m4_v1", "132")
         self.page.fill("#m4_v2", "33")
         self.page.fill("#m4_loadMva", "50")
+        self.page.fill("#m4_margin", "20")
         self.page.wait_for_timeout(200)
 
         rating = self.page.locator("#m4_res_rating").inner_text()
@@ -197,17 +200,17 @@ class TestCalculatorsSuite(unittest.TestCase):
         self.page.locator("button.calc-filter-pill[data-cat='transformer']").click()
         self.page.wait_for_timeout(200)
 
-        self.page.select_option("#m13_vkv", "11")
-        self.page.fill("#m13_isc", "25")
+        self.page.fill("#m13_vkv", "11")
+        self.page.fill("#m13_ifault", "25")
         self.page.fill("#m13_time", "0.15")
         self.page.fill("#m13_dist", "610")
         self.page.wait_for_timeout(200)
 
         energy = self.page.locator("#m13_res_energy").inner_text()
-        ppe = self.page.locator("#m13_res_ppe").inner_text()
+        cat = self.page.locator("#m13_res_category").inner_text()
 
         self.assertIn("cal/cm²", energy)
-        self.assertTrue(len(ppe) > 0)
+        self.assertTrue(len(cat) > 0)
 
     def test_09_module14_cable_pulling_tension_swbp(self):
         """Test Module 14 calculates cable pulling straight tension, bend tension, and SWBP."""
@@ -217,9 +220,9 @@ class TestCalculatorsSuite(unittest.TestCase):
         self.page.wait_for_timeout(200)
 
         self.page.fill("#m14_weight", "12")
-        self.page.fill("#m14_len", "150")
-        self.page.select_option("#m14_bendAngle", "90")
+        self.page.fill("#m14_lstraight", "150")
         self.page.fill("#m14_radius", "1.5")
+        self.page.fill("#m14_angle", "90")
         self.page.wait_for_timeout(200)
 
         tension = self.page.locator("#m14_res_tension").inner_text()
@@ -288,6 +291,10 @@ class TestCalculatorsSuite(unittest.TestCase):
 
         pills = mobile_page.locator("nav[aria-label='Mobile Navigation'] a.mobile-pill")
         self.assertEqual(pills.count(), 6)
+
+        nav_box = mobile_page.locator("nav[aria-label='Mobile Navigation']").bounding_box()
+        self.assertIsNotNone(nav_box)
+        self.assertLessEqual(nav_box['height'], 68, f"Mobile nav height was {nav_box['height']}, must be <= 68px (horizontal bar, not vertical stack)")
 
         calc_pill = mobile_page.locator("nav[aria-label='Mobile Navigation'] a[data-target='calculators']")
         self.assertTrue(calc_pill.is_visible())

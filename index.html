@@ -131,7 +131,7 @@
   </script>
 
   <!-- Custom Architectural & Animation Stylesheet -->
-  <link rel="stylesheet" href="css/styles.css?v=5.4" />
+  <link rel="stylesheet" href="css/styles.css?v=5.5" />
 </head>
 
 <body class="drafting-grid-bg pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-0 antialiased selection:bg-sky-200">
@@ -516,24 +516,27 @@
         </button>
 
         <div class="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-          <!-- Desktop 5-Link Crawlable Navigation -->
+          <!-- Desktop 6-Link Crawlable Navigation -->
           <nav class="hidden md:flex items-center gap-1 bg-linen/90 border border-hairline rounded-full p-1"
             aria-label="Primary Navigation">
             <a href="#overview"
-              class="nav-pill active px-4 py-2 rounded-full text-[13px] font-semibold text-slate-600 hover:text-ink cursor-pointer inline-block no-underline"
+              class="nav-pill active px-3.5 py-1.5 rounded-full text-[13px] font-semibold text-slate-600 hover:text-ink cursor-pointer inline-block no-underline"
               data-target="overview" onclick="switchView('overview'); return false;">Overview</a>
             <a href="#career-sld"
-              class="nav-pill px-4 py-2 rounded-full text-[13px] font-semibold text-slate-600 hover:text-ink cursor-pointer inline-block no-underline"
+              class="nav-pill px-3.5 py-1.5 rounded-full text-[13px] font-semibold text-slate-600 hover:text-ink cursor-pointer inline-block no-underline"
               data-target="career-sld" onclick="switchView('career-sld'); return false;">Career SLD</a>
             <a href="#academics"
-              class="nav-pill px-4 py-2 rounded-full text-[13px] font-semibold text-slate-600 hover:text-ink cursor-pointer inline-block no-underline"
+              class="nav-pill px-3.5 py-1.5 rounded-full text-[13px] font-semibold text-slate-600 hover:text-ink cursor-pointer inline-block no-underline"
               data-target="academics" onclick="switchView('academics'); return false;">Academics</a>
             <a href="#research"
-              class="nav-pill px-4 py-2 rounded-full text-[13px] font-semibold text-slate-600 hover:text-ink cursor-pointer inline-block no-underline"
+              class="nav-pill px-3.5 py-1.5 rounded-full text-[13px] font-semibold text-slate-600 hover:text-ink cursor-pointer inline-block no-underline"
               data-target="research" onclick="switchView('research'); return false;">Research</a>
             <a href="#projects"
-              class="nav-pill px-4 py-2 rounded-full text-[13px] font-semibold text-slate-600 hover:text-ink cursor-pointer inline-block no-underline"
+              class="nav-pill px-3.5 py-1.5 rounded-full text-[13px] font-semibold text-slate-600 hover:text-ink cursor-pointer inline-block no-underline"
               data-target="projects" onclick="switchView('projects'); return false;">Projects &amp; Gallery</a>
+            <a href="#calculators"
+              class="nav-pill px-3.5 py-1.5 rounded-full text-[13px] font-semibold text-slate-600 hover:text-ink cursor-pointer inline-block no-underline"
+              data-target="calculators" onclick="switchView('calculators'); return false;">Calculators</a>
           </nav>
 
           <!-- Dark Mode Toggle Button (Accessible on both Mobile & Desktop) -->
@@ -1944,6 +1947,1001 @@
     </section>
 
     <!-- =======================================================================
+         VIEW 6: ELECTRICAL ENGINEERING, SUBSTATION & GRID CALCULATORS (400V - 400kV)
+         Multi-Standard Compliant: IEC, NBC 207 (Nepal), IS, BS 7671
+         ======================================================================= -->
+    <section id="view-calculators" class="page-view py-10 sm:py-14" aria-label="Electrical Engineering Calculators & Power System Workbench">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <!-- Header Banner -->
+        <div class="mb-8">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cerulean/10 text-cerulean dark:text-[#38BDF8] border border-cerulean/20 text-xs font-mono font-semibold uppercase tracking-wider mb-3">
+            <span>⚡ Engineering Computation Suite</span>
+            <span class="text-stone-300 dark:text-slate-600">&bull;</span>
+            <span>230 V &ndash; 400 kV Grid Spectrum</span>
+          </div>
+          <h2 class="text-3xl sm:text-4xl font-serif font-bold text-ink dark:text-[#F8FAFC] tracking-tight">
+            Electrical Engineering &amp; Power System Calculators
+          </h2>
+          <p class="mt-2 text-slate-600 dark:text-[#94A3B8] max-w-4xl text-sm sm:text-base leading-relaxed">
+            Interactive engineering workbench bridging academic power fundamentals, domestic &amp; building wiring (<strong class="text-ink dark:text-white">Nepal National Building Code NBC 207:2003</strong> &amp; <strong class="text-ink dark:text-white">IEC 60364</strong>), and high-voltage transmission, substation &amp; protection engineering. Real-time mathematical derivations and multi-standard compliance.
+          </p>
+        </div>
+
+        <!-- Sticky / Top Control Hub: Standard Selector & Voltage Spectrum -->
+        <div class="bg-card dark:bg-[#151F2E] border border-hairline dark:border-[#233247] rounded-2xl p-4 sm:p-5 mb-8 shadow-sm">
+          <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            
+            <!-- Standard / Code Selector -->
+            <div>
+              <div class="text-xs font-mono font-bold uppercase tracking-wider text-slate-500 dark:text-[#64748B] mb-2 flex items-center gap-1.5">
+                <svg class="w-4 h-4 text-cerulean dark:text-[#38BDF8]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                <span>Active Regulatory Code &amp; Standard</span>
+              </div>
+              <div class="flex flex-wrap items-center gap-1.5" id="calcStandardSelector" role="tablist" aria-label="Regulatory Standards">
+                <button type="button" class="calc-std-pill active px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-all border border-cerulean bg-cerulean text-white shadow-sm" data-std="IEC" onclick="setCalcStandard('IEC')">
+                  🌐 IEC (International)
+                </button>
+                <button type="button" class="calc-std-pill px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-all border border-hairline dark:border-[#233247] bg-linen/50 dark:bg-[#1E293B] text-slate-700 dark:text-[#CBD5E1] hover:border-cerulean" data-std="NBC" onclick="setCalcStandard('NBC')">
+                  🇳🇵 NEA / NBC 207 (Nepal)
+                </button>
+                <button type="button" class="calc-std-pill px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-all border border-hairline dark:border-[#233247] bg-linen/50 dark:bg-[#1E293B] text-slate-700 dark:text-[#CBD5E1] hover:border-cerulean" data-std="IS" onclick="setCalcStandard('IS')">
+                  🇮🇳 IS (Indian Standards)
+                </button>
+                <button type="button" class="calc-std-pill px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-all border border-hairline dark:border-[#233247] bg-linen/50 dark:bg-[#1E293B] text-slate-700 dark:text-[#CBD5E1] hover:border-cerulean" data-std="BS" onclick="setCalcStandard('BS')">
+                  🇬🇧 BS 7671 (British / IET)
+                </button>
+              </div>
+            </div>
+
+            <!-- Standard Citation Badge -->
+            <div class="lg:text-right">
+              <span id="activeStdBadge" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-linen dark:bg-[#1E293B] text-slate-700 dark:text-[#94A3B8] font-mono text-xs border border-hairline dark:border-[#334155]">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span id="activeStdCitationText">IEC 60364 / IEC 60287 / IEC 60909 Global Baseline</span>
+              </span>
+            </div>
+
+          </div>
+
+          <!-- Divider -->
+          <div class="h-px bg-hairline dark:bg-[#233247] my-4"></div>
+
+          <!-- Voltage Spectrum Quick Bar -->
+          <div>
+            <div class="text-xs font-mono font-bold uppercase tracking-wider text-slate-500 dark:text-[#64748B] mb-2 flex items-center justify-between">
+              <span>Grid Voltage Spectrum Presets</span>
+              <span class="text-[11px] font-normal text-slate-400">Click to auto-populate voltage parameters</span>
+            </div>
+            <div class="flex flex-wrap items-center gap-1.5" id="calcVoltageBar">
+              <button type="button" class="calc-volt-pill px-2.5 py-1 rounded-md text-xs font-mono font-semibold border border-hairline dark:border-[#334155] bg-linen dark:bg-[#1E293B] text-slate-700 dark:text-[#CBD5E1] hover:border-cerulean" onclick="applyVoltagePreset(0.23, '1-Phase')">230 V (1-Ph)</button>
+              <button type="button" class="calc-volt-pill active px-2.5 py-1 rounded-md text-xs font-mono font-semibold border border-cerulean bg-cerulean text-white" onclick="applyVoltagePreset(0.4, '3-Phase')">400 V (3-Ph)</button>
+              <button type="button" class="calc-volt-pill px-2.5 py-1 rounded-md text-xs font-mono font-semibold border border-hairline dark:border-[#334155] bg-linen dark:bg-[#1E293B] text-slate-700 dark:text-[#CBD5E1] hover:border-cerulean" onclick="applyVoltagePreset(11, 'MV')">11 kV</button>
+              <button type="button" class="calc-volt-pill px-2.5 py-1 rounded-md text-xs font-mono font-semibold border border-hairline dark:border-[#334155] bg-linen dark:bg-[#1E293B] text-slate-700 dark:text-[#CBD5E1] hover:border-cerulean" onclick="applyVoltagePreset(33, 'MV')">33 kV</button>
+              <button type="button" class="calc-volt-pill px-2.5 py-1 rounded-md text-xs font-mono font-semibold border border-hairline dark:border-[#334155] bg-linen dark:bg-[#1E293B] text-slate-700 dark:text-[#CBD5E1] hover:border-cerulean" onclick="applyVoltagePreset(66, 'HV')">66 kV</button>
+              <button type="button" class="calc-volt-pill px-2.5 py-1 rounded-md text-xs font-mono font-semibold border border-hairline dark:border-[#334155] bg-linen dark:bg-[#1E293B] text-slate-700 dark:text-[#CBD5E1] hover:border-cerulean" onclick="applyVoltagePreset(132, 'HV')">132 kV</button>
+              <button type="button" class="calc-volt-pill px-2.5 py-1 rounded-md text-xs font-mono font-semibold border border-hairline dark:border-[#334155] bg-linen dark:bg-[#1E293B] text-slate-700 dark:text-[#CBD5E1] hover:border-cerulean" onclick="applyVoltagePreset(220, 'EHV')">220 kV</button>
+              <button type="button" class="calc-volt-pill px-2.5 py-1 rounded-md text-xs font-mono font-semibold border border-hairline dark:border-[#334155] bg-linen dark:bg-[#1E293B] text-slate-700 dark:text-[#CBD5E1] hover:border-cerulean" onclick="applyVoltagePreset(400, 'EHV')">400 kV</button>
+            </div>
+          </div>
+
+          <!-- Category Filter Bar -->
+          <div class="mt-4 pt-3 border-t border-hairline dark:border-[#233247] flex flex-wrap items-center gap-2">
+            <span class="text-xs font-mono text-slate-500 mr-1">Filter Modules:</span>
+            <button type="button" class="calc-filter-pill active px-3 py-1 rounded-full text-xs font-semibold bg-ink text-white dark:bg-white dark:text-ink cursor-pointer" data-cat="all" onclick="filterCalcCategory('all')">All (12)</button>
+            <button type="button" class="calc-filter-pill px-3 py-1 rounded-full text-xs font-semibold bg-linen dark:bg-[#1E293B] text-slate-700 dark:text-[#CBD5E1] hover:bg-slate-200 cursor-pointer" data-cat="building" onclick="filterCalcCategory('building')">🏠 Domestic &amp; NBC 207</button>
+            <button type="button" class="calc-filter-pill px-3 py-1 rounded-full text-xs font-semibold bg-linen dark:bg-[#1E293B] text-slate-700 dark:text-[#CBD5E1] hover:bg-slate-200 cursor-pointer" data-cat="energy" onclick="filterCalcCategory('energy')">🔄 Energy &amp; Power Units</button>
+            <button type="button" class="calc-filter-pill px-3 py-1 rounded-full text-xs font-semibold bg-linen dark:bg-[#1E293B] text-slate-700 dark:text-[#CBD5E1] hover:bg-slate-200 cursor-pointer" data-cat="transformer" onclick="filterCalcCategory('transformer')">⚙ Transformers &amp; Load</button>
+            <button type="button" class="calc-filter-pill px-3 py-1 rounded-full text-xs font-semibold bg-linen dark:bg-[#1E293B] text-slate-700 dark:text-[#CBD5E1] hover:bg-slate-200 cursor-pointer" data-cat="fault" onclick="filterCalcCategory('fault')">💥 Faults &amp; Busbars</button>
+            <button type="button" class="calc-filter-pill px-3 py-1 rounded-full text-xs font-semibold bg-linen dark:bg-[#1E293B] text-slate-700 dark:text-[#CBD5E1] hover:bg-slate-200 cursor-pointer" data-cat="transmission" onclick="filterCalcCategory('transmission')">🔌 Cables &amp; Transmission SIL</button>
+            <button type="button" class="calc-filter-pill px-3 py-1 rounded-full text-xs font-semibold bg-linen dark:bg-[#1E293B] text-slate-700 dark:text-[#CBD5E1] hover:bg-slate-200 cursor-pointer" data-cat="protection" onclick="filterCalcCategory('protection')">🛡 Protection &amp; Arresters</button>
+          </div>
+
+        </div>
+
+        <!-- 12 Calculators Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6" id="calcCardsContainer">
+
+          <!-- =================================================================
+               MODULE 0: MULTI-DOMAIN ENERGY & POWER UNIT CONVERSION & DURATION
+               ================================================================= -->
+          <div class="calc-card bg-card dark:bg-[#151F2E] border border-hairline dark:border-[#233247] rounded-2xl p-5 shadow-sm" data-category="energy">
+            <div class="flex items-start justify-between gap-3 mb-4">
+              <div>
+                <span class="inline-block px-2.5 py-0.5 rounded text-[11px] font-mono font-semibold bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/50 mb-1">Module 0 &bull; Physics &amp; Thermodynamics</span>
+                <h3 class="text-lg font-serif font-bold text-ink dark:text-[#F8FAFC]">Energy &amp; Power Unit Converter &bull; E = P &times; t</h3>
+              </div>
+              <button type="button" class="text-xs text-cerulean dark:text-[#38BDF8] font-mono hover:underline flex items-center gap-1" onclick="copyCalcReport('mod0')">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                <span>Copy</span>
+              </button>
+            </div>
+
+            <!-- Inputs Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+              <div class="sm:col-span-2">
+                <label class="block text-xs font-mono text-slate-500 mb-1">Power Value</label>
+                <input type="number" id="m0_powerVal" value="10" step="any" min="0" class="w-full px-3 py-2 rounded-lg border border-hairline dark:border-[#334155] bg-linen/40 dark:bg-[#1E293B] text-ink dark:text-[#F8FAFC] font-mono text-sm focus:border-cerulean outline-none" oninput="runMod0()">
+              </div>
+              <div>
+                <label class="block text-xs font-mono text-slate-500 mb-1">Power Unit</label>
+                <select id="m0_powerUnit" class="w-full px-2 py-2 rounded-lg border border-hairline dark:border-[#334155] bg-linen/40 dark:bg-[#1E293B] text-ink dark:text-[#F8FAFC] font-mono text-xs focus:border-cerulean outline-none" onchange="runMod0()">
+                  <option value="kW" selected>kW (Kilowatts)</option>
+                  <option value="W">W (Watts)</option>
+                  <option value="MW">MW (Megawatts)</option>
+                  <option value="hp">hp (Imperial HP = 745.7 W)</option>
+                  <option value="PS">PS (Metric HP = 735.5 W)</option>
+                  <option value="BTU_h">BTU/hr</option>
+                  <option value="J_s">J/s (Joules/sec)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+              <div class="sm:col-span-2">
+                <label class="block text-xs font-mono text-slate-500 mb-1">Operating Duration (t)</label>
+                <input type="number" id="m0_durationVal" value="24" step="any" min="0" class="w-full px-3 py-2 rounded-lg border border-hairline dark:border-[#334155] bg-linen/40 dark:bg-[#1E293B] text-ink dark:text-[#F8FAFC] font-mono text-sm focus:border-cerulean outline-none" oninput="runMod0()">
+              </div>
+              <div>
+                <label class="block text-xs font-mono text-slate-500 mb-1">Time Unit</label>
+                <select id="m0_durationUnit" class="w-full px-2 py-2 rounded-lg border border-hairline dark:border-[#334155] bg-linen/40 dark:bg-[#1E293B] text-ink dark:text-[#F8FAFC] font-mono text-xs focus:border-cerulean outline-none" onchange="runMod0()">
+                  <option value="hours" selected>Hours (h)</option>
+                  <option value="seconds">Seconds (s)</option>
+                  <option value="minutes">Minutes (min)</option>
+                  <option value="days">Days</option>
+                  <option value="months">Months (30d)</option>
+                  <option value="years">Years (365d)</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Dynamic Conversion Results Table -->
+            <div class="bg-linen/60 dark:bg-[#1A2637] rounded-xl p-3.5 border border-hairline dark:border-[#28384D] mb-3">
+              <div class="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 dark:text-[#64748B] mb-2">Equivalent Energy Transferred (E = P &times; t)</div>
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center font-mono">
+                <div class="p-2 rounded bg-white dark:bg-[#111A28] border border-hairline dark:border-[#233247]">
+                  <div class="text-[10px] text-slate-400">Kilowatt-hours</div>
+                  <div id="m0_res_kwh" class="text-sm font-bold text-cerulean dark:text-[#38BDF8]">240.0 kWh</div>
+                </div>
+                <div class="p-2 rounded bg-white dark:bg-[#111A28] border border-hairline dark:border-[#233247]">
+                  <div class="text-[10px] text-slate-400">Megajoules (MJ)</div>
+                  <div id="m0_res_mj" class="text-sm font-bold text-ink dark:text-white">864.0 MJ</div>
+                </div>
+                <div class="p-2 rounded bg-white dark:bg-[#111A28] border border-hairline dark:border-[#233247]">
+                  <div class="text-[10px] text-slate-400">BTU (Thermal)</div>
+                  <div id="m0_res_btu" class="text-sm font-bold text-ink dark:text-white">818,913 BTU</div>
+                </div>
+                <div class="p-2 rounded bg-white dark:bg-[#111A28] border border-hairline dark:border-[#233247]">
+                  <div class="text-[10px] text-slate-400">Horsepower-hrs</div>
+                  <div id="m0_res_hph" class="text-sm font-bold text-ink dark:text-white">321.8 hp&bull;h</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- AC Power Triangle -->
+            <div class="grid grid-cols-3 gap-2 text-xs font-mono bg-white/70 dark:bg-[#101725] p-2.5 rounded-lg border border-hairline dark:border-[#233247]">
+              <div><span class="text-slate-400">Watts:</span> <span id="m0_res_w" class="font-bold text-ink dark:text-white">10,000 W</span></div>
+              <div><span class="text-slate-400">HP (Imp):</span> <span id="m0_res_hp" class="font-bold text-ink dark:text-white">13.41 hp</span></div>
+              <div><span class="text-slate-400">Calorie:</span> <span id="m0_res_kcal" class="font-bold text-ink dark:text-white">206,364 kcal</span></div>
+            </div>
+
+            <!-- Formula Toggle -->
+            <details class="mt-3 text-xs text-slate-600 dark:text-[#94A3B8]">
+              <summary class="cursor-pointer font-mono text-[11px] text-cerulean dark:text-[#38BDF8] hover:underline">Show Formula Steps &amp; Conversion Constants &darr;</summary>
+              <div class="p-2.5 mt-2 rounded bg-linen/40 dark:bg-[#1E293B] font-mono text-[11px] leading-relaxed">
+                <div>&bull; $1	ext{ kWh} = 3.6 	imes 10^6	ext{ Joules} = 3.6	ext{ MJ}$</div>
+                <div>&bull; $1	ext{ kWh} = 3,412.14	ext{ BTU} = 859.845	ext{ kcal}$</div>
+                <div>&bull; $1	ext{ Mechanical HP} = 745.69987	ext{ Watts} = 550	ext{ ft}\cdot	ext{lb/s}$</div>
+                <div>&bull; $1	ext{ Metric HP (PS)} = 735.49875	ext{ Watts}$</div>
+              </div>
+            </details>
+          </div>
+
+          <!-- =================================================================
+               MODULE 1: DOMESTIC & COMMERCIAL BUILDING WIRE SIZING & MCB (NBC 207 / IEC)
+               ================================================================= -->
+          <div class="calc-card bg-card dark:bg-[#151F2E] border border-hairline dark:border-[#233247] rounded-2xl p-5 shadow-sm" data-category="building">
+            <div class="flex items-start justify-between gap-3 mb-4">
+              <div>
+                <span class="inline-block px-2.5 py-0.5 rounded text-[11px] font-mono font-semibold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/50 mb-1">Module 1 &bull; NBC 207 / IEC 60364 / IS 732</span>
+                <h3 class="text-lg font-serif font-bold text-ink dark:text-[#F8FAFC]">Appliance Load, Building Wire &amp; MCB Sizing</h3>
+              </div>
+              <button type="button" class="text-xs text-cerulean dark:text-[#38BDF8] font-mono hover:underline flex items-center gap-1" onclick="copyCalcReport('mod1')">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                <span>Copy</span>
+              </button>
+            </div>
+
+            <!-- Quick Appliance Preset Buttons -->
+            <div class="mb-3">
+              <span class="text-[11px] font-mono text-slate-500 block mb-1">Quick Appliance Presets:</span>
+              <div class="flex flex-wrap gap-1">
+                <button type="button" class="px-2 py-0.5 rounded text-[11px] font-mono bg-linen dark:bg-[#1E293B] text-slate-700 dark:text-[#CBD5E1] border border-hairline dark:border-[#334155] hover:border-cerulean" onclick="setAppliancePreset('light')">Lighting (300W)</button>
+                <button type="button" class="px-2 py-0.5 rounded text-[11px] font-mono bg-linen dark:bg-[#1E293B] text-slate-700 dark:text-[#CBD5E1] border border-hairline dark:border-[#334155] hover:border-cerulean" onclick="setAppliancePreset('ac15')">1.5 Ton AC (1800W)</button>
+                <button type="button" class="px-2 py-0.5 rounded text-[11px] font-mono bg-linen dark:bg-[#1E293B] text-slate-700 dark:text-[#CBD5E1] border border-hairline dark:border-[#334155] hover:border-cerulean" onclick="setAppliancePreset('geyser')">Geyser (2500W)</button>
+                <button type="button" class="px-2 py-0.5 rounded text-[11px] font-mono bg-linen dark:bg-[#1E293B] text-slate-700 dark:text-[#CBD5E1] border border-hairline dark:border-[#334155] hover:border-cerulean" onclick="setAppliancePreset('induction')">Induction (2000W)</button>
+                <button type="button" class="px-2 py-0.5 rounded text-[11px] font-mono bg-linen dark:bg-[#1E293B] text-slate-700 dark:text-[#CBD5E1] border border-hairline dark:border-[#334155] hover:border-cerulean" onclick="setAppliancePreset('pump')">1 HP Pump (746W)</button>
+                <button type="button" class="px-2 py-0.5 rounded text-[11px] font-mono bg-linen dark:bg-[#1E293B] text-slate-700 dark:text-[#CBD5E1] border border-hairline dark:border-[#334155] hover:border-cerulean" onclick="setAppliancePreset('ev')">EV Home (7.4kW)</button>
+              </div>
+            </div>
+
+            <!-- Inputs -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-3">
+              <div>
+                <label class="block text-[11px] font-mono text-slate-500 mb-1">Load (Watts)</label>
+                <input type="number" id="m1_loadW" value="1800" step="50" min="10" class="w-full px-2.5 py-1.5 rounded-lg border border-hairline dark:border-[#334155] bg-linen/40 dark:bg-[#1E293B] text-ink dark:text-[#F8FAFC] font-mono text-sm focus:border-cerulean outline-none" oninput="runMod1()">
+              </div>
+              <div>
+                <label class="block text-[11px] font-mono text-slate-500 mb-1">Supply System</label>
+                <select id="m1_supply" class="w-full px-2 py-1.5 rounded-lg border border-hairline dark:border-[#334155] bg-linen/40 dark:bg-[#1E293B] text-ink dark:text-[#F8FAFC] font-mono text-xs focus:border-cerulean outline-none" onchange="runMod1()">
+                  <option value="230_1ph" selected>230 V (1-Phase)</option>
+                  <option value="400_3ph">400 V (3-Phase)</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-[11px] font-mono text-slate-500 mb-1">Length (m)</label>
+                <input type="number" id="m1_length" value="25" min="1" max="500" class="w-full px-2.5 py-1.5 rounded-lg border border-hairline dark:border-[#334155] bg-linen/40 dark:bg-[#1E293B] text-ink dark:text-[#F8FAFC] font-mono text-sm focus:border-cerulean outline-none" oninput="runMod1()">
+              </div>
+              <div>
+                <label class="block text-[11px] font-mono text-slate-500 mb-1">Power Factor</label>
+                <input type="number" id="m1_pf" value="0.85" min="0.5" max="1.0" step="0.05" class="w-full px-2.5 py-1.5 rounded-lg border border-hairline dark:border-[#334155] bg-linen/40 dark:bg-[#1E293B] text-ink dark:text-[#F8FAFC] font-mono text-sm focus:border-cerulean outline-none" oninput="runMod1()">
+              </div>
+            </div>
+
+            <!-- Output Results Card -->
+            <div class="bg-linen/60 dark:bg-[#1A2637] rounded-xl p-3.5 border border-hairline dark:border-[#28384D] mb-3">
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center font-mono">
+                <div class="p-2 rounded bg-white dark:bg-[#111A28] border border-hairline dark:border-[#233247]">
+                  <div class="text-[10px] text-slate-400">Current Draw</div>
+                  <div id="m1_res_current" class="text-sm font-bold text-cerulean dark:text-[#38BDF8]">9.21 A</div>
+                </div>
+                <div class="p-2 rounded bg-white dark:bg-[#111A28] border border-hairline dark:border-[#233247]">
+                  <div class="text-[10px] text-slate-400">Recommended Wire</div>
+                  <div id="m1_res_wire" class="text-sm font-bold text-emerald-600 dark:text-emerald-400">2.5 mm&sup2; Cu</div>
+                </div>
+                <div class="p-2 rounded bg-white dark:bg-[#111A28] border border-hairline dark:border-[#233247]">
+                  <div class="text-[10px] text-slate-400">Voltage Drop</div>
+                  <div id="m1_res_vdrop" class="text-sm font-bold text-ink dark:text-white">3.22 V (1.40%)</div>
+                </div>
+                <div class="p-2 rounded bg-white dark:bg-[#111A28] border border-hairline dark:border-[#233247]">
+                  <div class="text-[10px] text-slate-400">MCB Rating</div>
+                  <div id="m1_res_mcb" class="text-sm font-bold text-indigo-600 dark:text-indigo-400">16A (Type C)</div>
+                </div>
+              </div>
+
+              <!-- Standards Compliance Badge -->
+              <div id="m1_complianceBadge" class="mt-2.5 p-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/40 text-xs font-mono flex items-center justify-between">
+                <span>&check; NBC 207 Cl. 5.1 &amp; IEC 60364-5-52 Compliant (Drop &le; 3%)</span>
+                <span id="m1_lossWatts">Loss: 29.7 W</span>
+              </div>
+            </div>
+
+            <!-- Details -->
+            <details class="text-xs text-slate-600 dark:text-[#94A3B8]">
+              <summary class="cursor-pointer font-mono text-[11px] text-cerulean dark:text-[#38BDF8] hover:underline">Show Loop Resistance &amp; NBC 207 Rules &darr;</summary>
+              <div class="p-2.5 mt-2 rounded bg-linen/40 dark:bg-[#1E293B] font-mono text-[11px] leading-relaxed">
+                <div>&bull; Loop Resistance $R = rac{
+ho \cdot 2 L}{A} = rac{0.0175 	imes 50}{2.5} = 0.350\ \Omega$</div>
+                <div>&bull; $\Delta V = I 	imes R = 9.21	ext{ A} 	imes 0.350\ \Omega = 3.22	ext{ V}$ ($1.40\%$ of $230	ext{V}$)</div>
+                <div>&bull; <strong class="text-ink dark:text-white">Nepal National Building Code (NBC 207 Cl. 5.1):</strong> Mandatory minimum $1.5	ext{ mm}^2$ copper for lighting and $2.5	ext{ mm}^2$ for 15A/16A power socket circuits.</div>
+              </div>
+            </details>
+          </div>
+
+          <!-- =================================================================
+               MODULE 2: SUBSTATION DC & AC CONTROL CABLE & TRIP COIL SIZING
+               ================================================================= -->
+          <div class="calc-card bg-card dark:bg-[#151F2E] border border-hairline dark:border-[#233247] rounded-2xl p-5 shadow-sm" data-category="building">
+            <div class="flex items-start justify-between gap-3 mb-4">
+              <div>
+                <span class="inline-block px-2.5 py-0.5 rounded text-[11px] font-mono font-semibold bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800/50 mb-1">Module 2 &bull; IEC 62271-100 &bull; Substation Auxiliary</span>
+                <h3 class="text-lg font-serif font-bold text-ink dark:text-[#F8FAFC]">Control Cable &amp; Breaker Trip Coil Voltage Drop</h3>
+              </div>
+              <button type="button" class="text-xs text-cerulean dark:text-[#38BDF8] font-mono hover:underline flex items-center gap-1" onclick="copyCalcReport('mod2')">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                <span>Copy</span>
+              </button>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-3">
+              <div>
+                <label class="block text-[11px] font-mono text-slate-500 mb-1">Battery DC (V)</label>
+                <select id="m2_vbat" class="w-full px-2 py-1.5 rounded-lg border border-hairline dark:border-[#334155] bg-linen/40 dark:bg-[#1E293B] text-ink dark:text-[#F8FAFC] font-mono text-xs focus:border-cerulean outline-none" onchange="runMod2()">
+                  <option value="110" selected>110 V DC</option>
+                  <option value="220">220 V DC</option>
+                  <option value="48">48 V DC (Telecom)</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-[11px] font-mono text-slate-500 mb-1">Trip Coil Current (A)</label>
+                <input type="number" id="m2_itrip" value="8.5" step="0.5" min="1" class="w-full px-2.5 py-1.5 rounded-lg border border-hairline dark:border-[#334155] bg-linen/40 dark:bg-[#1E293B] text-ink dark:text-[#F8FAFC] font-mono text-sm focus:border-cerulean outline-none" oninput="runMod2()">
+              </div>
+              <div>
+                <label class="block text-[11px] font-mono text-slate-500 mb-1">Control Cable Size</label>
+                <select id="m2_csize" class="w-full px-2 py-1.5 rounded-lg border border-hairline dark:border-[#334155] bg-linen/40 dark:bg-[#1E293B] text-ink dark:text-[#F8FAFC] font-mono text-xs focus:border-cerulean outline-none" onchange="runMod2()">
+                  <option value="1.5">1.5 mm&sup2; Cu</option>
+                  <option value="2.5" selected>2.5 mm&sup2; Cu</option>
+                  <option value="4.0">4.0 mm&sup2; Cu</option>
+                  <option value="6.0">6.0 mm&sup2; Cu</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-[11px] font-mono text-slate-500 mb-1">One-Way Run (m)</label>
+                <input type="number" id="m2_length" value="120" min="5" max="800" class="w-full px-2.5 py-1.5 rounded-lg border border-hairline dark:border-[#334155] bg-linen/40 dark:bg-[#1E293B] text-ink dark:text-[#F8FAFC] font-mono text-sm focus:border-cerulean outline-none" oninput="runMod2()">
+              </div>
+            </div>
+
+            <!-- Result Card -->
+            <div class="bg-linen/60 dark:bg-[#1A2637] rounded-xl p-3.5 border border-hairline dark:border-[#28384D] mb-3">
+              <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-center font-mono">
+                <div class="p-2 rounded bg-white dark:bg-[#111A28] border border-hairline dark:border-[#233247]">
+                  <div class="text-[10px] text-slate-400">Loop Resistance</div>
+                  <div id="m2_res_rloop" class="text-sm font-bold text-ink dark:text-white">1.680 &Omega;</div>
+                </div>
+                <div class="p-2 rounded bg-white dark:bg-[#111A28] border border-hairline dark:border-[#233247]">
+                  <div class="text-[10px] text-slate-400">Terminal Voltage</div>
+                  <div id="m2_res_vterm" class="text-sm font-bold text-cerulean dark:text-[#38BDF8]">95.72 V DC</div>
+                </div>
+                <div class="p-2 rounded bg-white dark:bg-[#111A28] border border-hairline dark:border-[#233247] col-span-2 sm:col-span-1">
+                  <div class="text-[10px] text-slate-400">% Nominal Voltage</div>
+                  <div id="m2_res_pct" class="text-sm font-bold text-emerald-600 dark:text-emerald-400">87.0% (&ge; 70%)</div>
+                </div>
+              </div>
+
+              <!-- Reliability Banner -->
+              <div id="m2_statusBanner" class="mt-2.5 p-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/40 text-xs font-mono flex items-center justify-between">
+                <span>&check; Positive Circuit Breaker Tripping Guaranteed (IEC 62271-100 &ge; 70% Limit)</span>
+                <span>Drop: 14.28 V</span>
+              </div>
+            </div>
+
+            <details class="text-xs text-slate-600 dark:text-[#94A3B8]">
+              <summary class="cursor-pointer font-mono text-[11px] text-cerulean dark:text-[#38BDF8] hover:underline">Show Statutory Requirement Details &darr;</summary>
+              <div class="p-2.5 mt-2 rounded bg-linen/40 dark:bg-[#1E293B] font-mono text-[11px] leading-relaxed">
+                <div>&bull; IEC 62271-100 mandates trip coils must reliably operate between $70\%$ and $110\%$ of rated auxiliary DC voltage.</div>
+                <div>&bull; Closing coils require $\ge 85\%$ of rated voltage.</div>
+                <div>&bull; For outdoor GIS switchyards or long yard runs, $4	ext{ mm}^2$ control cable is recommended if one-way length $> 180	ext{ m}$.</div>
+              </div>
+            </details>
+          </div>
+
+          <!-- =================================================================
+               MODULE 3: 3-PHASE AC POWER, CURRENT & POWER FACTOR CORRECTION
+               ================================================================= -->
+          <div class="calc-card bg-card dark:bg-[#151F2E] border border-hairline dark:border-[#233247] rounded-2xl p-5 shadow-sm" data-category="energy">
+            <div class="flex items-start justify-between gap-3 mb-4">
+              <div>
+                <span class="inline-block px-2.5 py-0.5 rounded text-[11px] font-mono font-semibold bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800/50 mb-1">Module 3 &bull; 400V to 400kV Power Flow</span>
+                <h3 class="text-lg font-serif font-bold text-ink dark:text-[#F8FAFC]">3-Phase AC Power, Current &amp; Capacitor Sizing</h3>
+              </div>
+              <button type="button" class="text-xs text-cerulean dark:text-[#38BDF8] font-mono hover:underline flex items-center gap-1" onclick="copyCalcReport('mod3')">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                <span>Copy</span>
+              </button>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-3">
+              <div>
+                <label class="block text-[11px] font-mono text-slate-500 mb-1">Voltage $V_L$ (kV)</label>
+                <input type="number" id="m3_vkv" value="33" step="any" min="0.1" class="w-full px-2.5 py-1.5 rounded-lg border border-hairline dark:border-[#334155] bg-linen/40 dark:bg-[#1E293B] text-ink dark:text-[#F8FAFC] font-mono text-sm focus:border-cerulean outline-none" oninput="runMod3()">
+              </div>
+              <div>
+                <label class="block text-[11px] font-mono text-slate-500 mb-1">Active Power (MW)</label>
+                <input type="number" id="m3_pmw" value="15" step="any" min="0.01" class="w-full px-2.5 py-1.5 rounded-lg border border-hairline dark:border-[#334155] bg-linen/40 dark:bg-[#1E293B] text-ink dark:text-[#F8FAFC] font-mono text-sm focus:border-cerulean outline-none" oninput="runMod3()">
+              </div>
+              <div>
+                <label class="block text-[11px] font-mono text-slate-500 mb-1">Initial PF ($\cos\phi_1$)</label>
+                <input type="number" id="m3_pf1" value="0.82" step="0.01" min="0.4" max="0.99" class="w-full px-2.5 py-1.5 rounded-lg border border-hairline dark:border-[#334155] bg-linen/40 dark:bg-[#1E293B] text-ink dark:text-[#F8FAFC] font-mono text-sm focus:border-cerulean outline-none" oninput="runMod3()">
+              </div>
+              <div>
+                <label class="block text-[11px] font-mono text-slate-500 mb-1">Target PF ($\cos\phi_2$)</label>
+                <input type="number" id="m3_pf2" value="0.98" step="0.01" min="0.8" max="1.0" class="w-full px-2.5 py-1.5 rounded-lg border border-hairline dark:border-[#334155] bg-linen/40 dark:bg-[#1E293B] text-ink dark:text-[#F8FAFC] font-mono text-sm focus:border-cerulean outline-none" oninput="runMod3()">
+              </div>
+            </div>
+
+            <!-- Results -->
+            <div class="bg-linen/60 dark:bg-[#1A2637] rounded-xl p-3.5 border border-hairline dark:border-[#28384D] mb-3">
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center font-mono">
+                <div class="p-2 rounded bg-white dark:bg-[#111A28] border border-hairline dark:border-[#233247]">
+                  <div class="text-[10px] text-slate-400">Current (Initial)</div>
+                  <div id="m3_res_i1" class="text-sm font-bold text-ink dark:text-white">320.3 A</div>
+                </div>
+                <div class="p-2 rounded bg-white dark:bg-[#111A28] border border-hairline dark:border-[#233247]">
+                  <div class="text-[10px] text-slate-400">Capacitor Bank</div>
+                  <div id="m3_res_qc" class="text-sm font-bold text-cerulean dark:text-[#38BDF8]">7.41 MVAr</div>
+                </div>
+                <div class="p-2 rounded bg-white dark:bg-[#111A28] border border-hairline dark:border-[#233247]">
+                  <div class="text-[10px] text-slate-400">Current (Corrected)</div>
+                  <div id="m3_res_i2" class="text-sm font-bold text-emerald-600 dark:text-emerald-400">268.0 A</div>
+                </div>
+                <div class="p-2 rounded bg-white dark:bg-[#111A28] border border-hairline dark:border-[#233247]">
+                  <div class="text-[10px] text-slate-400">Line Loss Saved</div>
+                  <div id="m3_res_lossSaved" class="text-sm font-bold text-indigo-600 dark:text-indigo-400">29.9%</div>
+                </div>
+              </div>
+            </div>
+
+            <details class="text-xs text-slate-600 dark:text-[#94A3B8]">
+              <summary class="cursor-pointer font-mono text-[11px] text-cerulean dark:text-[#38BDF8] hover:underline">Show Equations &darr;</summary>
+              <div class="p-2.5 mt-2 rounded bg-linen/40 dark:bg-[#1E293B] font-mono text-[11px] leading-relaxed">
+                <div>&bull; $I_1 = rac{P}{\sqrt{3} \cdot V_L \cdot \cos\phi_1}$, $I_2 = rac{P}{\sqrt{3} \cdot V_L \cdot \cos\phi_2}$</div>
+                <div>&bull; $Q_c = P 	imes (	an\phi_1 - 	an\phi_2)$</div>
+                <div>&bull; Loss Reduction $\% = [1 - (\cos\phi_1 / \cos\phi_2)^2] 	imes 100\%$</div>
+              </div>
+            </details>
+          </div>
+
+          <!-- =================================================================
+               MODULE 4: POWER TRANSFORMER SIZING, LOADING & EFFICIENCY
+               ================================================================= -->
+          <div class="calc-card bg-card dark:bg-[#151F2E] border border-hairline dark:border-[#233247] rounded-2xl p-5 shadow-sm" data-category="transformer">
+            <div class="flex items-start justify-between gap-3 mb-4">
+              <div>
+                <span class="inline-block px-2.5 py-0.5 rounded text-[11px] font-mono font-semibold bg-violet-50 dark:bg-violet-950/60 text-violet-700 dark:text-violet-300 border border-violet-200 dark:border-violet-800/50 mb-1">Module 4 &bull; IEC 60076 &bull; Substation Primary</span>
+                <h3 class="text-lg font-serif font-bold text-ink dark:text-[#F8FAFC]">Power Transformer Sizing, FLC &amp; Efficiency</h3>
+              </div>
+              <button type="button" class="text-xs text-cerulean dark:text-[#38BDF8] font-mono hover:underline flex items-center gap-1" onclick="copyCalcReport('mod4')">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                <span>Copy</span>
+              </button>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-3">
+              <div>
+                <label class="block text-[11px] font-mono text-slate-500 mb-1">Primary $V_1$ (kV)</label>
+                <input type="number" id="m4_v1" value="132" step="any" min="0.4" class="w-full px-2.5 py-1.5 rounded-lg border border-hairline dark:border-[#334155] bg-linen/40 dark:bg-[#1E293B] text-ink dark:text-[#F8FAFC] font-mono text-sm focus:border-cerulean outline-none" oninput="runMod4()">
+              </div>
+              <div>
+                <label class="block text-[11px] font-mono text-slate-500 mb-1">Secondary $V_2$ (kV)</label>
+                <input type="number" id="m4_v2" value="33" step="any" min="0.23" class="w-full px-2.5 py-1.5 rounded-lg border border-hairline dark:border-[#334155] bg-linen/40 dark:bg-[#1E293B] text-ink dark:text-[#F8FAFC] font-mono text-sm focus:border-cerulean outline-none" oninput="runMod4()">
+              </div>
+              <div>
+                <label class="block text-[11px] font-mono text-slate-500 mb-1">Load (MW)</label>
+                <input type="number" id="m4_loadMw" value="45" step="any" min="0.01" class="w-full px-2.5 py-1.5 rounded-lg border border-hairline dark:border-[#334155] bg-linen/40 dark:bg-[#1E293B] text-ink dark:text-[#F8FAFC] font-mono text-sm focus:border-cerulean outline-none" oninput="runMod4()">
+              </div>
+              <div>
+                <label class="block text-[11px] font-mono text-slate-500 mb-1">Load PF</label>
+                <input type="number" id="m4_pf" value="0.85" step="0.05" min="0.5" max="1.0" class="w-full px-2.5 py-1.5 rounded-lg border border-hairline dark:border-[#334155] bg-linen/40 dark:bg-[#1E293B] text-ink dark:text-[#F8FAFC] font-mono text-sm focus:border-cerulean outline-none" oninput="runMod4()">
+              </div>
+            </div>
+
+            <!-- Results -->
+            <div class="bg-linen/60 dark:bg-[#1A2637] rounded-xl p-3.5 border border-hairline dark:border-[#28384D] mb-3">
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center font-mono">
+                <div class="p-2 rounded bg-white dark:bg-[#111A28] border border-hairline dark:border-[#233247]">
+                  <div class="text-[10px] text-slate-400">Required S</div>
+                  <div id="m4_res_sreq" class="text-sm font-bold text-ink dark:text-white">52.94 MVA</div>
+                </div>
+                <div class="p-2 rounded bg-white dark:bg-[#111A28] border border-hairline dark:border-[#233247]">
+                  <div class="text-[10px] text-slate-400">Std Rating (+20%)</div>
+                  <div id="m4_res_rating" class="text-sm font-bold text-cerulean dark:text-[#38BDF8]">63.0 MVA</div>
+                </div>
+                <div class="p-2 rounded bg-white dark:bg-[#111A28] border border-hairline dark:border-[#233247]">
+                  <div class="text-[10px] text-slate-400">HV FLC (Primary)</div>
+                  <div id="m4_res_ihv" class="text-sm font-bold text-emerald-600 dark:text-emerald-400">275.6 A</div>
+                </div>
+                <div class="p-2 rounded bg-white dark:bg-[#111A28] border border-hairline dark:border-[#233247]">
+                  <div class="text-[10px] text-slate-400">LV FLC (Secondary)</div>
+                  <div id="m4_res_ilv" class="text-sm font-bold text-indigo-600 dark:text-indigo-400">1102.2 A</div>
+                </div>
+              </div>
+            </div>
+
+            <details class="text-xs text-slate-600 dark:text-[#94A3B8]">
+              <summary class="cursor-pointer font-mono text-[11px] text-cerulean dark:text-[#38BDF8] hover:underline">Show IEC/NEA Standard Sizes &darr;</summary>
+              <div class="p-2.5 mt-2 rounded bg-linen/40 dark:bg-[#1E293B] font-mono text-[11px] leading-relaxed">
+                <div>&bull; Standard distribution: $25, 50, 100, 200, 315, 500, 630, 800, 1000	ext{ kVA}$.</div>
+                <div>&bull; Standard grid transmission: $3.15, 5, 8, 10, 16, 20, 25, 31.5, 40, 50, 63, 100, 160, 200, 315	ext{ MVA}$.</div>
+                <div>&bull; Full load current: $I_{FLC} = rac{S_{kVA}}{\sqrt{3} 	imes V_{kV}}$.</div>
+              </div>
+            </details>
+          </div>
+
+          <!-- =================================================================
+               MODULE 5: BUSBAR SYMMETRICAL FAULT LEVEL & SHORT CIRCUIT (IEC 60909)
+               ================================================================= -->
+          <div class="calc-card bg-card dark:bg-[#151F2E] border border-hairline dark:border-[#233247] rounded-2xl p-5 shadow-sm" data-category="fault">
+            <div class="flex items-start justify-between gap-3 mb-4">
+              <div>
+                <span class="inline-block px-2.5 py-0.5 rounded text-[11px] font-mono font-semibold bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800/50 mb-1">Module 5 &bull; IEC 60909 &bull; Switchgear Breaking</span>
+                <h3 class="text-lg font-serif font-bold text-ink dark:text-[#F8FAFC]">Busbar Fault Level &amp; Short-Circuit Current</h3>
+              </div>
+              <button type="button" class="text-xs text-cerulean dark:text-[#38BDF8] font-mono hover:underline flex items-center gap-1" onclick="copyCalcReport('mod5')">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                <span>Copy</span>
+              </button>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-3">
+              <div>
+                <label class="block text-[11px] font-mono text-slate-500 mb-1">Busbar Voltage (kV)</label>
+                <input type="number" id="m5_vkv" value="33" step="any" min="0.4" class="w-full px-2.5 py-1.5 rounded-lg border border-hairline dark:border-[#334155] bg-linen/40 dark:bg-[#1E293B] text-ink dark:text-[#F8FAFC] font-mono text-sm focus:border-cerulean outline-none" oninput="runMod5()">
+              </div>
+              <div>
+                <label class="block text-[11px] font-mono text-slate-500 mb-1">Tx Capacity (MVA)</label>
+                <input type="number" id="m5_txMva" value="63" step="any" min="0.1" class="w-full px-2.5 py-1.5 rounded-lg border border-hairline dark:border-[#334155] bg-linen/40 dark:bg-[#1E293B] text-ink dark:text-[#F8FAFC] font-mono text-sm focus:border-cerulean outline-none" oninput="runMod5()">
+              </div>
+              <div>
+                <label class="block text-[11px] font-mono text-slate-500 mb-1">Tx Impedance (%Z)</label>
+                <input type="number" id="m5_zpct" value="12.5" step="0.5" min="2" max="25" class="w-full px-2.5 py-1.5 rounded-lg border border-hairline dark:border-[#334155] bg-linen/40 dark:bg-[#1E293B] text-ink dark:text-[#F8FAFC] font-mono text-sm focus:border-cerulean outline-none" oninput="runMod5()">
+              </div>
+              <div>
+                <label class="block text-[11px] font-mono text-slate-500 mb-1">Grid Source (MVA)</label>
+                <input type="number" id="m5_gridMva" value="2500" step="100" min="50" class="w-full px-2.5 py-1.5 rounded-lg border border-hairline dark:border-[#334155] bg-linen/40 dark:bg-[#1E293B] text-ink dark:text-[#F8FAFC] font-mono text-sm focus:border-cerulean outline-none" oninput="runMod5()">
+              </div>
+            </div>
+
+            <!-- Results -->
+            <div class="bg-linen/60 dark:bg-[#1A2637] rounded-xl p-3.5 border border-hairline dark:border-[#28384D] mb-3">
+              <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-center font-mono">
+                <div class="p-2 rounded bg-white dark:bg-[#111A28] border border-hairline dark:border-[#233247]">
+                  <div class="text-[10px] text-slate-400">Fault Current $I_{sc}$</div>
+                  <div id="m5_res_isc" class="text-sm font-bold text-rose-600 dark:text-rose-400">8.49 kA rms</div>
+                </div>
+                <div class="p-2 rounded bg-white dark:bg-[#111A28] border border-hairline dark:border-[#233247]">
+                  <div class="text-[10px] text-slate-400">Short Circuit MVA</div>
+                  <div id="m5_res_mva" class="text-sm font-bold text-ink dark:text-white">485.4 MVA</div>
+                </div>
+                <div class="p-2 rounded bg-white dark:bg-[#111A28] border border-hairline dark:border-[#233247] col-span-2 sm:col-span-1">
+                  <div class="text-[10px] text-slate-400">Peak Making $i_p$ (IEC)</div>
+                  <div id="m5_res_ipeak" class="text-sm font-bold text-cerulean dark:text-[#38BDF8]">21.65 kA peak</div>
+                </div>
+              </div>
+            </div>
+
+            <details class="text-xs text-slate-600 dark:text-[#94A3B8]">
+              <summary class="cursor-pointer font-mono text-[11px] text-cerulean dark:text-[#38BDF8] hover:underline">Show Fault Derivation Steps &darr;</summary>
+              <div class="p-2.5 mt-2 rounded bg-linen/40 dark:bg-[#1E293B] font-mono text-[11px] leading-relaxed">
+                <div>&bull; $Z_{tx} = rac{\%Z}{100} 	imes rac{100	ext{ MVA}}{S_{tx}} = 0.125 	imes rac{100}{63} = 0.1984	ext{ pu}$</div>
+                <div>&bull; $Z_{grid} = rac{100}{S_{grid}} = rac{100}{2500} = 0.0400	ext{ pu}$</div>
+                <div>&bull; $I_{sc} = rac{100	ext{ MVA}}{\sqrt{3} 	imes 33	ext{ kV} 	imes (0.1984 + 0.0400)} = 8.49	ext{ kA}$</div>
+              </div>
+            </details>
+          </div>
+
+          <!-- =================================================================
+               MODULE 6: MV/HV POWER CABLE & CONDUCTOR SIZING (XLPE / ACSR)
+               ================================================================= -->
+          <div class="calc-card bg-card dark:bg-[#151F2E] border border-hairline dark:border-[#233247] rounded-2xl p-5 shadow-sm" data-category="transmission">
+            <div class="flex items-start justify-between gap-3 mb-4">
+              <div>
+                <span class="inline-block px-2.5 py-0.5 rounded text-[11px] font-mono font-semibold bg-teal-50 dark:bg-teal-950/60 text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-teal-800/50 mb-1">Module 6 &bull; IEC 60287 / IEC 60364 &bull; 400V to 400kV</span>
+                <h3 class="text-lg font-serif font-bold text-ink dark:text-[#F8FAFC]">Power Cable &amp; Overhead Conductor Sizing</h3>
+              </div>
+              <button type="button" class="text-xs text-cerulean dark:text-[#38BDF8] font-mono hover:underline flex items-center gap-1" onclick="copyCalcReport('mod6')">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                <span>Copy</span>
+              </button>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-3">
+              <div>
+                <label class="block text-[11px] font-mono text-slate-500 mb-1">Conductor Material</label>
+                <select id="m6_mat" class="w-full px-2 py-1.5 rounded-lg border border-hairline dark:border-[#334155] bg-linen/40 dark:bg-[#1E293B] text-ink dark:text-[#F8FAFC] font-mono text-xs focus:border-cerulean outline-none" onchange="runMod6()">
+                  <option value="Cu_XLPE" selected>Copper / XLPE</option>
+                  <option value="Al_XLPE">Aluminium / XLPE</option>
+                  <option value="ACSR">ACSR Overhead</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-[11px] font-mono text-slate-500 mb-1">Load Current (A)</label>
+                <input type="number" id="m6_iload" value="450" step="10" min="5" class="w-full px-2.5 py-1.5 rounded-lg border border-hairline dark:border-[#334155] bg-linen/40 dark:bg-[#1E293B] text-ink dark:text-[#F8FAFC] font-mono text-sm focus:border-cerulean outline-none" oninput="runMod6()">
+              </div>
+              <div>
+                <label class="block text-[11px] font-mono text-slate-500 mb-1">Fault Current (kA)</label>
+                <input type="number" id="m6_isc" value="25" step="1" min="1" class="w-full px-2.5 py-1.5 rounded-lg border border-hairline dark:border-[#334155] bg-linen/40 dark:bg-[#1E293B] text-ink dark:text-[#F8FAFC] font-mono text-sm focus:border-cerulean outline-none" oninput="runMod6()">
+              </div>
+              <div>
+                <label class="block text-[11px] font-mono text-slate-500 mb-1">Fault Time (s)</label>
+                <input type="number" id="m6_tfault" value="1.0" step="0.1" min="0.1" max="3" class="w-full px-2.5 py-1.5 rounded-lg border border-hairline dark:border-[#334155] bg-linen/40 dark:bg-[#1E293B] text-ink dark:text-[#F8FAFC] font-mono text-sm focus:border-cerulean outline-none" oninput="runMod6()">
+              </div>
+            </div>
+
+            <!-- Results -->
+            <div class="bg-linen/60 dark:bg-[#1A2637] rounded-xl p-3.5 border border-hairline dark:border-[#28384D] mb-3">
+              <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-center font-mono">
+                <div class="p-2 rounded bg-white dark:bg-[#111A28] border border-hairline dark:border-[#233247]">
+                  <div class="text-[10px] text-slate-400">Short-Circuit Area $S_{min}$</div>
+                  <div id="m6_res_smin" class="text-sm font-bold text-rose-600 dark:text-rose-400">174.8 mm&sup2;</div>
+                </div>
+                <div class="p-2 rounded bg-white dark:bg-[#111A28] border border-hairline dark:border-[#233247]">
+                  <div class="text-[10px] text-slate-400">Continuous Sizing</div>
+                  <div id="m6_res_scont" class="text-sm font-bold text-ink dark:text-white">240 mm&sup2;</div>
+                </div>
+                <div class="p-2 rounded bg-white dark:bg-[#111A28] border border-hairline dark:border-[#233247] col-span-2 sm:col-span-1">
+                  <div class="text-[10px] text-slate-400">Recommended Cable</div>
+                  <div id="m6_res_rec" class="text-sm font-bold text-emerald-600 dark:text-emerald-400">300 mm&sup2; Cu</div>
+                </div>
+              </div>
+            </div>
+
+            <details class="text-xs text-slate-600 dark:text-[#94A3B8]">
+              <summary class="cursor-pointer font-mono text-[11px] text-cerulean dark:text-[#38BDF8] hover:underline">Show Adiabatic Constant $k$ Table &darr;</summary>
+              <div class="p-2.5 mt-2 rounded bg-linen/40 dark:bg-[#1E293B] font-mono text-[11px] leading-relaxed">
+                <div>&bull; Copper XLPE: $k = 143	ext{ A}\cdot	ext{s}^{1/2}/	ext{mm}^2$</div>
+                <div>&bull; Aluminium XLPE: $k = 94	ext{ A}\cdot	ext{s}^{1/2}/	ext{mm}^2$</div>
+                <div>&bull; $S_{min} = rac{I_{sc} 	imes 10^3 	imes \sqrt{t}}{k}$</div>
+              </div>
+            </details>
+          </div>
+
+          <!-- =================================================================
+               MODULE 7: SUBSTATION BUSBAR SIZING & ELECTRODYNAMIC FORCES (IEC 60865)
+               ================================================================= -->
+          <div class="calc-card bg-card dark:bg-[#151F2E] border border-hairline dark:border-[#233247] rounded-2xl p-5 shadow-sm" data-category="fault">
+            <div class="flex items-start justify-between gap-3 mb-4">
+              <div>
+                <span class="inline-block px-2.5 py-0.5 rounded text-[11px] font-mono font-semibold bg-orange-50 dark:bg-orange-950/60 text-orange-700 dark:text-orange-300 border border-orange-200 dark:border-orange-800/50 mb-1">Module 7 &bull; IEC 60865 &bull; Mechanical Withstand</span>
+                <h3 class="text-lg font-serif font-bold text-ink dark:text-[#F8FAFC]">Busbar Sizing &amp; Electrodynamic Force</h3>
+              </div>
+              <button type="button" class="text-xs text-cerulean dark:text-[#38BDF8] font-mono hover:underline flex items-center gap-1" onclick="copyCalcReport('mod7')">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                <span>Copy</span>
+              </button>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-3">
+              <div>
+                <label class="block text-[11px] font-mono text-slate-500 mb-1">Peak Fault $i_p$ (kA)</label>
+                <input type="number" id="m7_ip" value="63" step="1" min="5" class="w-full px-2.5 py-1.5 rounded-lg border border-hairline dark:border-[#334155] bg-linen/40 dark:bg-[#1E293B] text-ink dark:text-[#F8FAFC] font-mono text-sm focus:border-cerulean outline-none" oninput="runMod7()">
+              </div>
+              <div>
+                <label class="block text-[11px] font-mono text-slate-500 mb-1">Phase Spacing $a$ (mm)</label>
+                <input type="number" id="m7_spacing" value="1500" step="50" min="100" class="w-full px-2.5 py-1.5 rounded-lg border border-hairline dark:border-[#334155] bg-linen/40 dark:bg-[#1E293B] text-ink dark:text-[#F8FAFC] font-mono text-sm focus:border-cerulean outline-none" oninput="runMod7()">
+              </div>
+              <div>
+                <label class="block text-[11px] font-mono text-slate-500 mb-1">Support Span $l$ (m)</label>
+                <input type="number" id="m7_span" value="5.0" step="0.5" min="0.5" max="20" class="w-full px-2.5 py-1.5 rounded-lg border border-hairline dark:border-[#334155] bg-linen/40 dark:bg-[#1E293B] text-ink dark:text-[#F8FAFC] font-mono text-sm focus:border-cerulean outline-none" oninput="runMod7()">
+              </div>
+              <div>
+                <label class="block text-[11px] font-mono text-slate-500 mb-1">Busbar Conductor</label>
+                <select id="m7_btype" class="w-full px-2 py-1.5 rounded-lg border border-hairline dark:border-[#334155] bg-linen/40 dark:bg-[#1E293B] text-ink dark:text-[#F8FAFC] font-mono text-xs focus:border-cerulean outline-none" onchange="runMod7()">
+                  <option value="pipe4" selected>4&quot; IPS Al Tubular</option>
+                  <option value="pipe3">3&quot; IPS Al Tubular</option>
+                  <option value="cu_100x10">100&times;10 mm Flat Cu</option>
+                  <option value="cu_50x6">50&times;6 mm Flat Cu</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Results -->
+            <div class="bg-linen/60 dark:bg-[#1A2637] rounded-xl p-3.5 border border-hairline dark:border-[#28384D] mb-3">
+              <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-center font-mono">
+                <div class="p-2 rounded bg-white dark:bg-[#111A28] border border-hairline dark:border-[#233247]">
+                  <div class="text-[10px] text-slate-400">Peak Force ($F_m$)</div>
+                  <div id="m7_res_fm" class="text-sm font-bold text-rose-600 dark:text-rose-400">529.2 N/m</div>
+                </div>
+                <div class="p-2 rounded bg-white dark:bg-[#111A28] border border-hairline dark:border-[#233247]">
+                  <div class="text-[10px] text-slate-400">Total Span Force</div>
+                  <div id="m7_res_ftot" class="text-sm font-bold text-ink dark:text-white">2,646 N</div>
+                </div>
+                <div class="p-2 rounded bg-white dark:bg-[#111A28] border border-hairline dark:border-[#233247] col-span-2 sm:col-span-1">
+                  <div class="text-[10px] text-slate-400">Insulator Check</div>
+                  <div id="m7_res_check" class="text-sm font-bold text-emerald-600 dark:text-emerald-400">&check; Safe (&lt; 8 kN)</div>
+                </div>
+              </div>
+            </div>
+
+            <details class="text-xs text-slate-600 dark:text-[#94A3B8]">
+              <summary class="cursor-pointer font-mono text-[11px] text-cerulean dark:text-[#38BDF8] hover:underline">Show Formula (IEC 60865) &darr;</summary>
+              <div class="p-2.5 mt-2 rounded bg-linen/40 dark:bg-[#1E293B] font-mono text-[11px] leading-relaxed">
+                <div>&bull; $F_m = rac{\mu_0}{2\pi} 	imes rac{i_p^2}{a} = 2 	imes 10^{-7} 	imes rac{(i_p 	imes 10^3)^2}{a	ext{ (m)}}$</div>
+                <div>&bull; Ensures post insulators and busbar clamps withstand maximum electromagnetic repulsion forces during asymmetrical short-circuits.</div>
+              </div>
+            </details>
+          </div>
+
+          <!-- =================================================================
+               MODULE 8: TRANSMISSION LINE SURGE IMPEDANCE LOADING (SIL)
+               ================================================================= -->
+          <div class="calc-card bg-card dark:bg-[#151F2E] border border-hairline dark:border-[#233247] rounded-2xl p-5 shadow-sm" data-category="transmission">
+            <div class="flex items-start justify-between gap-3 mb-4">
+              <div>
+                <span class="inline-block px-2.5 py-0.5 rounded text-[11px] font-mono font-semibold bg-cyan-50 dark:bg-cyan-950/60 text-cyan-700 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800/50 mb-1">Module 8 &bull; 66kV to 400kV Grid Physics</span>
+                <h3 class="text-lg font-serif font-bold text-ink dark:text-[#F8FAFC]">Transmission Line Surge Impedance Loading</h3>
+              </div>
+              <button type="button" class="text-xs text-cerulean dark:text-[#38BDF8] font-mono hover:underline flex items-center gap-1" onclick="copyCalcReport('mod8')">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                <span>Copy</span>
+              </button>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 mb-3">
+              <div>
+                <label class="block text-[11px] font-mono text-slate-500 mb-1">Line Voltage (kV)</label>
+                <select id="m8_vkv" class="w-full px-2 py-1.5 rounded-lg border border-hairline dark:border-[#334155] bg-linen/40 dark:bg-[#1E293B] text-ink dark:text-[#F8FAFC] font-mono text-xs focus:border-cerulean outline-none" onchange="runMod8()">
+                  <option value="66">66 kV</option>
+                  <option value="132" selected>132 kV</option>
+                  <option value="220">220 kV</option>
+                  <option value="400">400 kV</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-[11px] font-mono text-slate-500 mb-1">Surge Impedance $Z_c$ (&Omega;)</label>
+                <input type="number" id="m8_zc" value="380" step="10" min="30" max="500" class="w-full px-2.5 py-1.5 rounded-lg border border-hairline dark:border-[#334155] bg-linen/40 dark:bg-[#1E293B] text-ink dark:text-[#F8FAFC] font-mono text-sm focus:border-cerulean outline-none" oninput="runMod8()">
+              </div>
+              <div>
+                <label class="block text-[11px] font-mono text-slate-500 mb-1">Length (km)</label>
+                <input type="number" id="m8_len" value="85" step="5" min="1" max="1000" class="w-full px-2.5 py-1.5 rounded-lg border border-hairline dark:border-[#334155] bg-linen/40 dark:bg-[#1E293B] text-ink dark:text-[#F8FAFC] font-mono text-sm focus:border-cerulean outline-none" oninput="runMod8()">
+              </div>
+            </div>
+
+            <!-- Results -->
+            <div class="bg-linen/60 dark:bg-[#1A2637] rounded-xl p-3.5 border border-hairline dark:border-[#28384D] mb-3">
+              <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-center font-mono">
+                <div class="p-2 rounded bg-white dark:bg-[#111A28] border border-hairline dark:border-[#233247]">
+                  <div class="text-[10px] text-slate-400">Natural SIL (MW)</div>
+                  <div id="m8_res_sil" class="text-sm font-bold text-cerulean dark:text-[#38BDF8]">45.85 MW</div>
+                </div>
+                <div class="p-2 rounded bg-white dark:bg-[#111A28] border border-hairline dark:border-[#233247]">
+                  <div class="text-[10px] text-slate-400">St. Clair Factor</div>
+                  <div id="m8_res_stclair" class="text-sm font-bold text-ink dark:text-white">1.62 &times; SIL</div>
+                </div>
+                <div class="p-2 rounded bg-white dark:bg-[#111A28] border border-hairline dark:border-[#233247] col-span-2 sm:col-span-1">
+                  <div class="text-[10px] text-slate-400">Practical Limit (MW)</div>
+                  <div id="m8_res_limit" class="text-sm font-bold text-emerald-600 dark:text-emerald-400">74.3 MW</div>
+                </div>
+              </div>
+            </div>
+
+            <details class="text-xs text-slate-600 dark:text-[#94A3B8]">
+              <summary class="cursor-pointer font-mono text-[11px] text-cerulean dark:text-[#38BDF8] hover:underline">Show St. Clair Curve &amp; SIL Constants &darr;</summary>
+              <div class="p-2.5 mt-2 rounded bg-linen/40 dark:bg-[#1E293B] font-mono text-[11px] leading-relaxed">
+                <div>&bull; $SIL = rac{V_L^2}{Z_c}$. At SIL, reactive power generated by line capacitance equals reactive power consumed by line inductance.</div>
+                <div>&bull; Typical values: $132	ext{ kV} pprox 45	ext{ MW}$, $220	ext{ kV} pprox 135	ext{ MW}$, $400	ext{ kV} pprox 550	ext{ MW}$.</div>
+              </div>
+            </details>
+          </div>
+
+          <!-- =================================================================
+               MODULE 9: PROTECTION CT KNEE-POINT & SATURATION VALIDATION (IEC 61869)
+               ================================================================= -->
+          <div class="calc-card bg-card dark:bg-[#151F2E] border border-hairline dark:border-[#233247] rounded-2xl p-5 shadow-sm" data-category="protection">
+            <div class="flex items-start justify-between gap-3 mb-4">
+              <div>
+                <span class="inline-block px-2.5 py-0.5 rounded text-[11px] font-mono font-semibold bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/50 mb-1">Module 9 &bull; IEC 61869-2 &bull; Class PX / PS</span>
+                <h3 class="text-lg font-serif font-bold text-ink dark:text-[#F8FAFC]">Protection CT Knee-Point &amp; Saturation Check</h3>
+              </div>
+              <button type="button" class="text-xs text-cerulean dark:text-[#38BDF8] font-mono hover:underline flex items-center gap-1" onclick="copyCalcReport('mod9')">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                <span>Copy</span>
+              </button>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-3">
+              <div>
+                <label class="block text-[11px] font-mono text-slate-500 mb-1">CT Ratio Primary (A)</label>
+                <input type="number" id="m9_ipri" value="800" step="100" min="50" class="w-full px-2.5 py-1.5 rounded-lg border border-hairline dark:border-[#334155] bg-linen/40 dark:bg-[#1E293B] text-ink dark:text-[#F8FAFC] font-mono text-sm focus:border-cerulean outline-none" oninput="runMod9()">
+              </div>
+              <div>
+                <label class="block text-[11px] font-mono text-slate-500 mb-1">CT Secondary (A)</label>
+                <select id="m9_isec" class="w-full px-2 py-1.5 rounded-lg border border-hairline dark:border-[#334155] bg-linen/40 dark:bg-[#1E293B] text-ink dark:text-[#F8FAFC] font-mono text-xs focus:border-cerulean outline-none" onchange="runMod9()">
+                  <option value="1" selected>1 A</option>
+                  <option value="5">5 A</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-[11px] font-mono text-slate-500 mb-1">Max Fault $I_f$ (kA)</label>
+                <input type="number" id="m9_ifault" value="31.5" step="0.5" min="1" class="w-full px-2.5 py-1.5 rounded-lg border border-hairline dark:border-[#334155] bg-linen/40 dark:bg-[#1E293B] text-ink dark:text-[#F8FAFC] font-mono text-sm focus:border-cerulean outline-none" oninput="runMod9()">
+              </div>
+              <div>
+                <label class="block text-[11px] font-mono text-slate-500 mb-1">CT Sec $R_{ct}$ (&Omega;)</label>
+                <input type="number" id="m9_rct" value="4.0" step="0.5" min="0.1" class="w-full px-2.5 py-1.5 rounded-lg border border-hairline dark:border-[#334155] bg-linen/40 dark:bg-[#1E293B] text-ink dark:text-[#F8FAFC] font-mono text-sm focus:border-cerulean outline-none" oninput="runMod9()">
+              </div>
+            </div>
+
+            <!-- Results -->
+            <div class="bg-linen/60 dark:bg-[#1A2637] rounded-xl p-3.5 border border-hairline dark:border-[#28384D] mb-3">
+              <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-center font-mono">
+                <div class="p-2 rounded bg-white dark:bg-[#111A28] border border-hairline dark:border-[#233247]">
+                  <div class="text-[10px] text-slate-400">Sec Fault Current</div>
+                  <div id="m9_res_ifsec" class="text-sm font-bold text-ink dark:text-white">39.38 A</div>
+                </div>
+                <div class="p-2 rounded bg-white dark:bg-[#111A28] border border-hairline dark:border-[#233247]">
+                  <div class="text-[10px] text-slate-400">Required $V_k$ (PX)</div>
+                  <div id="m9_res_vk" class="text-sm font-bold text-purple-600 dark:text-purple-400">472.5 V</div>
+                </div>
+                <div class="p-2 rounded bg-white dark:bg-[#111A28] border border-hairline dark:border-[#233247] col-span-2 sm:col-span-1">
+                  <div class="text-[10px] text-slate-400">Saturation Status</div>
+                  <div id="m9_res_stat" class="text-sm font-bold text-emerald-600 dark:text-emerald-400">&check; Safe Diff Zone</div>
+                </div>
+              </div>
+            </div>
+
+            <details class="text-xs text-slate-600 dark:text-[#94A3B8]">
+              <summary class="cursor-pointer font-mono text-[11px] text-cerulean dark:text-[#38BDF8] hover:underline">Show Formula (Class PX / PS) &darr;</summary>
+              <div class="p-2.5 mt-2 rounded bg-linen/40 dark:bg-[#1E293B] font-mono text-[11px] leading-relaxed">
+                <div>&bull; $V_k \ge 2 \cdot I_{f\_sec} \cdot (R_{ct} + 2 R_{lead} + R_r)$</div>
+                <div>&bull; Ensures current transformer does not saturate during through-faults, preventing erroneous tripping in differential relays.</div>
+              </div>
+            </details>
+          </div>
+
+          <!-- =================================================================
+               MODULE 10: SURGE ARRESTER (LA) RATING & MCOV SELECTION (IEC 60099)
+               ================================================================= -->
+          <div class="calc-card bg-card dark:bg-[#151F2E] border border-hairline dark:border-[#233247] rounded-2xl p-5 shadow-sm" data-category="protection">
+            <div class="flex items-start justify-between gap-3 mb-4">
+              <div>
+                <span class="inline-block px-2.5 py-0.5 rounded text-[11px] font-mono font-semibold bg-yellow-50 dark:bg-yellow-950/60 text-yellow-700 dark:text-yellow-300 border border-yellow-200 dark:border-yellow-800/50 mb-1">Module 10 &bull; IEC 60099-4 &bull; Lightning Protection</span>
+                <h3 class="text-lg font-serif font-bold text-ink dark:text-[#F8FAFC]">Surge Arrester (LA) Rating &amp; MCOV Sizing</h3>
+              </div>
+              <button type="button" class="text-xs text-cerulean dark:text-[#38BDF8] font-mono hover:underline flex items-center gap-1" onclick="copyCalcReport('mod10')">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                <span>Copy</span>
+              </button>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 mb-3">
+              <div>
+                <label class="block text-[11px] font-mono text-slate-500 mb-1">Nominal System $V_n$ (kV)</label>
+                <select id="m10_vn" class="w-full px-2 py-1.5 rounded-lg border border-hairline dark:border-[#334155] bg-linen/40 dark:bg-[#1E293B] text-ink dark:text-[#F8FAFC] font-mono text-xs focus:border-cerulean outline-none" onchange="runMod10()">
+                  <option value="11">11 kV (Um = 12 kV)</option>
+                  <option value="33">33 kV (Um = 36 kV)</option>
+                  <option value="66">66 kV (Um = 72.5 kV)</option>
+                  <option value="132" selected>132 kV (Um = 145 kV)</option>
+                  <option value="220">220 kV (Um = 245 kV)</option>
+                  <option value="400">400 kV (Um = 420 kV)</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-[11px] font-mono text-slate-500 mb-1">Earthing System</label>
+                <select id="m10_earthing" class="w-full px-2 py-1.5 rounded-lg border border-hairline dark:border-[#334155] bg-linen/40 dark:bg-[#1E293B] text-ink dark:text-[#F8FAFC] font-mono text-xs focus:border-cerulean outline-none" onchange="runMod10()">
+                  <option value="solid" selected>Solidly Earthed (k = 1.4)</option>
+                  <option value="isolated">Isolated / Ungrounded (k = 1.73)</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-[11px] font-mono text-slate-500 mb-1">Discharge Class</label>
+                <select id="m10_class" class="w-full px-2 py-1.5 rounded-lg border border-hairline dark:border-[#334155] bg-linen/40 dark:bg-[#1E293B] text-ink dark:text-[#F8FAFC] font-mono text-xs focus:border-cerulean outline-none" onchange="runMod10()">
+                  <option value="10_1">10 kA &bull; Class 1 (Dist)</option>
+                  <option value="10_2" selected>10 kA &bull; Class 2 (Substation)</option>
+                  <option value="20_3">20 kA &bull; Class 3 (400 kV)</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Results -->
+            <div class="bg-linen/60 dark:bg-[#1A2637] rounded-xl p-3.5 border border-hairline dark:border-[#28384D] mb-3">
+              <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-center font-mono">
+                <div class="p-2 rounded bg-white dark:bg-[#111A28] border border-hairline dark:border-[#233247]">
+                  <div class="text-[10px] text-slate-400">Continuous MCOV $U_c$</div>
+                  <div id="m10_res_mcov" class="text-sm font-bold text-yellow-600 dark:text-yellow-400">87.9 kV rms</div>
+                </div>
+                <div class="p-2 rounded bg-white dark:bg-[#111A28] border border-hairline dark:border-[#233247]">
+                  <div class="text-[10px] text-slate-400">Rated Voltage $U_r$</div>
+                  <div id="m10_res_ur" class="text-sm font-bold text-ink dark:text-white">120 kV rms</div>
+                </div>
+                <div class="p-2 rounded bg-white dark:bg-[#111A28] border border-hairline dark:border-[#233247] col-span-2 sm:col-span-1">
+                  <div class="text-[10px] text-slate-400">Standard LA Rating</div>
+                  <div id="m10_res_std" class="text-sm font-bold text-emerald-600 dark:text-emerald-400">120 kV / 10 kA</div>
+                </div>
+              </div>
+            </div>
+
+            <details class="text-xs text-slate-600 dark:text-[#94A3B8]">
+              <summary class="cursor-pointer font-mono text-[11px] text-cerulean dark:text-[#38BDF8] hover:underline">Show IEC 60099 Selection Rules &darr;</summary>
+              <div class="p-2.5 mt-2 rounded bg-linen/40 dark:bg-[#1E293B] font-mono text-[11px] leading-relaxed">
+                <div>&bull; $U_c \ge rac{U_m}{\sqrt{3}} 	imes 1.05$</div>
+                <div>&bull; $U_r \ge k 	imes rac{U_m}{\sqrt{3}}$ (Earth Fault Factor $k = 1.4$ for solid grounding)</div>
+                <div>&bull; Standard 132 kV sub arresters: $120	ext{ kV}$, $96	ext{ kV}$ or $108	ext{ kV}$.</div>
+              </div>
+            </details>
+          </div>
+
+          <!-- =================================================================
+               MODULE 11: NEPAL NATIONAL BUILDING CODE (NBC 207) COMPLIANCE CHECKER
+               ================================================================= -->
+          <div class="calc-card bg-card dark:bg-[#151F2E] border border-hairline dark:border-[#233247] rounded-2xl p-5 shadow-sm lg:col-span-2" data-category="building">
+            <div class="flex items-start justify-between gap-3 mb-4">
+              <div>
+                <span class="inline-block px-2.5 py-0.5 rounded text-[11px] font-mono font-semibold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/50 mb-1">Module 11 &bull; Nepal National Building Code NBC 207:2003</span>
+                <h3 class="text-lg font-serif font-bold text-ink dark:text-[#F8FAFC]">Building Electrification, Diversity Demand &amp; Earthing Compliance Checker</h3>
+              </div>
+              <button type="button" class="text-xs text-cerulean dark:text-[#38BDF8] font-mono hover:underline flex items-center gap-1" onclick="copyCalcReport('mod11')">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                <span>Copy</span>
+              </button>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+              <div>
+                <label class="block text-[11px] font-mono text-slate-500 mb-1">Building Occupancy</label>
+                <select id="m11_type" class="w-full px-2 py-1.5 rounded-lg border border-hairline dark:border-[#334155] bg-linen/40 dark:bg-[#1E293B] text-ink dark:text-[#F8FAFC] font-mono text-xs focus:border-cerulean outline-none" onchange="runMod11()">
+                  <option value="residential" selected>Residential House</option>
+                  <option value="commercial">Commercial / Retail</option>
+                  <option value="office">Corporate Office</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-[11px] font-mono text-slate-500 mb-1">Lighting Load (kW)</label>
+                <input type="number" id="m11_lightKw" value="1.8" step="0.2" min="0" class="w-full px-2.5 py-1.5 rounded-lg border border-hairline dark:border-[#334155] bg-linen/40 dark:bg-[#1E293B] text-ink dark:text-[#F8FAFC] font-mono text-sm focus:border-cerulean outline-none" oninput="runMod11()">
+              </div>
+              <div>
+                <label class="block text-[11px] font-mono text-slate-500 mb-1">Power Sockets (kW)</label>
+                <input type="number" id="m11_socketKw" value="4.0" step="0.5" min="0" class="w-full px-2.5 py-1.5 rounded-lg border border-hairline dark:border-[#334155] bg-linen/40 dark:bg-[#1E293B] text-ink dark:text-[#F8FAFC] font-mono text-sm focus:border-cerulean outline-none" oninput="runMod11()">
+              </div>
+              <div>
+                <label class="block text-[11px] font-mono text-slate-500 mb-1">AC / Heating Load (kW)</label>
+                <input type="number" id="m11_hvacKw" value="3.5" step="0.5" min="0" class="w-full px-2.5 py-1.5 rounded-lg border border-hairline dark:border-[#334155] bg-linen/40 dark:bg-[#1E293B] text-ink dark:text-[#F8FAFC] font-mono text-sm focus:border-cerulean outline-none" oninput="runMod11()">
+              </div>
+            </div>
+
+            <!-- Earthing Parameters Row -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4 pt-2 border-t border-hairline dark:border-[#233247]">
+              <div>
+                <label class="block text-[11px] font-mono text-slate-500 mb-1">Earthing Electrode</label>
+                <select id="m11_earthType" class="w-full px-2 py-1.5 rounded-lg border border-hairline dark:border-[#334155] bg-linen/40 dark:bg-[#1E293B] text-ink dark:text-[#F8FAFC] font-mono text-xs focus:border-cerulean outline-none" onchange="runMod11()">
+                  <option value="pipe" selected>GI Pipe (40 mm dia, 3 m)</option>
+                  <option value="plate">Copper Plate (600&times;600&times;3 mm)</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-[11px] font-mono text-slate-500 mb-1">Soil Resistivity &rho; (&Omega;&bull;m)</label>
+                <input type="number" id="m11_soilRho" value="50" step="5" min="10" max="1000" class="w-full px-2.5 py-1.5 rounded-lg border border-hairline dark:border-[#334155] bg-linen/40 dark:bg-[#1E293B] text-ink dark:text-[#F8FAFC] font-mono text-sm focus:border-cerulean outline-none" oninput="runMod11()">
+              </div>
+              <div class="sm:col-span-2">
+                <label class="block text-[11px] font-mono text-slate-500 mb-1">NEA Supply Level</label>
+                <div class="text-xs font-mono py-1.5 text-slate-600 dark:text-[#CBD5E1]" id="m11_supplyCategoryText">
+                  230 V 1-Phase (Up to 30 A / 6.9 kW) or 400 V 3-Phase
+                </div>
+              </div>
+            </div>
+
+            <!-- Results Panel -->
+            <div class="bg-linen/60 dark:bg-[#1A2637] rounded-xl p-4 border border-hairline dark:border-[#28384D]">
+              <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 text-center font-mono mb-3">
+                <div class="p-2.5 rounded bg-white dark:bg-[#111A28] border border-hairline dark:border-[#233247]">
+                  <div class="text-[10px] text-slate-400">Connected Load</div>
+                  <div id="m11_res_totKw" class="text-sm font-bold text-ink dark:text-white">9.30 kW</div>
+                </div>
+                <div class="p-2.5 rounded bg-white dark:bg-[#111A28] border border-hairline dark:border-[#233247]">
+                  <div class="text-[10px] text-slate-400">NBC Max Demand</div>
+                  <div id="m11_res_demandKw" class="text-sm font-bold text-cerulean dark:text-[#38BDF8]">5.94 kW</div>
+                </div>
+                <div class="p-2.5 rounded bg-white dark:bg-[#111A28] border border-hairline dark:border-[#233247]">
+                  <div class="text-[10px] text-slate-400">NEA Service Sizing</div>
+                  <div id="m11_res_serviceMains" class="text-sm font-bold text-emerald-600 dark:text-emerald-400">10 mm&sup2; (32A MCB)</div>
+                </div>
+                <div class="p-2.5 rounded bg-white dark:bg-[#111A28] border border-hairline dark:border-[#233247]">
+                  <div class="text-[10px] text-slate-400">Earth Resistance $R_e$</div>
+                  <div id="m11_res_earthR" class="text-sm font-bold text-ink dark:text-white">13.1 &Omega;</div>
+                </div>
+                <div class="p-2.5 rounded bg-white dark:bg-[#111A28] border border-hairline dark:border-[#233247] col-span-2 sm:col-span-1">
+                  <div class="text-[10px] text-slate-400">NBC Earthing Rule</div>
+                  <div id="m11_res_earthStatus" class="text-sm font-bold text-amber-600 dark:text-amber-400">Add 2nd Rod (&le;5&Omega;)</div>
+                </div>
+              </div>
+
+              <!-- Statutory Compliance Badges -->
+              <div class="flex flex-wrap items-center justify-between gap-2 p-2.5 rounded bg-white/70 dark:bg-[#101725] border border-hairline dark:border-[#233247] text-xs font-mono">
+                <div>
+                  <span class="text-slate-400">NBC 207 Mandatory Min Wires:</span>
+                  <span class="font-bold text-ink dark:text-white">Lighting: &ge; 1.5 mm&sup2; Cu &bull; Sockets: &ge; 2.5 mm&sup2; Cu</span>
+                </div>
+                <div>
+                  <span class="text-slate-400">NEA Permissible Voltage:</span>
+                  <span class="font-bold text-ink dark:text-white">230 V &plusmn; 6% (216.2 V &ndash; 243.8 V)</span>
+                </div>
+              </div>
+            </div>
+
+            <details class="mt-3 text-xs text-slate-600 dark:text-[#94A3B8]">
+              <summary class="cursor-pointer font-mono text-[11px] text-cerulean dark:text-[#38BDF8] hover:underline">Show Nepal National Building Code (NBC 207:2003) References &darr;</summary>
+              <div class="p-2.5 mt-2 rounded bg-linen/40 dark:bg-[#1E293B] font-mono text-[11px] leading-relaxed">
+                <div>&bull; <strong class="text-ink dark:text-white">NBC 207 Cl. 4.2 (Diversity):</strong> Lighting $66\%$, 16A Power Sockets $50\%$, AC/Heating $100\%$ largest $+ 50\%$ balance.</div>
+                <div>&bull; <strong class="text-ink dark:text-white">NBC 207 Cl. 5.1 (Conductors):</strong> Copper conductors with PVC insulation shall not be less than $1.5	ext{ mm}^2$ for lighting and $2.5	ext{ mm}^2$ for power circuits.</div>
+                <div>&bull; <strong class="text-ink dark:text-white">NBC 207 Cl. 6.2 (Earthing):</strong> Earth resistance of installation must not exceed $5.0\ \Omega$ for domestic/commercial buildings. Multiple parallel electrodes required if single electrode resistance exceeds $5\ \Omega$.</div>
+              </div>
+            </details>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- =======================================================================
          SHARED FOOTER
          ======================================================================= -->
     <footer class="border-t border-hairline bg-linen py-9 mt-12">
@@ -1984,41 +2982,47 @@
   </div>
 
   <!-- =========================================================================
-       MOBILE STICKY BOTTOM NAVIGATION (5 TOUCH-OPTIMIZED TABS WITH ICONS)
+       MOBILE STICKY BOTTOM NAVIGATION (6 TOUCH-OPTIMIZED TABS WITH ICONS)
        iOS Safe Area Inset + Android Material 48px Tap Targets
        ========================================================================= -->
   <nav
-    class="fixed bottom-0 left-0 right-0 z-40 md:hidden grid grid-cols-5 gap-1 bg-alabaster/95 backdrop-blur-md border-t border-hairline p-1.5 pb-[max(0.6rem,env(safe-area-inset-bottom))] pl-[max(0.4rem,env(safe-area-inset-left))] pr-[max(0.4rem,env(safe-area-inset-right))] shadow-lg"
+    class="fixed bottom-0 left-0 right-0 z-40 md:hidden grid grid-cols-6 gap-0.5 sm:gap-1 bg-alabaster/95 backdrop-blur-md border-t border-hairline p-1 pb-[max(0.6rem,env(safe-area-inset-bottom))] pl-[max(0.2rem,env(safe-area-inset-left))] pr-[max(0.2rem,env(safe-area-inset-right))] shadow-lg"
     aria-label="Mobile Navigation">
     <a href="#overview"
-      class="mobile-pill active py-1.5 px-1 rounded-xl text-[10.5px] font-semibold text-slate-600 text-center min-h-[46px] flex flex-col items-center justify-center gap-0.5 no-underline"
+      class="mobile-pill active py-1.5 px-0.5 rounded-xl text-[9.5px] sm:text-[10px] font-semibold text-slate-600 text-center min-h-[46px] flex flex-col items-center justify-center gap-0.5 no-underline"
       data-target="overview" onclick="switchView('overview'); return false;">
       <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
       <span>Overview</span>
     </a>
     <a href="#career-sld"
-      class="mobile-pill py-1.5 px-1 rounded-xl text-[10.5px] font-semibold text-slate-600 text-center min-h-[46px] flex flex-col items-center justify-center gap-0.5 no-underline"
+      class="mobile-pill py-1.5 px-0.5 rounded-xl text-[9.5px] sm:text-[10px] font-semibold text-slate-600 text-center min-h-[46px] flex flex-col items-center justify-center gap-0.5 no-underline"
       data-target="career-sld" onclick="switchView('career-sld'); return false;">
       <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-      <span>Career SLD</span>
+      <span>SLD</span>
     </a>
     <a href="#academics"
-      class="mobile-pill py-1.5 px-1 rounded-xl text-[10.5px] font-semibold text-slate-600 text-center min-h-[46px] flex flex-col items-center justify-center gap-0.5 no-underline"
+      class="mobile-pill py-1.5 px-0.5 rounded-xl text-[9.5px] sm:text-[10px] font-semibold text-slate-600 text-center min-h-[46px] flex flex-col items-center justify-center gap-0.5 no-underline"
       data-target="academics" onclick="switchView('academics'); return false;">
       <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 14l9-5-9-5-9 5 9 5z"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/></svg>
       <span>Academics</span>
     </a>
     <a href="#research"
-      class="mobile-pill py-1.5 px-1 rounded-xl text-[10.5px] font-semibold text-slate-600 text-center min-h-[46px] flex flex-col items-center justify-center gap-0.5 no-underline"
+      class="mobile-pill py-1.5 px-0.5 rounded-xl text-[9.5px] sm:text-[10px] font-semibold text-slate-600 text-center min-h-[46px] flex flex-col items-center justify-center gap-0.5 no-underline"
       data-target="research" onclick="switchView('research'); return false;">
       <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
       <span>Research</span>
     </a>
     <a href="#projects"
-      class="mobile-pill py-1.5 px-1 rounded-xl text-[10.5px] font-semibold text-slate-600 text-center min-h-[46px] flex flex-col items-center justify-center gap-0.5 no-underline"
+      class="mobile-pill py-1.5 px-0.5 rounded-xl text-[9.5px] sm:text-[10px] font-semibold text-slate-600 text-center min-h-[46px] flex flex-col items-center justify-center gap-0.5 no-underline"
       data-target="projects" onclick="switchView('projects'); return false;">
       <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
       <span>Projects</span>
+    </a>
+    <a href="#calculators"
+      class="mobile-pill py-1.5 px-0.5 rounded-xl text-[9.5px] sm:text-[10px] font-semibold text-slate-600 text-center min-h-[46px] flex flex-col items-center justify-center gap-0.5 no-underline"
+      data-target="calculators" onclick="switchView('calculators'); return false;">
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+      <span>Calc</span>
     </a>
   </nav>
 
@@ -2165,8 +3169,8 @@
   </div>
 
   <!-- Application Logic & Data Layer (Leaflet GIS loads dynamically on-demand when opening Projects) -->
-  <script src="js/data.js?v=5.4"></script>
-  <script src="js/app.js?v=5.4"></script>
+  <script src="js/data.js?v=5.5"></script>
+  <script src="js/app.js?v=5.5"></script>
 </body>
 
 </html>

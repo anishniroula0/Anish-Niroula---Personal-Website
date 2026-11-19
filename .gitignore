@@ -17,3 +17,14 @@ Thumbs.db
 # Temporary and log files
 *.log
 *.tmp
+
+# Local tools, build dependencies & environment secrets
+tools/
+.env
+.env.*
+node_modules/
+dist/
+
+.agent/
+.agents/
+

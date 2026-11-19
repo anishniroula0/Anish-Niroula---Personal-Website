@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """
 Automated E2E and functional tests for Electrical Engineering & Grid Calculators Suite.
-Validates multi-standard selection (IEC, NBC 207, IS, BS 7671), domestic appliance wire/MCB sizing,
-substation control cables, transformers, fault levels, transmission SIL, and mobile layout.
+Validates 4-discipline compact workbench, multi-standard selection (IEC, NBC 207, IS, BS 7671),
+domestic appliance wire/MCB sizing, Earth Fault Loop Impedance (Zs), Transformer MVA sizing,
+fault levels, Arc Flash (IEEE 1584), Cable Pulling Tension & SWBP, transmission SIL, and mobile layout.
 """
 
 import http.server
@@ -19,12 +20,15 @@ class SilentHTTPHandler(http.server.SimpleHTTPRequestHandler):
     def log_message(self, format, *args):
         pass
 
+class ReusableTCPServer(socketserver.TCPServer):
+    allow_reuse_address = True
+
 class TestCalculatorsSuite(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.port = 8795
+        cls.port = 8798
         handler = lambda *args, **kwargs: SilentHTTPHandler(*args, directory=WORKSPACE_DIR, **kwargs)
-        cls.server = socketserver.TCPServer(("127.0.0.1", cls.port), handler)
+        cls.server = ReusableTCPServer(("127.0.0.1", cls.port), handler)
         cls.server_thread = threading.Thread(target=cls.server.serve_forever, daemon=True)
         cls.server_thread.start()
         time.sleep(0.5)
@@ -51,45 +55,37 @@ class TestCalculatorsSuite(unittest.TestCase):
         self.page.goto(f"http://127.0.0.1:{self.port}/")
         self.page.wait_for_load_state("domcontentloaded")
 
-        # Click desktop Calculators nav pill
         calc_nav = self.page.locator("a.nav-pill[data-target='calculators']")
         self.assertTrue(calc_nav.is_visible())
         calc_nav.click()
         self.page.wait_for_timeout(300)
 
-        # Check URL hash
         self.assertIn("#calculators", self.page.url)
-
-        # Check view active state
         view_el = self.page.locator("#view-calculators")
         self.assertTrue(view_el.is_visible())
         self.assertIn("active", view_el.get_attribute("class"))
-
-        # Check title
         self.assertIn("Electrical Engineering Calculators", self.page.title())
 
     def test_02_regulatory_standard_switching(self):
-        """Test switching between IEC, NBC 207 (Nepal), IS, and BS 7671 updates citation and rules."""
+        """Test switching between IEC, NBC 207 (Nepal), IS, and BS 7671 updates citation badge and rules."""
         self.page.goto(f"http://127.0.0.1:{self.port}/#calculators")
         self.page.wait_for_load_state("domcontentloaded")
 
-        # Default is IEC
-        citation = self.page.locator("#activeStdCitationText")
-        self.assertIn("IEC", citation.inner_text())
+        badge = self.page.locator("#activeStdBadgeText")
+        self.assertIn("IEC", badge.inner_text())
 
-        # Switch to NBC 207 (Nepal) via dropdown
-        self.page.select_option("#calcStandardSelect", "NBC")
+        # Click NBC 207 standard pill
+        self.page.locator("button.calc-std-pill[data-std='NBC']").click()
         self.page.wait_for_timeout(200)
 
-        self.assertIn("NBC 207", citation.inner_text())
+        self.assertIn("NBC 207", badge.inner_text())
 
-        # Switch to building tab to see domestic badge
+        # Switch to building tab to inspect domestic compliance badge
         self.page.locator("button.calc-filter-pill[data-cat='building']").click()
         self.page.wait_for_timeout(200)
 
-        # Verify NBC rule applied to domestic wire compliance badge
-        badge = self.page.locator("#m1_complianceBadge")
-        self.assertIn("NBC 207", badge.inner_text())
+        m1_badge = self.page.locator("#m1_complianceBadge")
+        self.assertIn("NBC 207", m1_badge.inner_text())
 
     def test_03_module0_energy_power_conversion(self):
         """Test Module 0 converts 10 kW for 24 hours into 240 kWh and 864 MJ."""
@@ -119,7 +115,6 @@ class TestCalculatorsSuite(unittest.TestCase):
         self.page.locator("button.calc-filter-pill[data-cat='building']").click()
         self.page.wait_for_timeout(200)
 
-        # Click AC preset
         self.page.locator("button:has-text('1.5 Ton AC')").click()
         self.page.wait_for_timeout(200)
 
@@ -131,34 +126,33 @@ class TestCalculatorsSuite(unittest.TestCase):
         self.assertEqual(wire, "2.5 mm² Cu")
         self.assertIn("16A", mcb)
 
-    def test_05_module2_substation_control_cable(self):
-        """Test Module 2 evaluates 110V DC trip coil voltage drop and positive tripping guarantee."""
+    def test_05_module12_earth_fault_loop_impedance(self):
+        """Test Module 12 calculates Zs, touch voltage disconnection check, and compliance badge."""
         self.page.goto(f"http://127.0.0.1:{self.port}/#calculators")
         self.page.wait_for_load_state("domcontentloaded")
         self.page.locator("button.calc-filter-pill[data-cat='building']").click()
         self.page.wait_for_timeout(200)
 
-        self.page.select_option("#m2_vbat", "110")
-        self.page.fill("#m2_itrip", "8.5")
-        self.page.select_option("#m2_csize", "2.5")
-        self.page.fill("#m2_length", "120")
+        self.page.fill("#m12_ze", "0.35")
+        self.page.select_option("#m12_csize", "2.5")
+        self.page.fill("#m12_len", "30")
+        self.page.select_option("#m12_mcb", "16_B")
         self.page.wait_for_timeout(200)
 
-        vterm = self.page.locator("#m2_res_vterm").inner_text()
-        pct = self.page.locator("#m2_res_pct").inner_text()
-        banner = self.page.locator("#m2_statusBanner").inner_text()
+        zs = self.page.locator("#m12_res_zs").inner_text()
+        badge = self.page.locator("#m12_statusBadge").inner_text()
 
-        self.assertIn("95.72 V DC", vterm)
-        self.assertIn("87.0%", pct)
-        self.assertIn("Positive Circuit Breaker Tripping Guaranteed", banner)
+        self.assertIn("Ω", zs)
+        self.assertIn("Touch Voltage Safe", badge)
 
     def test_06_module4_transformer_sizing(self):
-        """Test Module 4 calculates 63 MVA transformer for 50 MVA load at 132/33 kV with Primary/Secondary labels."""
+        """Test Module 4 calculates 63 MVA transformer for 50 MVA load with Primary/Secondary labels."""
         self.page.goto(f"http://127.0.0.1:{self.port}/#calculators")
         self.page.wait_for_load_state("domcontentloaded")
+        self.page.locator("button.calc-filter-pill[data-cat='transformer']").click()
+        self.page.wait_for_timeout(200)
 
-        # Verify clean non-formula labels (no V_1 or V_2)
-        content = self.page.locator(".calc-card[data-category='substation']").first.inner_text()
+        content = self.page.locator(".calc-card[data-category='transformer']").first.inner_text()
         self.assertIn("Primary Voltage", content)
         self.assertIn("Secondary Voltage", content)
         self.assertNotIn("Primary V_1", content)
@@ -167,7 +161,6 @@ class TestCalculatorsSuite(unittest.TestCase):
         self.page.fill("#m4_v1", "132")
         self.page.fill("#m4_v2", "33")
         self.page.fill("#m4_loadMva", "50")
-        self.page.fill("#m4_margin", "20")
         self.page.wait_for_timeout(200)
 
         rating = self.page.locator("#m4_res_rating").inner_text()
@@ -182,6 +175,8 @@ class TestCalculatorsSuite(unittest.TestCase):
         """Test Module 5 calculates IEC 60909 symmetrical fault current and peak making current."""
         self.page.goto(f"http://127.0.0.1:{self.port}/#calculators")
         self.page.wait_for_load_state("domcontentloaded")
+        self.page.locator("button.calc-filter-pill[data-cat='transformer']").click()
+        self.page.wait_for_timeout(200)
 
         self.page.fill("#m5_vkv", "33")
         self.page.fill("#m5_txMva", "63")
@@ -195,7 +190,45 @@ class TestCalculatorsSuite(unittest.TestCase):
         self.assertEqual(isc, "7.34 kA rms")
         self.assertEqual(ipeak, "18.71 kA peak")
 
-    def test_08_module8_transmission_sil(self):
+    def test_08_module13_switchgear_arc_flash(self):
+        """Test Module 13 calculates IEEE 1584 arc flash incident energy and PPE category."""
+        self.page.goto(f"http://127.0.0.1:{self.port}/#calculators")
+        self.page.wait_for_load_state("domcontentloaded")
+        self.page.locator("button.calc-filter-pill[data-cat='transformer']").click()
+        self.page.wait_for_timeout(200)
+
+        self.page.select_option("#m13_vkv", "11")
+        self.page.fill("#m13_isc", "25")
+        self.page.fill("#m13_time", "0.15")
+        self.page.fill("#m13_dist", "610")
+        self.page.wait_for_timeout(200)
+
+        energy = self.page.locator("#m13_res_energy").inner_text()
+        ppe = self.page.locator("#m13_res_ppe").inner_text()
+
+        self.assertIn("cal/cm²", energy)
+        self.assertTrue(len(ppe) > 0)
+
+    def test_09_module14_cable_pulling_tension_swbp(self):
+        """Test Module 14 calculates cable pulling straight tension, bend tension, and SWBP."""
+        self.page.goto(f"http://127.0.0.1:{self.port}/#calculators")
+        self.page.wait_for_load_state("domcontentloaded")
+        self.page.locator("button.calc-filter-pill[data-cat='transmission']").click()
+        self.page.wait_for_timeout(200)
+
+        self.page.fill("#m14_weight", "12")
+        self.page.fill("#m14_len", "150")
+        self.page.select_option("#m14_bendAngle", "90")
+        self.page.fill("#m14_radius", "1.5")
+        self.page.wait_for_timeout(200)
+
+        tension = self.page.locator("#m14_res_tension").inner_text()
+        swbp = self.page.locator("#m14_res_swbp").inner_text()
+
+        self.assertIn("kN", tension)
+        self.assertIn("kN/m", swbp)
+
+    def test_10_module8_transmission_sil(self):
         """Test Module 8 calculates 132 kV surge impedance loading."""
         self.page.goto(f"http://127.0.0.1:{self.port}/#calculators")
         self.page.wait_for_load_state("domcontentloaded")
@@ -210,8 +243,8 @@ class TestCalculatorsSuite(unittest.TestCase):
         sil = self.page.locator("#m8_res_sil").inner_text()
         self.assertEqual(sil, "45.85 MW")
 
-    def test_09_module11_nbc207_compliance(self):
-        """Test Module 11 calculates Nepal National Building Code maximum demand and earthing check."""
+    def test_11_module11_nbc207_compliance(self):
+        """Test Module 11 calculates Nepal National Building Code maximum demand."""
         self.page.goto(f"http://127.0.0.1:{self.port}/#calculators")
         self.page.wait_for_load_state("domcontentloaded")
         self.page.locator("button.calc-filter-pill[data-cat='building']").click()
@@ -226,38 +259,36 @@ class TestCalculatorsSuite(unittest.TestCase):
         demand = self.page.locator("#m11_res_demandKw").inner_text()
         self.assertEqual(demand, "5.64 kW")
 
-    def test_10_category_filter(self):
-        """Test category filters show only matching cards."""
+    def test_12_category_filter(self):
+        """Test category filters toggle visibility of 4 disciplines cleanly."""
         self.page.goto(f"http://127.0.0.1:{self.port}/#calculators")
         self.page.wait_for_load_state("domcontentloaded")
 
-        # Filter by building
+        # Building tab
         self.page.locator("button.calc-filter-pill[data-cat='building']").click()
         self.page.wait_for_timeout(200)
-
         building_cards = self.page.locator(".calc-card[data-category='building']")
-        substation_cards = self.page.locator(".calc-card[data-category='substation']")
+        transformer_cards = self.page.locator(".calc-card[data-category='transformer']")
 
         self.assertTrue(building_cards.first.is_visible())
-        self.assertFalse(substation_cards.first.is_visible())
+        self.assertFalse(transformer_cards.first.is_visible())
 
-        # Reset to all
+        # All tab
         self.page.locator("button.calc-filter-pill[data-cat='all']").click()
         self.page.wait_for_timeout(200)
-        self.assertTrue(substation_cards.first.is_visible())
+        self.assertTrue(transformer_cards.first.is_visible())
+        self.assertTrue(building_cards.first.is_visible())
 
-    def test_11_mobile_viewport_and_bottom_nav(self):
+    def test_13_mobile_viewport_and_bottom_nav(self):
         """Test mobile navigation bar displays 6 columns cleanly on iPhone viewport (390x844)."""
         mobile_context = self.browser.new_context(viewport={"width": 390, "height": 844})
         mobile_page = mobile_context.new_page()
         mobile_page.goto(f"http://127.0.0.1:{self.port}/")
         mobile_page.wait_for_load_state("domcontentloaded")
 
-        # Check mobile bottom nav has 6 items
         pills = mobile_page.locator("nav[aria-label='Mobile Navigation'] a.mobile-pill")
         self.assertEqual(pills.count(), 6)
 
-        # Click the 6th pill (Calc)
         calc_pill = mobile_page.locator("nav[aria-label='Mobile Navigation'] a[data-target='calculators']")
         self.assertTrue(calc_pill.is_visible())
         calc_pill.click()

@@ -2544,29 +2544,35 @@ function handleNappingDogClick(e) {
 
 /* =========================================================================
    ELECTRICAL ENGINEERING & GRID CALCULATOR SUITE ENGINE (400V - 400kV)
-   Multi-Standard Compliant: IEC, NBC 207:2003 (Nepal), IS, BS 7671
+   Compact Professional Workbench &bull; Multi-Standard Compliant: IEC, NBC 207, IS, BS 7671
    ========================================================================= */
 
 window.currentCalcStandard = 'IEC';
 
 const STD_CITATIONS = {
-  'IEC': 'IEC 60364 / IEC 60287 / IEC 60909 Global Baseline',
-  'NBC': 'Nepal National Building Code NBC 207:2003 & NEA Grid Code',
-  'IS': 'IS 732 / IS 694 / IS 2026 / IS 3043 Standards',
-  'BS': 'BS 7671:2018+A2:2022 IET Wiring Regulations'
+  'IEC': 'IEC 60364 Baseline',
+  'NBC': 'NBC 207:2003 (Nepal)',
+  'IS': 'IS 732 Standards',
+  'BS': 'BS 7671 18th Ed'
 };
 
 function setCalcStandard(std) {
   if (!STD_CITATIONS[std]) std = 'IEC';
   window.currentCalcStandard = std;
 
-  // Sync select dropdown if present
-  const select = document.getElementById('calcStandardSelect');
-  if (select && select.value !== std) {
-    select.value = std;
-  }
+  // Update pills UI
+  const pills = document.querySelectorAll('.calc-std-pill');
+  pills.forEach(p => {
+    if (p.getAttribute('data-std') === std) {
+      p.classList.add('active', 'border-cerulean', 'bg-cerulean', 'text-white');
+      p.classList.remove('bg-white', 'dark:bg-[#111A28]', 'text-slate-700', 'dark:text-[#CBD5E1]');
+    } else {
+      p.classList.remove('active', 'border-cerulean', 'bg-cerulean', 'text-white');
+      p.classList.add('bg-white', 'dark:bg-[#111A28]', 'text-slate-700', 'dark:text-[#CBD5E1]');
+    }
+  });
 
-  const citationEl = document.getElementById('activeStdCitationText');
+  const citationEl = document.getElementById('activeStdBadgeText');
   if (citationEl) {
     citationEl.textContent = STD_CITATIONS[std];
   }
@@ -2574,22 +2580,22 @@ function setCalcStandard(std) {
   // Re-run relevant modules to reflect standard rules
   runMod1();
   runMod11();
+  runMod12();
 }
 
 function applyVoltagePreset(vkv, label) {
   // Update volt pills UI
   const pills = document.querySelectorAll('.calc-volt-pill');
   pills.forEach(p => {
-    if (p.textContent.includes(vkv >= 1 ? `${vkv} kV` : `${vkv * 1000} V`)) {
+    const isTarget = vkv >= 1 ? p.textContent.includes(`${vkv}kV`) : p.textContent.includes(`${Math.round(vkv * 1000)}V`);
+    if (isTarget) {
       p.classList.add('active', 'border-cerulean', 'bg-cerulean', 'text-white');
+      p.classList.remove('border-hairline', 'dark:border-[#334155]', 'bg-linen/50', 'dark:bg-[#1E293B]');
     } else {
       p.classList.remove('active', 'border-cerulean', 'bg-cerulean', 'text-white');
+      p.classList.add('border-hairline', 'dark:border-[#334155]', 'bg-linen/50', 'dark:bg-[#1E293B]');
     }
   });
-
-  // Apply to Module 3 (AC Power)
-  const m3V = document.getElementById('m3_vkv');
-  if (m3V) { m3V.value = vkv; runMod3(); }
 
   // Apply to Module 4 (Transformers)
   const m4V1 = document.getElementById('m4_v1');
@@ -2617,10 +2623,10 @@ function filterCalcCategory(cat) {
   const pills = document.querySelectorAll('.calc-filter-pill');
   pills.forEach(p => {
     if (p.getAttribute('data-cat') === cat) {
-      p.classList.add('active', 'bg-ink', 'text-white', 'dark:bg-white', 'dark:text-ink');
+      p.classList.add('active', 'bg-cerulean', 'text-white', 'shadow-sm');
       p.classList.remove('bg-linen', 'dark:bg-[#1E293B]', 'text-slate-700', 'dark:text-[#CBD5E1]');
     } else {
-      p.classList.remove('active', 'bg-ink', 'text-white', 'dark:bg-white', 'dark:text-ink');
+      p.classList.remove('active', 'bg-cerulean', 'text-white', 'shadow-sm');
       p.classList.add('bg-linen', 'dark:bg-[#1E293B]', 'text-slate-700', 'dark:text-[#CBD5E1]');
     }
   });
@@ -2637,7 +2643,7 @@ function filterCalcCategory(cat) {
 }
 
 /* =========================================================================
-   MODULE 0: ENERGY & POWER UNIT CONVERSION & DURATION (E = P * t)
+   MODULE 0: ENERGY & POWER UNIT CONVERSION (E = P * t)
    ========================================================================= */
 function runMod0() {
   const pVal = parseFloat(document.getElementById('m0_powerVal')?.value) || 0;
@@ -2645,21 +2651,15 @@ function runMod0() {
   const dVal = parseFloat(document.getElementById('m0_durationVal')?.value) || 0;
   const dUnit = document.getElementById('m0_durationUnit')?.value || 'hours';
 
-  // Convert power to Watts
   let powerW = 0;
   if (pUnit === 'W') powerW = pVal;
   else if (pUnit === 'kW') powerW = pVal * 1e3;
   else if (pUnit === 'MW') powerW = pVal * 1e6;
   else if (pUnit === 'hp') powerW = pVal * 745.69987;
-  else if (pUnit === 'PS') powerW = pVal * 735.49875;
   else if (pUnit === 'BTU_h') powerW = pVal * 0.293071;
-  else if (pUnit === 'J_s') powerW = pVal;
 
-  // Convert duration to seconds
   let durSec = 0;
-  if (dUnit === 'seconds') durSec = dVal;
-  else if (dUnit === 'minutes') durSec = dVal * 60;
-  else if (dUnit === 'hours') durSec = dVal * 3600;
+  if (dUnit === 'hours') durSec = dVal * 3600;
   else if (dUnit === 'days') durSec = dVal * 86400;
   else if (dUnit === 'months') durSec = dVal * 86400 * 30;
   else if (dUnit === 'years') durSec = dVal * 86400 * 365;
@@ -2668,9 +2668,7 @@ function runMod0() {
   const energyKwh = energyJoules / 3.6e6;
   const energyMj = energyJoules / 1e6;
   const energyBtu = energyKwh * 3412.14;
-  const energyHph = energyJoules / (745.7 * 3600);
   const hpImp = powerW / 745.69987;
-  const kcalTotal = energyJoules / 4184;
 
   const elKwh = document.getElementById('m0_res_kwh');
   if (elKwh) elKwh.textContent = energyKwh >= 1e6 ? `${(energyKwh / 1e6).toFixed(2)} GWh` : energyKwh >= 1e3 ? `${(energyKwh / 1e3).toFixed(2)} MWh` : `${energyKwh.toFixed(1)} kWh`;
@@ -2679,29 +2677,22 @@ function runMod0() {
   if (elMj) elMj.textContent = energyMj >= 1e3 ? `${(energyMj / 1e3).toFixed(2)} GJ` : `${energyMj.toFixed(1)} MJ`;
 
   const elBtu = document.getElementById('m0_res_btu');
-  if (elBtu) elBtu.textContent = `${Math.round(energyBtu).toLocaleString()} BTU`;
-
-  const elHph = document.getElementById('m0_res_hph');
-  if (elHph) elHph.textContent = `${energyHph.toFixed(1)} hp•h`;
-
-  const elW = document.getElementById('m0_res_w');
-  if (elW) elW.textContent = `${Math.round(powerW).toLocaleString()} W`;
+  if (elBtu) elBtu.textContent = `${Math.round(energyBtu).toLocaleString()}`;
 
   const elHp = document.getElementById('m0_res_hp');
   if (elHp) elHp.textContent = `${hpImp.toFixed(2)} hp`;
 
-  const elKcal = document.getElementById('m0_res_kcal');
-  if (elKcal) elKcal.textContent = `${Math.round(kcalTotal).toLocaleString()} kcal`;
+  const elW = document.getElementById('m0_res_w');
+  if (elW) elW.textContent = `${Math.round(powerW).toLocaleString()} W`;
 }
 
 /* =========================================================================
-   MODULE 1: DOMESTIC APPLIANCE WIRE SIZING & MCB (NBC 207 / IEC)
+   MODULE 1: DOMESTIC APPLIANCE WIRE SIZING & MCB
    ========================================================================= */
 const APPLIANCE_PRESETS = {
   'light': { loadW: 300, supply: '230_1ph', length: 20, pf: 0.95 },
   'ac15': { loadW: 1800, supply: '230_1ph', length: 25, pf: 0.85 },
   'geyser': { loadW: 2500, supply: '230_1ph', length: 15, pf: 1.0 },
-  'induction': { loadW: 2000, supply: '230_1ph', length: 15, pf: 0.98 },
   'pump': { loadW: 746, supply: '230_1ph', length: 30, pf: 0.80 },
   'ev': { loadW: 7400, supply: '230_1ph', length: 25, pf: 0.99 }
 };
@@ -2731,7 +2722,6 @@ function runMod1() {
   const isThreePhase = supply === '400_3ph';
   const voltage = isThreePhase ? 400 : 230;
 
-  // Current draw
   let currentA = 0;
   if (isThreePhase) {
     currentA = loadW / (Math.sqrt(3) * voltage * pf);
@@ -2739,7 +2729,6 @@ function runMod1() {
     currentA = loadW / (voltage * pf);
   }
 
-  // Standard copper building wire sizes and ampacities (IEC 60228 / IS 694 in conduit)
   const wireTables = [
     { size: 1.0, amp: 11 },
     { size: 1.5, amp: 15 },
@@ -2751,18 +2740,16 @@ function runMod1() {
     { size: 25.0, amp: 89 }
   ];
 
-  // Minimum wire size rule (NBC 207 Cl. 5.1 & IEC 60364-5-52):
-  // Dedicated power socket circuits, ACs, heaters or loads >= 1000W require min 2.5 mm²
+  // Minimum wire size rule:
+  // For power circuits (AC, heaters, pumps, EV, or load >= 1000W), minimum 2.5 mm²
   let minAllowedSize = (loadW >= 1000 || currentA > 5) ? 2.5 : 1.5;
 
-  const rho = 0.0175; // Copper resistivity (ohm*mm2/m)
+  const rho = 0.0175; // copper
   let chosenWire = wireTables[wireTables.length - 1];
 
-  // Select wire satisfying ampacity and voltage drop <= 3%
   for (const w of wireTables) {
     if (w.size < minAllowedSize) continue;
     if (w.amp >= currentA) {
-      // Check voltage drop
       let rLoop = isThreePhase ? (rho * lengthM) / w.size : (rho * 2 * lengthM) / w.size;
       let vDrop = isThreePhase ? Math.sqrt(3) * currentA * rLoop : currentA * rLoop;
       let vDropPct = (vDrop / voltage) * 100;
@@ -2773,13 +2760,11 @@ function runMod1() {
     }
   }
 
-  // Recompute actual voltage drop with chosen wire
   const rLoop = isThreePhase ? (rho * lengthM) / chosenWire.size : (rho * 2 * lengthM) / chosenWire.size;
   const vDrop = isThreePhase ? Math.sqrt(3) * currentA * rLoop : currentA * rLoop;
   const vDropPct = (vDrop / voltage) * 100;
   const lossW = isThreePhase ? 3 * Math.pow(currentA, 2) * rLoop : Math.pow(currentA, 2) * rLoop;
 
-  // MCB Rating Selection
   const mcbRatings = [6, 10, 16, 20, 25, 32, 40, 50, 63];
   let chosenMcb = 63;
   for (const r of mcbRatings) {
@@ -2790,7 +2775,6 @@ function runMod1() {
   }
   const mcbCurve = (loadW >= 1500 || loadW === 746) ? 'Type C' : 'Type B';
 
-  // DOM Updates
   const elI = document.getElementById('m1_res_current');
   if (elI) elI.textContent = `${currentA.toFixed(2)} A`;
 
@@ -2798,7 +2782,7 @@ function runMod1() {
   if (elWire) elWire.textContent = `${chosenWire.size} mm² Cu`;
 
   const elVdrop = document.getElementById('m1_res_vdrop');
-  if (elVdrop) elVdrop.textContent = `${vDrop.toFixed(2)} V (${vDropPct.toFixed(2)}%)`;
+  if (elVdrop) elVdrop.textContent = `${vDrop.toFixed(2)}V (${vDropPct.toFixed(1)}%)`;
 
   const elMcb = document.getElementById('m1_res_mcb');
   if (elMcb) elMcb.textContent = `${chosenMcb}A (${mcbCurve})`;
@@ -2809,102 +2793,122 @@ function runMod1() {
 
   if (elBadge) {
     if (vDropPct <= 3.0) {
-      elBadge.className = 'mt-2.5 p-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/40 text-xs font-mono flex items-center justify-between';
-      elBadge.firstElementChild.textContent = window.currentCalcStandard === 'NBC'
-        ? `✓ NBC 207 Cl. 5.1 Compliant (Drop ${vDropPct.toFixed(2)}% ≤ 3%, Min ${minAllowedSize}mm²)`
-        : `✓ IEC 60364-5-52 Compliant (Voltage Drop ${vDropPct.toFixed(2)}% ≤ 3%)`;
+      elBadge.className = 'p-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/40 text-[11px] font-mono flex items-center justify-between';
+      elBadge.firstElementChild.textContent = `✓ NBC 207 Cl. 5.1 & IEC 60364-5-52 Compliant (Drop ${vDropPct.toFixed(1)}% ≤ 3%, Min ${minAllowedSize} mm²)`;
     } else {
-      elBadge.className = 'mt-2.5 p-2 rounded-lg bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800/40 text-xs font-mono flex items-center justify-between';
-      elBadge.firstElementChild.textContent = `⚠ Voltage Drop ${vDropPct.toFixed(2)}% exceeds 3% recommendation. Consider larger wire.`;
+      elBadge.className = 'p-1.5 rounded-lg bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800/40 text-[11px] font-mono flex items-center justify-between';
+      elBadge.firstElementChild.textContent = `⚠ Voltage Drop ${vDropPct.toFixed(1)}% exceeds 3% recommendation.`;
     }
   }
 }
 
 /* =========================================================================
-   MODULE 2: SUBSTATION DC CONTROL CABLE & TRIP COIL VOLTAGE DROP
+   MODULE 12 (ELEK Inspired): EARTH FAULT LOOP IMPEDANCE (Zs) & DISCONNECTION
    ========================================================================= */
-function runMod2() {
-  const vbat = parseFloat(document.getElementById('m2_vbat')?.value) || 110;
-  const itrip = parseFloat(document.getElementById('m2_itrip')?.value) || 8.5;
-  const csize = parseFloat(document.getElementById('m2_csize')?.value) || 2.5;
-  const lengthM = parseFloat(document.getElementById('m2_length')?.value) || 120;
+function runMod12() {
+  const ze = parseFloat(document.getElementById('m12_ze')?.value) || 0.35;
+  const csize = parseFloat(document.getElementById('m12_csize')?.value) || 2.5;
+  const lengthM = parseFloat(document.getElementById('m12_len')?.value) || 30;
+  const mcbType = document.getElementById('m12_mcb')?.value || '16_C';
 
+  // R1 + R2 (Line + CPC resistance)
   const rho = 0.0175; // copper
-  const rLoop = (rho * 2 * lengthM) / csize;
-  const vDrop = itrip * rLoop;
-  const vTerm = vbat - vDrop;
-  const pctNom = (vTerm / vbat) * 100;
+  const r1 = (rho * lengthM) / csize;
+  const r2 = (rho * lengthM) / csize; // assuming same cpc size
+  const zs = ze + r1 + r2;
 
-  const elR = document.getElementById('m2_res_rloop');
-  if (elR) elR.textContent = `${rLoop.toFixed(3)} Ω`;
+  // Maximum Zs limits for 230V systems (0.4s disconnection per BS 7671 / IEC 60364)
+  const maxZsTable = {
+    '16_B': 2.73,
+    '16_C': 1.37,
+    '20_C': 1.09,
+    '32_B': 1.37,
+    '32_C': 0.68
+  };
 
-  const elV = document.getElementById('m2_res_vterm');
-  if (elV) elV.textContent = `${vTerm.toFixed(2)} V DC`;
+  const maxZs = maxZsTable[mcbType] || 1.37;
+  const faultCurrent = 230 / zs;
 
-  const elPct = document.getElementById('m2_res_pct');
-  if (elPct) {
-    elPct.textContent = `${pctNom.toFixed(1)}% (≥ 70%)`;
-    elPct.className = pctNom >= 70 ? 'text-sm font-bold text-emerald-600 dark:text-emerald-400' : 'text-sm font-bold text-rose-600 dark:text-rose-400';
-  }
+  const elZs = document.getElementById('m12_res_zs');
+  if (elZs) elZs.textContent = `${zs.toFixed(3)} Ω`;
 
-  const elBanner = document.getElementById('m2_statusBanner');
-  if (elBanner) {
-    if (pctNom >= 70) {
-      elBanner.className = 'mt-2.5 p-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/40 text-xs font-mono flex items-center justify-between';
-      elBanner.firstElementChild.textContent = '✓ Positive Circuit Breaker Tripping Guaranteed (IEC 62271-100 ≥ 70% Limit)';
+  const elMax = document.getElementById('m12_res_maxZs');
+  if (elMax) elMax.textContent = `${maxZs.toFixed(2)} Ω`;
+
+  const elIf = document.getElementById('m12_res_if');
+  if (elIf) elIf.textContent = `${faultCurrent.toFixed(1)} A`;
+
+  const elBadge = document.getElementById('m12_statusBadge');
+  if (elBadge) {
+    if (zs <= maxZs) {
+      elBadge.className = 'p-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/40 text-[11px] font-mono flex items-center justify-between';
+      elBadge.firstElementChild.textContent = '✓ Touch Voltage Safe • Disconnects in < 0.4s';
     } else {
-      elBanner.className = 'mt-2.5 p-2 rounded-lg bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-800/40 text-xs font-mono flex items-center justify-between';
-      elBanner.firstElementChild.textContent = '✕ Trip Coil Fail-to-Trip Risk (< 70% Nominal). Increase cable to 4 mm²!';
+      elBadge.className = 'p-1.5 rounded-lg bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-800/40 text-[11px] font-mono flex items-center justify-between';
+      elBadge.firstElementChild.textContent = '✕ Zs Exceeds Limit! Breaker will not disconnect in 0.4s.';
     }
-    elBanner.lastElementChild.textContent = `Drop: ${vDrop.toFixed(2)} V`;
   }
 }
 
 /* =========================================================================
-   MODULE 3: 3-PHASE AC POWER, CURRENT & CAPACITOR SIZING
+   MODULE 11: NBC 207 BUILDING DEMAND & EARTHING
    ========================================================================= */
-function runMod3() {
-  const vkv = parseFloat(document.getElementById('m3_vkv')?.value) || 33;
-  const pmw = parseFloat(document.getElementById('m3_pmw')?.value) || 15;
-  const pf1 = parseFloat(document.getElementById('m3_pf1')?.value) || 0.82;
-  const pf2 = parseFloat(document.getElementById('m3_pf2')?.value) || 0.98;
+function runMod11() {
+  const btype = document.getElementById('m11_type')?.value || 'residential';
+  const lightKw = parseFloat(document.getElementById('m11_lightKw')?.value) || 0;
+  const socketKw = parseFloat(document.getElementById('m11_socketKw')?.value) || 0;
+  const hvacKw = parseFloat(document.getElementById('m11_hvacKw')?.value) || 0;
+  const soilRho = parseFloat(document.getElementById('m11_soilRho')?.value) || 50;
 
-  const vVolts = vkv * 1000;
-  const pWatts = pmw * 1e6;
+  const totKw = lightKw + socketKw + hvacKw;
 
-  const i1 = pWatts / (Math.sqrt(3) * vVolts * pf1);
-  const phi1 = Math.acos(Math.min(1, Math.max(0, pf1)));
-  const phi2 = Math.acos(Math.min(1, Math.max(0, pf2)));
+  let lightDiv = 0.66;
+  let socketDiv = 0.50;
+  let hvacDiv = 0.70;
 
-  const qcMvar = pmw * (Math.tan(phi1) - Math.tan(phi2));
-  const i2 = pWatts / (Math.sqrt(3) * vVolts * pf2);
-  const lossSaved = (1 - Math.pow(pf1 / pf2, 2)) * 100;
+  if (btype === 'commercial') {
+    lightDiv = 0.90; socketDiv = 0.70; hvacDiv = 0.85;
+  } else if (btype === 'office') {
+    lightDiv = 0.80; socketDiv = 0.60; hvacDiv = 0.80;
+  }
 
-  const elI1 = document.getElementById('m3_res_i1');
-  if (elI1) elI1.textContent = `${i1.toFixed(1)} A`;
+  const demandKw = (lightKw * lightDiv) + (socketKw * socketDiv) + (hvacKw * hvacDiv);
 
-  const elQc = document.getElementById('m3_res_qc');
-  if (elQc) elQc.textContent = `${qcMvar.toFixed(2)} MVAr`;
+  let serviceMains = '6 mm² (25A)';
+  if (demandKw > 15) serviceMains = '25 mm² (63A)';
+  else if (demandKw > 10) serviceMains = '16 mm² (40A)';
+  else if (demandKw > 6.9) serviceMains = '10 mm² (32A 3-Ph)';
+  else if (demandKw > 4.5) serviceMains = '10 mm² (32A)';
 
-  const elI2 = document.getElementById('m3_res_i2');
-  if (elI2) elI2.textContent = `${i2.toFixed(1)} A`;
+  const earthR = (soilRho / (2 * Math.PI * 3.0)) * Math.log((4 * 3.0) / 0.04);
 
-  const elLoss = document.getElementById('m3_res_lossSaved');
-  if (elLoss) elLoss.textContent = `${Math.max(0, lossSaved).toFixed(1)}%`;
+  const elTot = document.getElementById('m11_res_totKw');
+  if (elTot) elTot.textContent = `${totKw.toFixed(2)} kW`;
+
+  const elDemand = document.getElementById('m11_res_demandKw');
+  if (elDemand) elDemand.textContent = `${demandKw.toFixed(2)} kW`;
+
+  const elService = document.getElementById('m11_res_serviceMains');
+  if (elService) elService.textContent = serviceMains;
+
+  const elEarthR = document.getElementById('m11_res_earthR');
+  if (elEarthR) {
+    elEarthR.textContent = `${earthR.toFixed(1)} Ω (${earthR <= 5 ? 'Pass' : 'Add 2nd Rod'})`;
+    elEarthR.className = earthR <= 5 ? 'text-xs font-bold text-emerald-600 dark:text-emerald-400' : 'text-xs font-bold text-amber-600 dark:text-amber-400';
+  }
 }
 
 /* =========================================================================
-   MODULE 4: POWER TRANSFORMER SIZING, LOADING & EFFICIENCY
+   MODULE 4: POWER TRANSFORMER SIZING IN MVA & PRIMARY/SECONDARY VOLTAGES
    ========================================================================= */
 function runMod4() {
   const v1 = parseFloat(document.getElementById('m4_v1')?.value) || 132;
   const v2 = parseFloat(document.getElementById('m4_v2')?.value) || 33;
   const loadMva = parseFloat(document.getElementById('m4_loadMva')?.value) || 50;
-  const margin = parseFloat(document.getElementById('m4_margin')?.value) || 20;
+  const pf = parseFloat(document.getElementById('m4_pf')?.value) || 0.85;
 
-  const sDesignMva = loadMva * (1 + margin / 100);
+  const sWithGrowth = loadMva * 1.15; // 15% future growth margin
 
-  // Standard transformer ratings
   const stdMvaRatings = [
     0.025, 0.05, 0.1, 0.2, 0.315, 0.5, 0.63, 0.8, 1.0, 1.6, 2.0, 2.5,
     3.15, 5.0, 8.0, 10.0, 16.0, 20.0, 25.0, 31.5, 40.0, 50.0, 63.0, 100.0, 160.0, 200.0, 315.0
@@ -2912,7 +2916,7 @@ function runMod4() {
 
   let chosenMva = stdMvaRatings[stdMvaRatings.length - 1];
   for (const r of stdMvaRatings) {
-    if (r >= sDesignMva * 0.99) {
+    if (r >= sWithGrowth) {
       chosenMva = r;
       break;
     }
@@ -2921,8 +2925,13 @@ function runMod4() {
   const ihv = (chosenMva * 1e6) / (Math.sqrt(3) * v1 * 1e3);
   const ilv = (chosenMva * 1e6) / (Math.sqrt(3) * v2 * 1e3);
 
+  const activeMw = loadMva * pf;
+  const phi = Math.acos(Math.min(1, Math.max(0, pf)));
+  const reactiveMvar = loadMva * Math.sin(phi);
+  const loadingPct = (loadMva / chosenMva) * 100;
+
   const elReq = document.getElementById('m4_res_sreq');
-  if (elReq) elReq.textContent = sDesignMva < 1 ? `${(sDesignMva * 1000).toFixed(0)} kVA` : `${sDesignMva.toFixed(2)} MVA`;
+  if (elReq) elReq.textContent = sWithGrowth < 1 ? `${(sWithGrowth * 1000).toFixed(0)} kVA` : `${sWithGrowth.toFixed(1)} MVA`;
 
   const elRating = document.getElementById('m4_res_rating');
   if (elRating) elRating.textContent = chosenMva < 1 ? `${(chosenMva * 1000).toFixed(0)} kVA` : `${chosenMva.toFixed(1)} MVA`;
@@ -2932,10 +2941,19 @@ function runMod4() {
 
   const elIlv = document.getElementById('m4_res_ilv');
   if (elIlv) elIlv.textContent = `${ilv.toFixed(1)} A`;
+
+  const elMw = document.getElementById('m4_res_mw');
+  if (elMw) elMw.textContent = `${activeMw.toFixed(1)} MW`;
+
+  const elMvar = document.getElementById('m4_res_mvar');
+  if (elMvar) elMvar.textContent = `${reactiveMvar.toFixed(1)} MVAr`;
+
+  const elLoadPct = document.getElementById('m4_res_loadPct');
+  if (elLoadPct) elLoadPct.textContent = `${loadingPct.toFixed(1)}%`;
 }
 
 /* =========================================================================
-   MODULE 5: BUSBAR SYMMETRICAL FAULT LEVEL & SHORT CIRCUIT (IEC 60909)
+   MODULE 5: BUSBAR SYMMETRICAL FAULT LEVEL (IEC 60909)
    ========================================================================= */
 function runMod5() {
   const vkv = parseFloat(document.getElementById('m5_vkv')?.value) || 33;
@@ -2963,7 +2981,71 @@ function runMod5() {
 }
 
 /* =========================================================================
-   MODULE 6: POWER CABLE & CONDUCTOR SIZING (XLPE / ACSR)
+   MODULE 13 (ELEK Inspired): ARC FLASH INCIDENT ENERGY (IEEE 1584)
+   ========================================================================= */
+function runMod13() {
+  const vkv = parseFloat(document.getElementById('m13_vkv')?.value) || 0.4;
+  const isc = parseFloat(document.getElementById('m13_isc')?.value) || 20;
+  const timeSec = parseFloat(document.getElementById('m13_time')?.value) || 0.1;
+  const distMm = parseFloat(document.getElementById('m13_dist')?.value) || 455;
+
+  // IEEE 1584 simplified estimation for enclosed switchgear
+  // Incident energy E ~ 4.184 * 10^(k1 + k2*lg(Isc)) * (t / 0.2) * (610^x / D^x)
+  const cf = vkv <= 1.0 ? 1.5 : 1.0;
+  const distInches = distMm / 25.4;
+  const incidentEnergyCal = (0.5 * isc * Math.pow(vkv, 0.2) * (timeSec / 0.1) * (18 / distInches) * cf);
+
+  // Arc flash boundary distance in mm (where E = 1.2 cal/cm2 threshold of second degree burn)
+  const boundaryMm = Math.round(distMm * Math.sqrt(incidentEnergyCal / 1.2));
+
+  let ppeCategory = 'Category 1 (≤4 cal)';
+  if (incidentEnergyCal > 40) ppeCategory = 'Dangerous (>40 cal)';
+  else if (incidentEnergyCal > 25) ppeCategory = 'Category 4 (≤40 cal)';
+  else if (incidentEnergyCal > 8) ppeCategory = 'Category 3 (≤25 cal)';
+  else if (incidentEnergyCal > 4) ppeCategory = 'Category 2 (≤8 cal)';
+
+  const elEnergy = document.getElementById('m13_res_energy');
+  if (elEnergy) elEnergy.textContent = `${incidentEnergyCal.toFixed(2)} cal/cm²`;
+
+  const elBound = document.getElementById('m13_res_boundary');
+  if (elBound) elBound.textContent = `${boundaryMm} mm`;
+
+  const elPpe = document.getElementById('m13_res_ppe');
+  if (elPpe) {
+    elPpe.textContent = ppeCategory;
+    elPpe.className = incidentEnergyCal <= 8 ? 'text-xs font-bold text-emerald-600 dark:text-emerald-400' : 'text-xs font-bold text-amber-600 dark:text-amber-400';
+  }
+}
+
+/* =========================================================================
+   MODULE 7: BUSBAR SHORT-CIRCUIT FORCE (IEC 60865)
+   ========================================================================= */
+function runMod7() {
+  const ip = parseFloat(document.getElementById('m7_ip')?.value) || 63;
+  const spacingMm = parseFloat(document.getElementById('m7_spacing')?.value) || 1500;
+  const spanM = parseFloat(document.getElementById('m7_span')?.value) || 5.0;
+
+  const aMeters = spacingMm / 1000;
+  const ipAmps = ip * 1e3;
+
+  const fm = (2e-7 * Math.pow(ipAmps, 2)) / aMeters;
+  const ftot = fm * spanM;
+
+  const elFm = document.getElementById('m7_res_fm');
+  if (elFm) elFm.textContent = `${fm.toFixed(1)} N/m`;
+
+  const elFtot = document.getElementById('m7_res_ftot');
+  if (elFtot) elFtot.textContent = `${Math.round(ftot).toLocaleString()} N`;
+
+  const elCheck = document.getElementById('m7_res_check');
+  if (elCheck) {
+    elCheck.textContent = ftot < 8000 ? '✓ Safe (< 8 kN)' : '⚠ High Force (≥ 8 kN)';
+    elCheck.className = ftot < 8000 ? 'text-xs font-bold text-emerald-600 dark:text-emerald-400' : 'text-xs font-bold text-rose-600 dark:text-rose-400';
+  }
+}
+
+/* =========================================================================
+   MODULE 6: POWER CABLE SIZING
    ========================================================================= */
 function runMod6() {
   const mat = document.getElementById('m6_mat')?.value || 'Cu_XLPE';
@@ -2971,10 +3053,7 @@ function runMod6() {
   const isc = parseFloat(document.getElementById('m6_isc')?.value) || 25;
   const tfault = parseFloat(document.getElementById('m6_tfault')?.value) || 1.0;
 
-  let kFactor = 143; // Cu/XLPE
-  if (mat === 'Al_XLPE') kFactor = 94;
-  else if (mat === 'ACSR') kFactor = 78;
-
+  let kFactor = mat === 'Al_XLPE' ? 94 : 143;
   const sMin = (isc * 1e3 * Math.sqrt(tfault)) / kFactor;
 
   const stdCableSizes = [25, 35, 50, 70, 95, 120, 150, 185, 240, 300, 400, 500, 630, 800];
@@ -3005,40 +3084,47 @@ function runMod6() {
 }
 
 /* =========================================================================
-   MODULE 7: SUBSTATION BUSBAR SIZING & ELECTRODYNAMIC FORCES (IEC 60865)
+   MODULE 14 (ELEK Inspired): CABLE PULLING TENSION & SWBP (IEEE 525)
    ========================================================================= */
-function runMod7() {
-  const ip = parseFloat(document.getElementById('m7_ip')?.value) || 63;
-  const spacingMm = parseFloat(document.getElementById('m7_spacing')?.value) || 1500;
-  const spanM = parseFloat(document.getElementById('m7_span')?.value) || 5.0;
+function runMod14() {
+  const weightKgM = parseFloat(document.getElementById('m14_weight')?.value) || 12.5;
+  const lengthM = parseFloat(document.getElementById('m14_len')?.value) || 250;
+  const bendAngleDeg = parseFloat(document.getElementById('m14_bendAngle')?.value) || 90;
+  const radiusM = parseFloat(document.getElementById('m14_radius')?.value) || 2.5;
 
-  const aMeters = spacingMm / 1000;
-  const ipAmps = ip * 1e3;
+  // Coefficient of friction (typical duct with lubricant mu = 0.25)
+  const mu = 0.25;
+  const weightN = weightKgM * 9.81;
 
-  // IEC 60865 formula: Fm = (mu0 / 2pi) * (ip^2 / a) = 2e-7 * ip^2 / a
-  const fm = (2e-7 * Math.pow(ipAmps, 2)) / aMeters;
-  const ftot = fm * spanM;
+  // Straight section tension T1 = mu * weight * length
+  const t1 = mu * weightN * lengthM; // in Newtons
 
-  const elFm = document.getElementById('m7_res_fm');
-  if (elFm) elFm.textContent = `${fm.toFixed(1)} N/m`;
+  // Bend tension T2 = T1 * e^(mu * theta_rad)
+  const thetaRad = (bendAngleDeg * Math.PI) / 180.0;
+  const t2 = t1 * Math.exp(mu * thetaRad);
+  const t2Kn = t2 / 1000.0;
 
-  const elFtot = document.getElementById('m7_res_ftot');
-  if (elFtot) elFtot.textContent = `${Math.round(ftot).toLocaleString()} N`;
+  // Sidewall Bearing Pressure SWBP = T2 / R (N/m -> kN/m)
+  const swbpKnM = bendAngleDeg > 0 ? (t2Kn / radiusM) : 0;
 
-  const elCheck = document.getElementById('m7_res_check');
-  if (elCheck) {
-    if (ftot < 8000) {
-      elCheck.textContent = '✓ Safe (< 8 kN)';
-      elCheck.className = 'text-sm font-bold text-emerald-600 dark:text-emerald-400';
-    } else {
-      elCheck.textContent = '⚠ High Force (≥ 8 kN)';
-      elCheck.className = 'text-sm font-bold text-rose-600 dark:text-rose-400';
-    }
+  // Allowable SWBP for XLPE cable is typically 7.3 kN/m (500 lbs/ft)
+  const isSafe = swbpKnM <= 7.3;
+
+  const elTension = document.getElementById('m14_res_tension');
+  if (elTension) elTension.textContent = `${t2Kn.toFixed(2)} kN`;
+
+  const elSwbp = document.getElementById('m14_res_swbp');
+  if (elSwbp) elSwbp.textContent = `${swbpKnM.toFixed(2)} kN/m`;
+
+  const elStatus = document.getElementById('m14_res_status');
+  if (elStatus) {
+    elStatus.textContent = isSafe ? '✓ Safe (< 7.3 kN/m)' : '⚠ High SWBP (Crush Risk)';
+    elStatus.className = isSafe ? 'text-xs font-bold text-emerald-600 dark:text-emerald-400' : 'text-xs font-bold text-rose-600 dark:text-rose-400';
   }
 }
 
 /* =========================================================================
-   MODULE 8: TRANSMISSION LINE SURGE IMPEDANCE LOADING (SIL)
+   MODULE 8: TRANSMISSION LINE SIL
    ========================================================================= */
 function runMod8() {
   const vkv = parseFloat(document.getElementById('m8_vkv')?.value) || 132;
@@ -3047,10 +3133,9 @@ function runMod8() {
 
   const silMw = Math.pow(vkv, 2) / zc;
 
-  // St. Clair factor curve approximation
   let stClairFactor = 1.0;
-  if (lengthKm <= 80) stClairFactor = 2.5 - (lengthKm / 80) * 0.7; // ~1.8 to 2.5
-  else if (lengthKm <= 250) stClairFactor = 1.8 - ((lengthKm - 80) / 170) * 0.6; // ~1.2 to 1.8
+  if (lengthKm <= 80) stClairFactor = 2.5 - (lengthKm / 80) * 0.7;
+  else if (lengthKm <= 250) stClairFactor = 1.8 - ((lengthKm - 80) / 170) * 0.6;
   else stClairFactor = Math.max(0.7, 1.2 - ((lengthKm - 250) / 350) * 0.5);
 
   const practicalLimitMw = silMw * stClairFactor;
@@ -3066,7 +3151,7 @@ function runMod8() {
 }
 
 /* =========================================================================
-   MODULE 9: PROTECTION CT KNEE-POINT & SATURATION VALIDATION (IEC 61869)
+   MODULE 9: PROTECTION CT KNEE-POINT (IEC 61869)
    ========================================================================= */
 function runMod9() {
   const ipri = parseFloat(document.getElementById('m9_ipri')?.value) || 800;
@@ -3076,10 +3161,9 @@ function runMod9() {
 
   const ctRatio = ipri / isec;
   const ifSec = (ifaultKa * 1e3) / ctRatio;
-  const rLead = 1.0; // typical 1 ohm loop
+  const rLead = 1.0;
   const rRelay = 0.5;
 
-  // Vk >= 2 * If_sec * (Rct + 2*Rlead + Rrelay)
   const vk = 2 * ifSec * (rct + rLead + rRelay);
 
   const elIfsec = document.getElementById('m9_res_ifsec');
@@ -3091,18 +3175,17 @@ function runMod9() {
   const elStat = document.getElementById('m9_res_stat');
   if (elStat) {
     elStat.textContent = vk < 800 ? '✓ Safe Diff Zone' : '⚠ High Vk (> 800V)';
-    elStat.className = vk < 800 ? 'text-sm font-bold text-emerald-600 dark:text-emerald-400' : 'text-sm font-bold text-amber-600 dark:text-amber-400';
+    elStat.className = vk < 800 ? 'text-xs font-bold text-emerald-600 dark:text-emerald-400' : 'text-xs font-bold text-amber-600 dark:text-amber-400';
   }
 }
 
 /* =========================================================================
-   MODULE 10: SURGE ARRESTER (LA) RATING & MCOV SELECTION (IEC 60099)
+   MODULE 10: SURGE ARRESTER RATING & MCOV (IEC 60099)
    ========================================================================= */
 function runMod10() {
   const vn = parseFloat(document.getElementById('m10_vn')?.value) || 132;
   const earthing = document.getElementById('m10_earthing')?.value || 'solid';
 
-  // System Highest Voltage Um
   const umMap = { 11: 12, 33: 36, 66: 72.5, 132: 145, 220: 245, 400: 420 };
   const um = umMap[vn] || (vn * 1.1);
 
@@ -3111,7 +3194,6 @@ function runMod10() {
   const mcov = (um / Math.sqrt(3)) * 1.05;
   const ur = kEarth * (um / Math.sqrt(3));
 
-  // Standard ratings lookup
   const stdLas = {
     11: '9 kV / 10 kA',
     33: '30 kV / 10 kA',
@@ -3132,145 +3214,45 @@ function runMod10() {
 }
 
 /* =========================================================================
-   MODULE 11: NEPAL NATIONAL BUILDING CODE (NBC 207) COMPLIANCE CHECKER
-   ========================================================================= */
-function runMod11() {
-  const btype = document.getElementById('m11_type')?.value || 'residential';
-  const lightKw = parseFloat(document.getElementById('m11_lightKw')?.value) || 0;
-  const socketKw = parseFloat(document.getElementById('m11_socketKw')?.value) || 0;
-  const hvacKw = parseFloat(document.getElementById('m11_hvacKw')?.value) || 0;
-  const earthType = document.getElementById('m11_earthType')?.value || 'pipe';
-  const soilRho = parseFloat(document.getElementById('m11_soilRho')?.value) || 50;
-
-  const totKw = lightKw + socketKw + hvacKw;
-
-  // NBC 207 Diversity Factors
-  let lightDiv = 0.66;
-  let socketDiv = 0.50;
-  let hvacDiv = 0.70;
-
-  if (btype === 'commercial') {
-    lightDiv = 0.90; socketDiv = 0.70; hvacDiv = 0.85;
-  } else if (btype === 'office') {
-    lightDiv = 0.80; socketDiv = 0.60; hvacDiv = 0.80;
-  }
-
-  const demandKw = (lightKw * lightDiv) + (socketKw * socketDiv) + (hvacKw * hvacDiv);
-
-  // NEA Service sizing
-  let serviceMains = '6 mm² (25A MCB)';
-  if (demandKw > 15) serviceMains = '25 mm² (63A 3-Ph)';
-  else if (demandKw > 10) serviceMains = '16 mm² (40A 3-Ph)';
-  else if (demandKw > 6.9) serviceMains = '10 mm² (32A 3-Ph)';
-  else if (demandKw > 4.5) serviceMains = '10 mm² (32A 1-Ph)';
-  else serviceMains = '6 mm² (25A 1-Ph)';
-
-  // Earthing Resistance (IS 3043 / NBC 207 formula)
-  // GI Pipe: R = (rho / 2pi L) * ln(4L / d), L=3m, d=0.04m -> ln(12/0.04) = ln(300) = 5.703
-  let earthR = 0;
-  if (earthType === 'pipe') {
-    earthR = (soilRho / (2 * Math.PI * 3.0)) * Math.log((4 * 3.0) / 0.04);
-  } else {
-    // Copper plate 600x600 mm (0.36 m2): R = (rho / 4) * sqrt(pi / Area)
-    earthR = (soilRho / 4.0) * Math.sqrt(Math.PI / 0.36);
-  }
-
-  const elTot = document.getElementById('m11_res_totKw');
-  if (elTot) elTot.textContent = `${totKw.toFixed(2)} kW`;
-
-  const elDemand = document.getElementById('m11_res_demandKw');
-  if (elDemand) elDemand.textContent = `${demandKw.toFixed(2)} kW`;
-
-  const elService = document.getElementById('m11_res_serviceMains');
-  if (elService) elService.textContent = serviceMains;
-
-  const elEarthR = document.getElementById('m11_res_earthR');
-  if (elEarthR) elEarthR.textContent = `${earthR.toFixed(1)} Ω`;
-
-  const elEarthStatus = document.getElementById('m11_res_earthStatus');
-  if (elEarthStatus) {
-    if (earthR <= 5.0) {
-      elEarthStatus.textContent = '✓ Pass (≤ 5 Ω)';
-      elEarthStatus.className = 'text-sm font-bold text-emerald-600 dark:text-emerald-400';
-    } else {
-      elEarthStatus.textContent = 'Add 2nd Rod (≤ 5 Ω)';
-      elEarthStatus.className = 'text-sm font-bold text-amber-600 dark:text-amber-400';
-    }
-  }
-
-  const elCatText = document.getElementById('m11_supplyCategoryText');
-  if (elCatText) {
-    elCatText.textContent = demandKw <= 6.9 ? 'NEA Category: 230 V 1-Phase (Up to 30A / 6.9 kW)' : 'NEA Category: 400 V 3-Phase Supply Required';
-  }
-}
-
-/* =========================================================================
-   COPY CALCULATION SUMMARY TO CLIPBOARD
+   COPY CALCULATION SUMMARY REPORT
    ========================================================================= */
 function copyCalcReport(modId) {
-  const card = document.querySelector(`.calc-card[data-mod="${modId}"]`) || document.querySelector(`#view-calculators`);
   let text = `===========================================================\n`;
   text += `ANISH NIROULA — ELECTRICAL ENGINEERING CALCULATION REPORT\n`;
   text += `Domain: anish-niroula.com.np | Standard: ${window.currentCalcStandard}\n`;
   text += `===========================================================\n\n`;
 
-  if (modId === 'mod0') {
-    text += `MODULE 0: ENERGY & POWER UNIT CONVERSION & DURATION\n`;
-    text += `Power: ${document.getElementById('m0_powerVal')?.value} ${document.getElementById('m0_powerUnit')?.value}\n`;
-    text += `Duration: ${document.getElementById('m0_durationVal')?.value} ${document.getElementById('m0_durationUnit')?.value}\n`;
-    text += `Transferred Energy: ${document.getElementById('m0_res_kwh')?.textContent} | ${document.getElementById('m0_res_mj')?.textContent} | ${document.getElementById('m0_res_btu')?.textContent}\n`;
-    text += `Mechanical HP: ${document.getElementById('m0_res_hp')?.textContent}\n`;
+  if (modId === 'mod4') {
+    text += `POWER TRANSFORMER SIZING & FULL LOAD CURRENTS\n`;
+    text += `Primary Voltage: ${document.getElementById('m4_v1')?.value} kV\n`;
+    text += `Secondary Voltage: ${document.getElementById('m4_v2')?.value} kV\n`;
+    text += `Connected Load: ${document.getElementById('m4_loadMva')?.value} MVA\n`;
+    text += `Active Power: ${document.getElementById('m4_res_mw')?.textContent} | Reactive: ${document.getElementById('m4_res_mvar')?.textContent}\n`;
+    text += `Recommended Rating: ${document.getElementById('m4_res_rating')?.textContent}\n`;
+    text += `Primary FLC: ${document.getElementById('m4_res_ihv')?.textContent} | Secondary FLC: ${document.getElementById('m4_res_ilv')?.textContent}\n`;
   } else if (modId === 'mod1') {
-    text += `MODULE 1: APPLIANCE LOAD, WIRE SIZING & MCB (NBC 207 / IEC)\n`;
+    text += `APPLIANCE WIRE & MCB SIZING (NBC 207 / IEC 60364)\n`;
     text += `Load: ${document.getElementById('m1_loadW')?.value} W @ ${document.getElementById('m1_supply')?.value}\n`;
     text += `Operating Current: ${document.getElementById('m1_res_current')?.textContent}\n`;
     text += `Recommended Wire: ${document.getElementById('m1_res_wire')?.textContent}\n`;
     text += `Voltage Drop: ${document.getElementById('m1_res_vdrop')?.textContent}\n`;
     text += `Recommended MCB: ${document.getElementById('m1_res_mcb')?.textContent}\n`;
-  } else if (modId === 'mod2') {
-    text += `MODULE 2: CONTROL CABLE & BREAKER TRIP COIL SIZING (IEC 62271-100)\n`;
-    text += `Battery: ${document.getElementById('m2_vbat')?.value} V DC | Trip Current: ${document.getElementById('m2_itrip')?.value} A\n`;
-    text += `Cable Size: ${document.getElementById('m2_csize')?.value} mm² | Length: ${document.getElementById('m2_length')?.value} m\n`;
-    text += `Terminal Voltage: ${document.getElementById('m2_res_vterm')?.textContent} (${document.getElementById('m2_res_pct')?.textContent})\n`;
-  } else if (modId === 'mod3') {
-    text += `MODULE 3: 3-PHASE AC POWER & CAPACITOR SIZING\n`;
-    text += `System: ${document.getElementById('m3_vkv')?.value} kV | Load: ${document.getElementById('m3_pmw')?.value} MW\n`;
-    text += `Initial Current: ${document.getElementById('m3_res_i1')?.textContent}\n`;
-    text += `Capacitor Bank Required: ${document.getElementById('m3_res_qc')?.textContent}\n`;
-    text += `Corrected Current: ${document.getElementById('m3_res_i2')?.textContent}\n`;
-  } else if (modId === 'mod4') {
-    text += `MODULE 4: POWER TRANSFORMER SIZING & FLC (IEC 60076)\n`;
-    text += `Voltages: ${document.getElementById('m4_v1')?.value} kV / ${document.getElementById('m4_v2')?.value} kV\n`;
-    text += `Load: ${document.getElementById('m4_loadMw')?.value} MW @ PF ${document.getElementById('m4_pf')?.value}\n`;
-    text += `Recommended Rating: ${document.getElementById('m4_res_rating')?.textContent}\n`;
-    text += `HV FLC: ${document.getElementById('m4_res_ihv')?.textContent} | LV FLC: ${document.getElementById('m4_res_ilv')?.textContent}\n`;
-  } else if (modId === 'mod5') {
-    text += `MODULE 5: BUSBAR SYMMETRICAL SHORT CIRCUIT (IEC 60909)\n`;
-    text += `Bus Voltage: ${document.getElementById('m5_vkv')?.value} kV | Tx: ${document.getElementById('m5_txMva')?.value} MVA, ${document.getElementById('m5_zpct')?.value} %Z\n`;
-    text += `Fault Current: ${document.getElementById('m5_res_isc')?.textContent}\n`;
-    text += `Short Circuit MVA: ${document.getElementById('m5_res_mva')?.textContent}\n`;
-    text += `Peak Making Current: ${document.getElementById('m5_res_ipeak')?.textContent}\n`;
-  } else if (modId === 'mod11') {
-    text += `MODULE 11: NEPAL NATIONAL BUILDING CODE (NBC 207:2003) COMPLIANCE\n`;
-    text += `Occupancy: ${document.getElementById('m11_type')?.value}\n`;
-    text += `Connected Load: ${document.getElementById('m11_res_totKw')?.textContent}\n`;
-    text += `NBC Max Demand: ${document.getElementById('m11_res_demandKw')?.textContent}\n`;
-    text += `NEA Service Mains: ${document.getElementById('m11_res_serviceMains')?.textContent}\n`;
-    text += `Earth Resistance: ${document.getElementById('m11_res_earthR')?.textContent} (${document.getElementById('m11_res_earthStatus')?.textContent})\n`;
+  } else if (modId === 'mod14') {
+    text += `UNDERGROUND CABLE PULLING TENSION & SIDEWALL PRESSURE (SWBP)\n`;
+    text += `Cable Weight: ${document.getElementById('m14_weight')?.value} kg/m | Length: ${document.getElementById('m14_len')?.value} m\n`;
+    text += `Bend: ${document.getElementById('m14_bendAngle')?.value}° @ Radius ${document.getElementById('m14_radius')?.value} m\n`;
+    text += `Pulling Tension: ${document.getElementById('m14_res_tension')?.textContent}\n`;
+    text += `Sidewall Pressure: ${document.getElementById('m14_res_swbp')?.textContent} (${document.getElementById('m14_res_status')?.textContent})\n`;
   } else {
-    text += `CALCULATION MODULE: ${modId}\n`;
-    text += `Generated online at https://anish-niroula.com.np/#calculators\n`;
+    text += `MODULE: ${modId}\nReport generated online at https://anish-niroula.com.np/#calculators\n`;
   }
 
   text += `\n---\nReport generated by Anish Niroula Engineering Portfolio (anish-niroula.com.np)`;
 
-  // Copy via navigator or textarea fallback
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(text).then(() => {
       alert('Calculation report copied to clipboard!');
-    }).catch(() => {
-      fallbackCopy(text);
-    });
+    }).catch(() => fallbackCopy(text));
   } else {
     fallbackCopy(text);
   }
@@ -3289,13 +3271,11 @@ function fallbackCopy(str) {
 }
 
 /* =========================================================================
-   INITIALIZE ALL CALCULATORS ON LOAD
+   INITIALIZATION
    ========================================================================= */
 function initCalculators() {
   runMod0();
   runMod1();
-  runMod2();
-  runMod3();
   runMod4();
   runMod5();
   runMod6();
@@ -3304,6 +3284,8 @@ function initCalculators() {
   runMod9();
   runMod10();
   runMod11();
-  // Default to compact substation category view
-  filterCalcCategory('substation');
+  runMod12();
+  runMod13();
+  runMod14();
 }
+

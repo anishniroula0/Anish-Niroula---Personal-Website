@@ -2560,17 +2560,11 @@ function setCalcStandard(std) {
   if (!STD_CITATIONS[std]) std = 'IEC';
   window.currentCalcStandard = std;
 
-  // Update pills UI
-  const pills = document.querySelectorAll('.calc-std-pill');
-  pills.forEach(p => {
-    if (p.getAttribute('data-std') === std) {
-      p.classList.add('active', 'border-cerulean', 'bg-cerulean', 'text-white');
-      p.classList.remove('bg-linen/50', 'dark:bg-[#1E293B]', 'text-slate-700', 'dark:text-[#CBD5E1]');
-    } else {
-      p.classList.remove('active', 'border-cerulean', 'bg-cerulean', 'text-white');
-      p.classList.add('bg-linen/50', 'dark:bg-[#1E293B]', 'text-slate-700', 'dark:text-[#CBD5E1]');
-    }
-  });
+  // Sync select dropdown if present
+  const select = document.getElementById('calcStandardSelect');
+  if (select && select.value !== std) {
+    select.value = std;
+  }
 
   const citationEl = document.getElementById('activeStdCitationText');
   if (citationEl) {
@@ -2905,12 +2899,10 @@ function runMod3() {
 function runMod4() {
   const v1 = parseFloat(document.getElementById('m4_v1')?.value) || 132;
   const v2 = parseFloat(document.getElementById('m4_v2')?.value) || 33;
-  const loadMw = parseFloat(document.getElementById('m4_loadMw')?.value) || 45;
-  const pf = parseFloat(document.getElementById('m4_pf')?.value) || 0.85;
+  const loadMva = parseFloat(document.getElementById('m4_loadMva')?.value) || 50;
+  const margin = parseFloat(document.getElementById('m4_margin')?.value) || 20;
 
-  const sReqMva = loadMw / pf;
-  // Standard transformer loading is 80-85% at peak (approx 18-20% margin)
-  const sWithGrowth = sReqMva * 1.15;
+  const sDesignMva = loadMva * (1 + margin / 100);
 
   // Standard transformer ratings
   const stdMvaRatings = [
@@ -2920,7 +2912,7 @@ function runMod4() {
 
   let chosenMva = stdMvaRatings[stdMvaRatings.length - 1];
   for (const r of stdMvaRatings) {
-    if (r >= sWithGrowth) {
+    if (r >= sDesignMva * 0.99) {
       chosenMva = r;
       break;
     }
@@ -2930,7 +2922,7 @@ function runMod4() {
   const ilv = (chosenMva * 1e6) / (Math.sqrt(3) * v2 * 1e3);
 
   const elReq = document.getElementById('m4_res_sreq');
-  if (elReq) elReq.textContent = sReqMva < 1 ? `${(sReqMva * 1000).toFixed(0)} kVA` : `${sReqMva.toFixed(2)} MVA`;
+  if (elReq) elReq.textContent = sDesignMva < 1 ? `${(sDesignMva * 1000).toFixed(0)} kVA` : `${sDesignMva.toFixed(2)} MVA`;
 
   const elRating = document.getElementById('m4_res_rating');
   if (elRating) elRating.textContent = chosenMva < 1 ? `${(chosenMva * 1000).toFixed(0)} kVA` : `${chosenMva.toFixed(1)} MVA`;
@@ -3312,4 +3304,6 @@ function initCalculators() {
   runMod9();
   runMod10();
   runMod11();
+  // Default to compact substation category view
+  filterCalcCategory('substation');
 }

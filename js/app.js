@@ -115,7 +115,7 @@ function scrollAcadToNode(nodeId) {
 /* -------------------------------------------------------------------------
    1. MULTI-VIEW NAVIGATION & ROUTING
    ------------------------------------------------------------------------- */
-const VIEW_IDS = ['overview', 'career-sld', 'academics', 'research', 'projects', 'calculators'];
+const VIEW_IDS = ['overview', 'career-sld', 'academics', 'research', 'projects']; // 'calculators' temporarily hidden during refinement
 
 const VIEW_TITLES = {
   'overview': 'Anish Niroula — High Voltage Electrical Engineer & EPC Project Manager',

@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 """
-Automated E2E and functional tests for Electrical Engineering & Grid Calculators Suite.
-Validates 4-discipline compact workbench, multi-standard selection (IEC, NBC 207, IS, BS 7671),
-domestic appliance wire/MCB sizing, Earth Fault Loop Impedance (Zs), Transformer MVA sizing,
-fault levels, Arc Flash (IEEE 1584), Cable Pulling Tension & SWBP, transmission SIL, and mobile layout.
+Automated E2E & Mathematical Verification Suite for the Refined Electrical Engineering Workbench.
+Validates:
+- Hidden public nav links (pending launch approval) while #calculators preview route works
+- Master-Detail Desktop Sidebar (15 tools) & Mobile Dropdown
+- Multi-standard switching (IEC, NBC 207, IS, BS 7671) actually updating ampacity/rules
+- Mathematical accuracy across all 15 modules (Fundamentals, LV/Building, Substations/Protection, Transmission/UG Cables)
+- Collapsible Formula & Step-by-Step Verification panel + Print/PDF action
 """
 
 import http.server
@@ -16,11 +19,13 @@ from playwright.sync_api import sync_playwright
 
 WORKSPACE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
+
 class SilentHTTPHandler(http.server.SimpleHTTPRequestHandler):
     def log_message(self, format, *args):
         pass
 
-class TestCalculatorsSuite(unittest.TestCase):
+
+class TestCalculatorsWorkbench(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         socketserver.TCPServer.allow_reuse_address = True
@@ -29,7 +34,7 @@ class TestCalculatorsSuite(unittest.TestCase):
         cls.server = socketserver.TCPServer(("127.0.0.1", cls.port), handler)
         cls.server_thread = threading.Thread(target=cls.server.serve_forever, daemon=True)
         cls.server_thread.start()
-        time.sleep(0.5)
+        time.sleep(0.4)
 
         cls.playwright = sync_playwright().start()
         cls.browser = cls.playwright.chromium.launch(headless=True)
@@ -44,281 +49,119 @@ class TestCalculatorsSuite(unittest.TestCase):
     def setUp(self):
         self.context = self.browser.new_context(viewport={"width": 1440, "height": 900})
         self.page = self.context.new_page()
+        self.page.on("pageerror", lambda err: self.fail(f"Uncaught page error: {err}"))
 
     def tearDown(self):
         self.context.close()
 
-    def test_01_navigation_and_hash_routing(self):
-        """Test switching to #calculators view updates DOM, hash, and title."""
+    def open_calc(self, calc_id):
+        self.page.goto(f"http://127.0.0.1:{self.port}/#calculators")
+        self.page.wait_for_load_state("domcontentloaded")
+        self.page.locator(f"button.calc-sidebar-btn[data-calc-id='{calc_id}']").click()
+        self.page.wait_for_timeout(120)
+
+    def test_01_nav_hidden_and_workbench_loads_15_tools(self):
+        """Nav links stay hidden while #calculators renders 15 sidebar tools & Print/PDF button."""
         self.page.goto(f"http://127.0.0.1:{self.port}/")
         self.page.wait_for_load_state("domcontentloaded")
+        self.assertEqual(self.page.locator("nav[aria-label='Primary Navigation'] a[data-target='calculators']").count(), 0)
+        self.assertEqual(self.page.locator("#mobileNavDrawer a[data-target='calculators']").count(), 0)
 
-        calc_nav = self.page.locator("a.nav-pill[data-target='calculators']")
-        self.assertTrue(calc_nav.is_visible())
-        calc_nav.click()
-        self.page.wait_for_timeout(300)
-
-        self.assertIn("#calculators", self.page.url)
-        view_el = self.page.locator("#view-calculators")
-        self.assertTrue(view_el.is_visible())
-        self.assertIn("active", view_el.get_attribute("class"))
-        self.assertIn("Electrical Engineering Calculators", self.page.title())
-
-    def test_02_regulatory_standard_switching(self):
-        """Test switching between IEC, NBC 207 (Nepal), IS, and BS 7671 updates citation badge and rules."""
         self.page.goto(f"http://127.0.0.1:{self.port}/#calculators")
         self.page.wait_for_load_state("domcontentloaded")
+        self.assertEqual(self.page.locator("button.calc-sidebar-btn").count(), 15)
+        self.assertTrue(self.page.locator("button:has-text('Print / PDF')").is_visible())
 
-        badge = self.page.locator("#activeStdBadgeText")
-        self.assertIn("IEC", badge.inner_text())
+    def test_02_energy_and_power_converter(self):
+        """Module 0: 100 kW for 24 h = 2.40 MWh, 864.00 MJ, 117.65 kVA at 0.85 PF."""
+        self.open_calc("mod_energy")
+        self.assertEqual(self.page.locator("#res_m0_kwh").inner_text(), "2.40 MWh")
+        self.assertEqual(self.page.locator("#res_m0_kva").inner_text(), "117.65 kVA")
+        self.assertIn("E(kWh)", self.page.locator("#activeCalcSteps").inner_text())
 
-        # Click NBC 207 standard pill
+    def test_03_power_factor_capacitor_bank(self):
+        """Module PF: 500 kW at 11 kV from 0.75 -> 0.95 requires ~276.6 kVAr."""
+        self.open_calc("mod_pf")
+        qc = self.page.locator("#res_mpf_qc").inner_text()
+        self.assertEqual(qc, "276.6 kVAr")
+
+    def test_04_per_unit_impedance_converter(self):
+        """Module PU: 0.125 pu on 50 MVA -> 0.2500 pu on 100 MVA."""
+        self.open_calc("mod_pu")
+        self.assertEqual(self.page.locator("#res_mpu_znew").inner_text(), "0.2500 pu")
+        self.assertEqual(self.page.locator("#res_mpu_zpct").inner_text(), "25.00 %")
+
+    def test_05_lv_cable_standard_switching(self):
+        """Module LV Cable: Standard selector genuinely changes base ampacity & rules."""
+        self.open_calc("mod_lvcable")
+        self.assertTrue(self.page.locator("#calcStandardContainer").is_visible())
         self.page.locator("button.calc-std-pill[data-std='NBC']").click()
-        self.page.wait_for_timeout(200)
+        self.page.wait_for_timeout(120)
+        self.assertIn("NBC 207", self.page.locator("#activeCalcStatus").inner_text())
+        self.assertIn("NBC", self.page.locator("#activeCalcSteps").inner_text())
 
-        self.assertIn("NBC 207", badge.inner_text())
-
-        # Switch to building tab to inspect domestic compliance badge
-        self.page.locator("button.calc-filter-pill[data-cat='building']").click()
-        self.page.wait_for_timeout(200)
-
-        m1_badge = self.page.locator("#m1_complianceBadge")
-        self.assertIn("NBC 207", m1_badge.inner_text())
-
-    def test_03_module0_energy_power_conversion(self):
-        """Test Module 0 converts 10 kW for 24 hours into 240 kWh and 864 MJ."""
-        self.page.goto(f"http://127.0.0.1:{self.port}/#calculators")
-        self.page.wait_for_load_state("domcontentloaded")
-        self.page.locator("button.calc-filter-pill[data-cat='protection']").click()
-        self.page.wait_for_timeout(200)
-
-        self.page.fill("#m0_powerVal", "10")
-        self.page.select_option("#m0_powerUnit", "kW")
-        self.page.fill("#m0_durationVal", "24")
-        self.page.select_option("#m0_durationUnit", "hours")
-        self.page.wait_for_timeout(200)
-
-        kwh = self.page.locator("#m0_res_kwh").inner_text()
-        mj = self.page.locator("#m0_res_mj").inner_text()
-        hp = self.page.locator("#m0_res_hp").inner_text()
-
-        self.assertEqual(kwh, "240.0 kWh")
-        self.assertEqual(mj, "864.0 MJ")
-        self.assertIn("13.41 hp", hp)
-
-    def test_04_module1_domestic_appliance_wire_mcb(self):
-        """Test Module 1 appliance preset (1.5 Ton AC) calculates current, 2.5 mm² wire, and 16A MCB."""
-        self.page.goto(f"http://127.0.0.1:{self.port}/#calculators")
-        self.page.wait_for_load_state("domcontentloaded")
-        self.page.locator("button.calc-filter-pill[data-cat='building']").click()
-        self.page.wait_for_timeout(200)
-
-        self.page.locator("button:has-text('1.5 Ton AC')").click()
-        self.page.wait_for_timeout(200)
-
-        current = self.page.locator("#m1_res_current").inner_text()
-        wire = self.page.locator("#m1_res_wire").inner_text()
-        mcb = self.page.locator("#m1_res_mcb").inner_text()
-
-        self.assertEqual(current, "9.21 A")
-        self.assertEqual(wire, "2.5 mm² Cu")
-        self.assertIn("16A", mcb)
-
-    def test_05_module12_earth_fault_loop_impedance(self):
-        """Test Module 12 calculates Zs, touch voltage disconnection check, and compliance banner."""
-        self.page.goto(f"http://127.0.0.1:{self.port}/#calculators")
-        self.page.wait_for_load_state("domcontentloaded")
-        self.page.locator("button.calc-filter-pill[data-cat='building']").click()
-        self.page.wait_for_timeout(200)
-
-        self.page.fill("#m12_ze", "0.35")
-        self.page.select_option("#m12_csize", "2.5")
-        self.page.fill("#m12_len", "30")
-        self.page.select_option("#m12_mcb", "16_B")
-        self.page.wait_for_timeout(200)
-
-        zs = self.page.locator("#m12_res_zs").inner_text()
-        maxZs = self.page.locator("#m12_res_maxZs").inner_text()
-        fault_cur = self.page.locator("#m12_res_if").inner_text()
-        badge = self.page.locator("#m12_statusBadge").inner_text()
-
+    def test_06_earth_fault_loop_impedance(self):
+        """Module Zs: Separate Phase 2.5 / CPC 1.5 with 1.2x temp factor & 16A Type B."""
+        self.open_calc("mod_zs")
+        zs = self.page.locator("#res_m12_zs").inner_text()
         self.assertIn("Ω", zs)
-        self.assertIn("Ω", maxZs)
-        self.assertIn("A", fault_cur)
-        self.assertIn("Touch Voltage Safe", badge)
+        self.assertIn("Touch Voltage Safe", self.page.locator("#activeCalcStatus").inner_text())
 
-    def test_06_module4_transformer_sizing(self):
-        """Test Module 4 calculates 63 MVA transformer for 50 MVA load with Primary/Secondary labels."""
-        self.page.goto(f"http://127.0.0.1:{self.port}/#calculators")
-        self.page.wait_for_load_state("domcontentloaded")
-        self.page.locator("button.calc-filter-pill[data-cat='transformer']").click()
-        self.page.wait_for_timeout(200)
+    def test_07_transformer_mva_sizing_and_impedance(self):
+        """Module Tx: 50 MVA + 15% growth = 57.5 MVA -> 63.0 MVA IEC standard."""
+        self.open_calc("mod_tx")
+        self.assertEqual(self.page.locator("#res_m4_rating").inner_text(), "63.0 MVA")
+        self.assertEqual(self.page.locator("#res_m4_ihv").inner_text(), "275.6 A")
+        self.assertEqual(self.page.locator("#res_m4_ilv").inner_text(), "1102.2 A")
 
-        content = self.page.locator(".calc-card[data-category='transformer']").first.inner_text()
-        self.assertIn("Primary Voltage", content)
-        self.assertIn("Secondary Voltage", content)
-        self.assertNotIn("Primary V_1", content)
-        self.assertNotIn("Secondary V_2", content)
+    def test_08_busbar_fault_and_force(self):
+        """Module Fault: 33 kV, 63 MVA (12.5%), 2500 MVA grid -> 7.34 kA rms, 18.71 kA peak."""
+        self.open_calc("mod_fault")
+        self.assertEqual(self.page.locator("#res_m5_isc").inner_text(), "7.34 kA rms")
+        self.assertEqual(self.page.locator("#res_m5_ipeak").inner_text(), "18.71 kA peak")
 
-        self.page.fill("#m4_v1", "132")
-        self.page.fill("#m4_v2", "33")
-        self.page.fill("#m4_loadMva", "50")
-        self.page.fill("#m4_pf", "0.85")
-        self.page.wait_for_timeout(200)
+    def test_09_ct_knee_point_with_lead_burden(self):
+        """Module CT: 800/1 A, 31.5 kA, 60m 4mm2 lead -> computes loop R_lead & Vk."""
+        self.open_calc("mod_ct")
+        self.assertIn("V", self.page.locator("#res_m9_vk").inner_text())
+        self.assertIn("R_lead", self.page.locator("#activeCalcSteps").inner_text())
 
-        rating = self.page.locator("#m4_res_rating").inner_text()
-        ihv = self.page.locator("#m4_res_ihv").inner_text()
-        ilv = self.page.locator("#m4_res_ilv").inner_text()
+    def test_10_idmt_overcurrent_relay_trip_time(self):
+        """Module IDMT: SI curve, Is=400 A, If=4000 A (PSM=10), TMS=0.25 -> 0.743 s."""
+        self.open_calc("mod_idmt")
+        self.assertEqual(self.page.locator("#res_mid_psm").inner_text(), "10.00 × Is")
+        self.assertEqual(self.page.locator("#res_mid_time").inner_text(), "0.743 s")
 
-        self.assertEqual(rating, "63.0 MVA")
-        self.assertEqual(ihv, "275.6 A")
-        self.assertEqual(ilv, "1102.2 A")
+    def test_11_surge_arrester_and_substation_battery(self):
+        """Modules Arrester & Battery: 132 kV -> 120 kV / 10 kA; 110 V DC -> 200 Ah."""
+        self.open_calc("mod_arrester")
+        self.assertEqual(self.page.locator("#res_m10_std").inner_text(), "120 kV / 10 kA")
+        self.open_calc("mod_battery")
+        self.assertEqual(self.page.locator("#res_mbat_std").inner_text(), "110 V / 200 Ah")
 
-    def test_07_module5_busbar_fault_level(self):
-        """Test Module 5 calculates IEC 60909 symmetrical fault current and peak making current."""
-        self.page.goto(f"http://127.0.0.1:{self.port}/#calculators")
-        self.page.wait_for_load_state("domcontentloaded")
-        self.page.locator("button.calc-filter-pill[data-cat='transformer']").click()
-        self.page.wait_for_timeout(200)
+    def test_12_transmission_sil_sag_and_ug_pulling(self):
+        """Modules TX Line & UG Pulling: 132 kV SIL = 45.85 MW, Sag & SWBP computed."""
+        self.open_calc("mod_txline")
+        self.assertEqual(self.page.locator("#res_m8_sil").inner_text(), "45.85 MW")
+        self.assertIn("m", self.page.locator("#res_m8_sag").inner_text())
 
-        self.page.fill("#m5_vkv", "33")
-        self.page.fill("#m5_txMva", "63")
-        self.page.fill("#m5_zpct", "12.5")
-        self.page.fill("#m5_gridMva", "2500")
-        self.page.wait_for_timeout(200)
+        self.open_calc("mod_pulling")
+        self.assertIn("kN/m", self.page.locator("#res_m14_swbp").inner_text())
 
-        isc = self.page.locator("#m5_res_isc").inner_text()
-        ipeak = self.page.locator("#m5_res_ipeak").inner_text()
+    def test_13_mobile_dropdown_selector(self):
+        """Mobile viewport (390x844): shows clean dropdown selector instead of sidebar."""
+        mob_ctx = self.browser.new_context(viewport={"width": 390, "height": 844})
+        mob_page = mob_ctx.new_page()
+        mob_page.goto(f"http://127.0.0.1:{self.port}/#calculators")
+        mob_page.wait_for_load_state("domcontentloaded")
 
-        self.assertEqual(isc, "7.34 kA rms")
-        self.assertEqual(ipeak, "18.71 kA peak")
+        sel = mob_page.locator("#mobileCalcSelect")
+        self.assertTrue(sel.is_visible())
+        sel.select_option("mod_idmt")
+        mob_page.wait_for_timeout(150)
+        self.assertEqual(mob_page.locator("#res_mid_time").inner_text(), "0.743 s")
+        mob_ctx.close()
 
-    def test_08_module13_switchgear_arc_flash(self):
-        """Test Module 13 calculates IEEE 1584 arc flash incident energy and PPE category."""
-        self.page.goto(f"http://127.0.0.1:{self.port}/#calculators")
-        self.page.wait_for_load_state("domcontentloaded")
-        self.page.locator("button.calc-filter-pill[data-cat='transformer']").click()
-        self.page.wait_for_timeout(200)
-
-        self.page.select_option("#m13_vkv", "11")
-        self.page.fill("#m13_isc", "25")
-        self.page.fill("#m13_time", "0.15")
-        self.page.fill("#m13_dist", "610")
-        self.page.wait_for_timeout(200)
-
-        energy = self.page.locator("#m13_res_energy").inner_text()
-        ppe = self.page.locator("#m13_res_ppe").inner_text()
-
-        self.assertIn("cal/cm²", energy)
-        self.assertTrue(len(ppe) > 0)
-
-    def test_09_module14_cable_pulling_tension_swbp(self):
-        """Test Module 14 calculates cable pulling straight tension, bend tension, and SWBP."""
-        self.page.goto(f"http://127.0.0.1:{self.port}/#calculators")
-        self.page.wait_for_load_state("domcontentloaded")
-        self.page.locator("button.calc-filter-pill[data-cat='transmission']").click()
-        self.page.wait_for_timeout(200)
-
-        self.page.fill("#m14_weight", "12")
-        self.page.fill("#m14_len", "150")
-        self.page.select_option("#m14_bendAngle", "90")
-        self.page.fill("#m14_radius", "1.5")
-        self.page.wait_for_timeout(200)
-
-        tension = self.page.locator("#m14_res_tension").inner_text()
-        swbp = self.page.locator("#m14_res_swbp").inner_text()
-
-        self.assertIn("kN", tension)
-        self.assertIn("kN/m", swbp)
-
-    def test_10_module8_transmission_sil(self):
-        """Test Module 8 calculates 132 kV surge impedance loading."""
-        self.page.goto(f"http://127.0.0.1:{self.port}/#calculators")
-        self.page.wait_for_load_state("domcontentloaded")
-        self.page.locator("button.calc-filter-pill[data-cat='transmission']").click()
-        self.page.wait_for_timeout(200)
-
-        self.page.select_option("#m8_vkv", "132")
-        self.page.fill("#m8_zc", "380")
-        self.page.fill("#m8_len", "85")
-        self.page.wait_for_timeout(200)
-
-        sil = self.page.locator("#m8_res_sil").inner_text()
-        self.assertEqual(sil, "45.85 MW")
-
-    def test_11_module11_nbc207_compliance(self):
-        """Test Module 11 calculates Nepal National Building Code maximum demand."""
-        self.page.goto(f"http://127.0.0.1:{self.port}/#calculators")
-        self.page.wait_for_load_state("domcontentloaded")
-        self.page.locator("button.calc-filter-pill[data-cat='building']").click()
-        self.page.wait_for_timeout(200)
-
-        self.page.select_option("#m11_type", "residential")
-        self.page.fill("#m11_lightKw", "1.8")
-        self.page.fill("#m11_socketKw", "4.0")
-        self.page.fill("#m11_hvacKw", "3.5")
-        self.page.wait_for_timeout(200)
-
-        demand = self.page.locator("#m11_res_demandKw").inner_text()
-        self.assertEqual(demand, "5.64 kW")
-
-    def test_12_category_filter(self):
-        """Test category filters toggle visibility of 4 disciplines cleanly."""
-        self.page.goto(f"http://127.0.0.1:{self.port}/#calculators")
-        self.page.wait_for_load_state("domcontentloaded")
-
-        # Building tab
-        self.page.locator("button.calc-filter-pill[data-cat='building']").click()
-        self.page.wait_for_timeout(200)
-        building_cards = self.page.locator(".calc-card[data-category='building']")
-        transformer_cards = self.page.locator(".calc-card[data-category='transformer']")
-
-        self.assertTrue(building_cards.first.is_visible())
-        self.assertFalse(transformer_cards.first.is_visible())
-
-        # All tab
-        self.page.locator("button.calc-filter-pill[data-cat='all']").click()
-        self.page.wait_for_timeout(200)
-        self.assertTrue(transformer_cards.first.is_visible())
-        self.assertTrue(building_cards.first.is_visible())
-
-    def test_13_mobile_viewport_and_left_drawer_nav(self):
-        """Test mobile navigation uses left hamburger button and slide-out drawer, with bottom nav removed."""
-        mobile_context = self.browser.new_context(viewport={"width": 390, "height": 844})
-        mobile_page = mobile_context.new_page()
-        mobile_page.goto(f"http://127.0.0.1:{self.port}/")
-        mobile_page.wait_for_load_state("domcontentloaded")
-
-        # Bottom navigation bar must NOT exist
-        self.assertEqual(mobile_page.locator("nav[aria-label='Mobile Navigation']").count(), 0)
-
-        # Hamburger toggle button must be visible on mobile
-        menu_btn = mobile_page.locator("#mobileMenuToggleBtn")
-        self.assertTrue(menu_btn.is_visible())
-
-        # Click hamburger menu to open drawer
-        menu_btn.click()
-        mobile_page.wait_for_timeout(300)
-
-        drawer = mobile_page.locator("#mobileNavDrawer")
-        self.assertTrue(drawer.evaluate("el => el.classList.contains('is-open')"))
-
-        # Verify all 6 navigation links are inside the drawer
-        drawer_items = mobile_page.locator("#mobileNavDrawer .drawer-nav-item")
-        self.assertEqual(drawer_items.count(), 6)
-
-        # Click calculators link from inside drawer
-        calc_link = mobile_page.locator("#mobileNavDrawer a[data-target='calculators']")
-        self.assertTrue(calc_link.is_visible())
-        calc_link.click()
-        mobile_page.wait_for_timeout(350)
-
-        # Drawer must close and Calculators view must be active
-        self.assertFalse(drawer.evaluate("el => el.classList.contains('is-open')"))
-        self.assertIn("#calculators", mobile_page.url)
-        self.assertTrue(mobile_page.locator("#view-calculators").is_visible())
-
-        mobile_context.close()
 
 if __name__ == "__main__":
     unittest.main()

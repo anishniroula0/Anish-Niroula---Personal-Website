@@ -386,6 +386,59 @@ html.dark .drawer-nav-item.active .drawer-icon-box {
   color: #FFFFFF !important;
 }
 
+/* -------------------------------------------------------------------------
+   6B. CALCULATORS WORKBENCH (EXPLICIT RESPONSIVE MASTER-DETAIL LAYOUT)
+   ------------------------------------------------------------------------- */
+.calc-mobile-picker {
+  display: block;
+}
+.calc-workbench-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+.calc-sidebar {
+  display: none;
+}
+@media (min-width: 768px) {
+  .calc-mobile-picker {
+    display: none !important;
+  }
+  .calc-workbench-layout {
+    flex-direction: row !important;
+  }
+  .calc-sidebar {
+    display: block !important;
+    width: 17.5rem;
+    flex-shrink: 0;
+  }
+}
+.calc-results-grid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+.calc-inputs-grid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 0.875rem;
+}
+@media (min-width: 640px) {
+  .calc-results-grid,
+  .calc-inputs-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (min-width: 1024px) {
+  .calc-inputs-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .calc-results-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
 /* Prevent iOS Safari 15+ auto-zoom on input focus */
 @media screen and (max-width: 768px) {
   input[type="text"],
@@ -1027,11 +1080,17 @@ html.dark .highlight-case-study {
   /* Hide non-printable interactive, navigation, and ambient background elements */
   .global-backdrop-container,
   header,
+  footer,
+  aside[aria-label="Calculator Selection Sidebar"],
+  #calcStandardContainer,
+  .engineer-mascot-container,
+  .mascot-dog-napping,
   #mobileNavDock,
   #themeToggleBtn,
   #directMessageForm,
   #siteLightbox,
   .lightbox-backdrop,
+  .print\:hidden,
   .no-print {
     display: none !important;
   }
